@@ -40,3 +40,4 @@ build/
 *.iv
 *.key
 .idea
+logs
