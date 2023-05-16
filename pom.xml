@@ -31,6 +31,12 @@
         <com.funixproductions.api.version>1.0.0</com.funixproductions.api.version>
     </properties>
 
+    <scm>
+        <connection>scm:git:git://github.com/FunixProductions/FunixProductions-API.git</connection>
+        <developerConnection>scm:git:ssh://github.com:FunixProductions/FunixProductions-API.git</developerConnection>
+        <url>http://github.com/FunixProductions/FunixProductions-API/tree/master</url>
+    </scm>
+
     <dependencies>
         <dependency>
             <groupId>com.funixproductions.core.crud</groupId>
