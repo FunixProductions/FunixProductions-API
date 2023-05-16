@@ -64,7 +64,7 @@ jobs:
 
       - name: Send start signal to restart funixapi with new version
         run: |
-          curl "https://${{ secrets.PTERODACTYL_DOMAIN }}/api/client/servers/4eeba516/power?signal=restart" \
+          curl "https://${{ secrets.PTERODACTYL_DOMAIN }}/api/client/servers/adf92a46/power?signal=restart" \
             -X POST \
             -H 'Accept: application/json' \
             -H 'Content-Type: application/json' \
