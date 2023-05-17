@@ -27,9 +27,9 @@ import java.util.regex.Pattern;
 @Slf4j
 @Getter
 public class GoogleCaptchaService {
+    private static final String CAPTCHA_CODE_HEADER = "X-Captcha-Google-Code";
     private static final Pattern RESPONSE_PATTERN = Pattern.compile("[A-Za-z0-9_-]+");
     private static final int MAX_ATTEMPT = 8;
-    private static final String CAPTCHA_CODE_HEADER = "X-Captcha-Google-Code";
 
     private final GoogleCaptchaConfig googleCaptchaConfig;
     private final IPUtils ipUtils;
@@ -71,7 +71,7 @@ public class GoogleCaptchaService {
                 reCaptchaSucceeded(clientIp);
             } else {
                 reCaptchaFailed(clientIp);
-                throw new ApiBadRequestException("Le code google reCaptcha est invalide. (api error)");
+                throw new ApiBadRequestException("Le code google reCaptcha est invalide. (google refus)");
             }
         } else {
             throw new ApiBadRequestException("Le code google reCaptcha est invalide. (match invalide)");
