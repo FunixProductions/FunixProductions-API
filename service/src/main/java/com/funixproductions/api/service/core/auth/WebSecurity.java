@@ -3,13 +3,14 @@ package com.funixproductions.api.service.core.auth;
 import com.funixproductions.api.client.user.enums.UserRole;
 import com.funixproductions.api.service.user.components.FunixApiAuth;
 import com.funixproductions.api.service.user.services.UserCrudService;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -34,44 +35,39 @@ public class WebSecurity {
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http = http.cors().and().csrf().disable();
+        http = http.cors(httpSecurityCorsConfigurer ->httpSecurityCorsConfigurer.configurationSource(httpServletRequest -> {
+                    final CorsConfiguration corsConfiguration = new CorsConfiguration();
+                    corsConfiguration.setAllowCredentials(true);
+                    corsConfiguration.addAllowedOriginPattern("*");
+                    corsConfiguration.addAllowedHeader("*");
+                    corsConfiguration.addAllowedMethod("*");
+                    return corsConfiguration;
+                })).csrf(AbstractHttpConfigurer::disable)
 
-        //Set unauthorized requests exception handler
-        http = http
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and();
+                .sessionManagement(httpSecuritySessionManagementConfigurer ->
+                        httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(Customizer.withDefaults())
 
-        http = http
-                .exceptionHandling()
-                .authenticationEntryPoint(
-                        (request, response, ex) -> response.sendError(
-                                HttpServletResponse.SC_UNAUTHORIZED,
-                                ex.getMessage()
-                        )
-                )
-                .and();
+                .authorizeHttpRequests(exchanges -> exchanges
+                        .requestMatchers("/mail**").hasAuthority(UserRole.ADMIN.getRole())
 
-        http.authorizeHttpRequests(exchanges -> exchanges
-                .requestMatchers("/mail**").hasAuthority(UserRole.ADMIN.getRole())
+                        .requestMatchers(HttpMethod.POST, "/user/auth/register**", "/user/auth/login**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/user/auth/current**").authenticated()
+                        .requestMatchers("/user**").hasAuthority(UserRole.ADMIN.getRole())
 
-                .requestMatchers(HttpMethod.POST, "/user/auth/register**", "/user/auth/login**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/user/auth/current**").authenticated()
-                .requestMatchers("/user**").hasAuthority(UserRole.ADMIN.getRole())
+                        .requestMatchers("/twitch/auth/cb").permitAll()
+                        .requestMatchers("/twitch/eventsub/cb").permitAll()
+                        .requestMatchers("/twitch/eventsub**").hasAuthority(UserRole.ADMIN.getRole())
+                        .requestMatchers(HttpMethod.GET, "/twitch/*/funix").permitAll()
 
-                .requestMatchers("/twitch/auth/cb").permitAll()
-                .requestMatchers("/twitch/eventsub/cb").permitAll()
-                .requestMatchers("/twitch/eventsub**").hasAuthority(UserRole.ADMIN.getRole())
-                .requestMatchers(HttpMethod.GET, "/twitch/*/funix").permitAll()
+                        .requestMatchers("/google/recaptcha/verify**").permitAll()
 
-                .requestMatchers("/ws/admin/**").hasAuthority(UserRole.ADMIN.getRole())
-                .requestMatchers("/ws/mod/**").hasAuthority(UserRole.MODERATOR.getRole())
-                .requestMatchers("/ws/public/**").permitAll()
+                        .requestMatchers("/ws**").permitAll()
 
-                .anyRequest().authenticated()
-        ).httpBasic();
+                        .anyRequest().authenticated()
+                ).httpBasic(Customizer.withDefaults())
+                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
-        http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
