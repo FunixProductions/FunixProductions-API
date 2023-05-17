@@ -7,12 +7,12 @@
     <parent>
         <groupId>com.funixproductions.core</groupId>
         <artifactId>funixproductions-core</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.3</version>
     </parent>
 
     <groupId>com.funixproductions.api</groupId>
     <artifactId>funixproductions-api</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>FunixProductions-API</name>
     <description>Main api for all funixproductions projects</description>
     <url>https://funixproductions.com</url>
@@ -28,7 +28,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <com.funixproductions.api.version>1.0.0</com.funixproductions.api.version>
+        <com.funixproductions.api.version>1.0.1</com.funixproductions.api.version>
     </properties>
 
     <scm>

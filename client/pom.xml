@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.funixproductions.api</groupId>
         <artifactId>funixproductions-api</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
     </parent>
 
     <groupId>com.funixproductions.api.client</groupId>
