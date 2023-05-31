@@ -35,7 +35,7 @@ public class WebSecurity {
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http = http.cors(httpSecurityCorsConfigurer ->httpSecurityCorsConfigurer.configurationSource(httpServletRequest -> {
+        http = http.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(httpServletRequest -> {
                     final CorsConfiguration corsConfiguration = new CorsConfiguration();
                     corsConfiguration.setAllowCredentials(true);
                     corsConfiguration.addAllowedOriginPattern("*");
@@ -61,6 +61,7 @@ public class WebSecurity {
                         .requestMatchers(HttpMethod.GET, "/twitch/*/funix").permitAll()
 
                         .requestMatchers("/google/recaptcha/verify**").permitAll()
+                        .requestMatchers("/google/auth/verifyGoogleIdToken**").permitAll()
 
                         .requestMatchers("/ws**").permitAll()
 

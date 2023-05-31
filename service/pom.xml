@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.funixproductions.api</groupId>
         <artifactId>funixproductions-api</artifactId>
-        <version>1.0.1</version>
+        <version>1.1.0</version>
     </parent>
 
     <groupId>com.funixproductions.api.service</groupId>
@@ -51,21 +51,18 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
-            <version>${org.springframeork.security.version}</version>
         </dependency>
 
         <!-- Used for auth -->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
-            <version>${org.springframeork.security.version}</version>
         </dependency>
 
         <!-- Used for routing security -->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
-            <version>${org.springframeork.security.version}</version>
         </dependency>
 
         <!-- Databse driver for postgres -->
@@ -80,6 +77,13 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-maven-plugin</artifactId>
             <version>${org.flywaydb.version}</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.google.api-client/google-api-client -->
+        <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+            <version>${com.google.api.client.version}</version>
         </dependency>
 
     </dependencies>
@@ -109,7 +113,7 @@
                         <path>
                             <groupId>org.springframework.boot</groupId>
                             <artifactId>spring-boot-configuration-processor</artifactId>
-                            <version>${org.springframeork.boot.annotation.version}</version>
+                            <version>${org.springframework.boot.annotation.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
