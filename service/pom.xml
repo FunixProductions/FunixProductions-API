@@ -51,21 +51,18 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
-            <version>${org.springframeork.security.version}</version>
         </dependency>
 
         <!-- Used for auth -->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
-            <version>${org.springframeork.security.version}</version>
         </dependency>
 
         <!-- Used for routing security -->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
-            <version>${org.springframeork.security.version}</version>
         </dependency>
 
         <!-- Databse driver for postgres -->
@@ -116,7 +113,7 @@
                         <path>
                             <groupId>org.springframework.boot</groupId>
                             <artifactId>spring-boot-configuration-processor</artifactId>
-                            <version>${org.springframeork.boot.annotation.version}</version>
+                            <version>${org.springframework.boot.annotation.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
