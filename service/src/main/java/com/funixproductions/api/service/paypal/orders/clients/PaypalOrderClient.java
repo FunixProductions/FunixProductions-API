@@ -1,23 +1,12 @@
 package com.funixproductions.api.service.paypal.orders.clients;
 
-import com.funixproductions.api.service.paypal.config.PaypalFeignInterceptor;
 import com.funixproductions.api.service.paypal.orders.dtos.requests.PaypalOrderCreationDTO;
 import com.funixproductions.api.service.paypal.orders.dtos.responses.PaypalOrderResponseDTO;
 import feign.Headers;
-import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * <a href="https://developer.paypal.com/docs/api/orders/v2/">Main documentation</a>
- */
-@FeignClient(
-        name = "PaypalOrderClient",
-        url = "${paypal.paypal-domain}",
-        path = "/v2/checkout/orders/",
-        configuration = PaypalFeignInterceptor.class
-)
 public interface PaypalOrderClient {
 
     /**

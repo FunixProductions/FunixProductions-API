@@ -1,5 +1,6 @@
 package com.funixproductions.api.service.paypal.orders.services;
 
+import com.funixproductions.api.service.paypal.orders.clients.PaypalFeignOrderClient;
 import com.funixproductions.api.service.paypal.orders.clients.PaypalOrderClient;
 import com.funixproductions.api.service.paypal.orders.dtos.requests.PaypalOrderCreationDTO;
 import com.funixproductions.api.service.paypal.orders.dtos.responses.PaypalOrderResponseDTO;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PaypalOrderService implements PaypalOrderClient {
 
-    private final PaypalOrderClient orderClient;
+    private final PaypalFeignOrderClient orderClient;
 
     @Override
     public PaypalOrderResponseDTO createOrder(@NonNull String metadataId,
