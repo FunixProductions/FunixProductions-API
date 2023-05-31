@@ -2,6 +2,7 @@ package com.funixproductions.api.service.user.services;
 
 import com.funixproductions.api.client.user.dtos.UserDTO;
 import com.funixproductions.api.client.user.dtos.requests.UserSecretsDTO;
+import com.funixproductions.api.service.google.auth.repositories.GoogleAuthRepository;
 import com.funixproductions.api.service.user.components.UserPasswordUtils;
 import com.funixproductions.api.service.user.entities.User;
 import com.funixproductions.api.service.user.mappers.UserMapper;
@@ -15,6 +16,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -22,12 +25,15 @@ import java.util.Optional;
 public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserRepository> implements UserDetailsService {
 
     private final UserPasswordUtils passwordUtils;
+    private final GoogleAuthRepository googleAuthRepository;
 
     public UserCrudService(UserMapper mapper,
                            UserRepository repository,
-                           UserPasswordUtils passwordUtils) {
+                           UserPasswordUtils passwordUtils,
+                           GoogleAuthRepository googleAuthRepository) {
         super(repository, mapper);
         this.passwordUtils = passwordUtils;
+        this.googleAuthRepository = googleAuthRepository;
     }
 
     @Override
@@ -57,5 +63,15 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
                 .orElseThrow(
                         () -> new UsernameNotFoundException(String.format("Utilisateur %s non trouvé", username))
                 );
+    }
+
+    @Override
+    public void beforeDeletingEntity(@NonNull Iterable<User> entity) {
+        final List<String> uuidsToRemove = new ArrayList<>();
+
+        for (final User user : entity) {
+            uuidsToRemove.add(user.getUuid().toString());
+        }
+        this.googleAuthRepository.deleteAllByUserUuidIn(uuidsToRemove);
     }
 }

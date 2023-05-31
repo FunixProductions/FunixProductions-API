@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface GoogleAuthRepository extends ApiRepository<GoogleAuthLinkUser> {
     Optional<GoogleAuthLinkUser> findByGoogleUserId(String googleUserId);
+    void deleteAllByUserUuidIn(Iterable<String> userUuids);
 }
