@@ -1,5 +1,6 @@
 package com.funixproductions.api.service.user.services;
 
+import com.funixproductions.api.client.user.dtos.UserDTO;
 import com.funixproductions.api.client.user.dtos.UserTokenDTO;
 import com.funixproductions.api.service.user.entities.User;
 import com.funixproductions.api.service.user.entities.UserToken;
@@ -7,6 +8,7 @@ import com.funixproductions.api.service.user.mappers.UserTokenMapper;
 import com.funixproductions.api.service.user.repositories.UserRepository;
 import com.funixproductions.api.service.user.repositories.UserTokenRepository;
 import com.funixproductions.core.exceptions.ApiException;
+import com.funixproductions.core.exceptions.ApiNotFoundException;
 import com.funixproductions.core.tools.time.TimeUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -52,6 +54,17 @@ public class UserTokenService {
         this.tokenMapper = tokenMapper;
         this.userRepository = userRepository;
         this.jwtSecretKey = getJwtCryptKey();
+    }
+
+    /**
+     * Method used to generate access token for user (oauth)
+     * @param userDTO userdto
+     * @return token
+     */
+    public UserTokenDTO generateAccessToken(final UserDTO userDTO) {
+        final User user = userRepository.findByUuid(userDTO.getId().toString())
+                .orElseThrow(() -> new ApiNotFoundException(String.format("User with id %s not found", userDTO.getId())));
+        return generateAccessToken(user, false);
     }
 
     /**

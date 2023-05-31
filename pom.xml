@@ -29,6 +29,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <com.funixproductions.api.version>1.0.1</com.funixproductions.api.version>
+
+        <!-- Google api client version https://mvnrepository.com/artifact/com.google.api-client/google-api-client -->
+        <com.google.api.client.version>2.2.0</com.google.api.client.version>
     </properties>
 
     <scm>
