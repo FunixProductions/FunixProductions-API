@@ -1,7 +1,7 @@
 package com.funixproductions.api.service.paypal.orders.services;
 
 import com.funixproductions.api.service.paypal.auth.services.PaypalAccessTokenService;
-import com.funixproductions.api.service.paypal.orders.clients.PaypalOrderClient;
+import com.funixproductions.api.service.paypal.orders.clients.PaypalFeignOrderClient;
 import com.funixproductions.api.service.paypal.orders.dtos.requests.PaypalOrderCreationDTO;
 import com.funixproductions.api.service.paypal.orders.dtos.responses.PaypalOrderResponseDTO;
 import com.funixproductions.core.exceptions.ApiException;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
 class PaypalOrderServiceTest {
 
     @MockBean
-    private PaypalOrderClient orderClient;
+    private PaypalFeignOrderClient orderClient;
 
     @MockBean
     private PaypalAccessTokenService tokenService;
