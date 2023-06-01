@@ -3,6 +3,7 @@ package com.funixproductions.api.service.user.services;
 import com.funixproductions.api.client.user.dtos.UserDTO;
 import com.funixproductions.api.client.user.dtos.UserTokenDTO;
 import com.funixproductions.api.service.user.entities.User;
+import com.funixproductions.api.service.user.entities.UserSession;
 import com.funixproductions.api.service.user.entities.UserToken;
 import com.funixproductions.api.service.user.mappers.UserTokenMapper;
 import com.funixproductions.api.service.user.repositories.UserRepository;
@@ -17,6 +18,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.transaction.Transactional;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.lang.Nullable;
@@ -32,7 +34,6 @@ import java.security.Key;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -92,20 +93,13 @@ public class UserTokenService {
     }
 
     /**
-     * Disconnect all user sessions
-     * @param userUUID user uuid to disconnect
+     * Invalidate token by session
+     * @param userSession user session created on bearer fetch
      */
     @Transactional
-    public void invalidTokens(@Nullable final UUID userUUID) {
-        if (userUUID == null) return;
-
-        final Optional<User> search = userRepository.findByUuid(userUUID.toString());
-        if (search.isPresent()) {
-            final User user = search.get();
-            final Set<UserToken> tokens = user.getTokens();
-
-            this.tokenRepository.deleteAll(tokens);
-        }
+    public void invalidToken(@NonNull final UserSession userSession) {
+        final Optional<UserToken> search = tokenRepository.findByToken(userSession.getBearerToken());
+        search.ifPresent(this.tokenRepository::delete);
     }
 
     /**

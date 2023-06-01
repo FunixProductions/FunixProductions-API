@@ -7,6 +7,7 @@ import com.funixproductions.api.client.user.dtos.requests.UserLoginDTO;
 import com.funixproductions.api.client.user.dtos.requests.UserSecretsDTO;
 import com.funixproductions.api.client.user.enums.UserRole;
 import com.funixproductions.api.service.user.entities.User;
+import com.funixproductions.api.service.user.entities.UserSession;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
 import com.funixproductions.core.exceptions.ApiForbiddenException;
@@ -36,6 +37,7 @@ public class UserAuthService {
 
     private final UserCrudService userCrudService;
     private final UserTokenService tokenService;
+    private final CurrentSession currentSession;
 
     private final Cache<String, Integer> triesCache = CacheBuilder.newBuilder().expireAfterWrite(COOLDOWN_REQUEST_SPAM, TimeUnit.MINUTES).build();
 
@@ -85,6 +87,14 @@ public class UserAuthService {
         }
     }
 
+    public void logoutSession() {
+        final UserSession session = this.currentSession.getUserSession();
+
+        if (session != null) {
+            tokenService.invalidToken(session);
+        }
+    }
+
     private boolean isAdminRegister(final String username) {
         if (username.equals("funix")) {
             final Optional<User> searchAdmin = this.userCrudService.getRepository().findByUsername(username);
@@ -113,5 +123,4 @@ public class UserAuthService {
         }
         triesCache.put(key, attempts + 1);
     }
-
 }

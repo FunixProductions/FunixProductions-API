@@ -53,6 +53,7 @@ public class WebSecurity {
 
                         .requestMatchers(HttpMethod.POST, "/user/auth/register**", "/user/auth/login**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/user/auth/current**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/user/auth/logout**").authenticated()
                         .requestMatchers("/user**").hasAuthority(UserRole.ADMIN.getRole())
 
                         .requestMatchers("/twitch/auth/cb").permitAll()

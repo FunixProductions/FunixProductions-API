@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 public class UserSession {
 
     private final User user;
+    private final String bearerToken;
     private final String ip;
 
 }

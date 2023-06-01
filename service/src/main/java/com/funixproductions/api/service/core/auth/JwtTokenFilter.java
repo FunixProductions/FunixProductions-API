@@ -1,8 +1,8 @@
 package com.funixproductions.api.service.core.auth;
 
-import com.funixproductions.api.service.user.services.UserTokenService;
 import com.funixproductions.api.service.user.entities.User;
 import com.funixproductions.api.service.user.entities.UserSession;
+import com.funixproductions.api.service.user.services.UserTokenService;
 import com.funixproductions.core.tools.network.IPUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -13,8 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -45,6 +45,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         } else {
             final UserSession userSession = new UserSession(
                     user,
+                    token,
                     ipUtils.getClientIp(request)
             );
 

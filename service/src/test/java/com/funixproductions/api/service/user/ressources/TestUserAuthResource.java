@@ -75,6 +75,37 @@ class TestUserAuthResource {
     }
 
     @Test
+    void testLogout() throws Exception {
+        final User account = userTestComponent.createBasicUser();
+
+        final UserLoginDTO loginDTO = new UserLoginDTO();
+        loginDTO.setUsername(account.getUsername());
+        loginDTO.setPassword(account.getPassword());
+        loginDTO.setStayConnected(false);
+
+        MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonHelper.toJson(loginDTO)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        final UserTokenDTO tokenDTO = jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), UserTokenDTO.class);
+        assertEquals(tokenDTO.getUser().getId(), account.getUuid());
+        Assertions.assertNotNull(tokenDTO.getToken());
+        Assertions.assertNotNull(tokenDTO.getExpirationDate());
+
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/logout")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenDTO.getToken()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/logout")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenDTO.getToken()))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    @Test
     void testRegisterWithPasswordTooShort() throws Exception {
         testInvalidPasswordRegister("1");
     }

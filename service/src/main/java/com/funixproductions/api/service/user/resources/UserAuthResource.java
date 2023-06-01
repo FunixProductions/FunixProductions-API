@@ -39,6 +39,11 @@ public class UserAuthResource {
         return userAuthService.login(request, servletRequest);
     }
 
+    @PostMapping("logout")
+    public void logout() {
+        userAuthService.logoutSession();
+    }
+
     @GetMapping("current")
     public UserDTO currentUser() {
         final UserDTO userDTO = currentSession.getCurrentUser();
