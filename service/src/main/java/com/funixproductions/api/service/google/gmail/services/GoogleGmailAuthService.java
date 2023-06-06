@@ -10,16 +10,16 @@ import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.gmail.Gmail;
+import com.google.api.services.gmail.GmailScopes;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.security.GeneralSecurityException;
 
 @Slf4j
@@ -35,11 +35,15 @@ public class GoogleGmailAuthService {
         this.googleTokensConfig = googleTokensConfig;
         this.googleIdTokenVerifier = googleIdTokenVerifier;
 
-        final GoogleCredentials credentials = this.getCredentials();
-        final HttpRequestInitializer requestInitializer = new HttpCredentialsAdapter(credentials);
-        this.gmailService = new Gmail.Builder(new NetHttpTransport(), new GsonFactory(), requestInitializer)
-                .setApplicationName("FunixProductions Gmail Service")
-                .build();
+        if (this.googleTokensConfig.getTestMode()) {
+            this.gmailService = null;
+        } else {
+            final GoogleCredentials credentials = this.getCredentials();
+            final HttpRequestInitializer requestInitializer = new HttpCredentialsAdapter(credentials);
+            this.gmailService = new Gmail.Builder(new NetHttpTransport(), new GsonFactory(), requestInitializer)
+                    .setApplicationName("FunixProductions Gmail Service")
+                    .build();
+        }
     }
 
     public void validateClient(String credential, String aud) {
@@ -64,10 +68,9 @@ public class GoogleGmailAuthService {
     private GoogleCredentials getCredentials() {
         final File file = new File(GoogleGmailConfig.FILE_CREDENTIALS);
 
-        try {
+        try (FileInputStream inputStream = new FileInputStream(file)) {
             if (file.exists()) {
-                final byte[] data = Files.readAllBytes(file.toPath());
-                return GoogleCredentials.fromStream(new ByteArrayInputStream(data));
+                return GoogleCredentials.fromStream(inputStream).createScoped(GmailScopes.GMAIL_SEND);
             } else {
                 throw new ApiException("Can't find gmail credentials file. Please import it to root folder of project.");
             }

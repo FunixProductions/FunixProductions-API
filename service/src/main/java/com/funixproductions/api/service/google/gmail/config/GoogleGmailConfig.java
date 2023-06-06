@@ -18,6 +18,6 @@ public class GoogleGmailConfig {
      */
     private String clientId;
 
-
+    private Boolean testMode = false;
 
 }

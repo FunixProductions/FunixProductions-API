@@ -8,7 +8,6 @@ services:
     hostname: funixproductionsdb
     volumes:
       - ./config/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - funixproductions_api_db:/var/lib/mysql
     environment:
       POSTGRES_PASSWORD: root
       POSTGRES_USER: root
@@ -23,14 +22,13 @@ services:
       mysql:
         condition: service_started
     container_name: funixproductions-api
-    volumes:
-      - funixproductions_api_app:/container/java
     hostname: funixproductionsapi
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - TWITCH_APP_CLIENT_ID=${TWITCH_APP_CLIENT_ID}
       - TWITCH_APP_CLIENT_SECRET=${TWITCH_APP_CLIENT_SECRET}
       - GOOGLE_AUTH_CLIENT_ID=${GOOGLE_AUTH_CLIENT_ID}
+      - GOOGLE_GMAIL_CLIENT_ID=${GOOGLE_GMAIL_CLIENT_ID}
     ports:
       - "4242:8082"
 
@@ -39,7 +37,3 @@ networks:
   default:
     name: funixprod_net_local
     external: true
-
-volumes:
-  funixproductions_api_db:
-  funixproductions_api_app:
