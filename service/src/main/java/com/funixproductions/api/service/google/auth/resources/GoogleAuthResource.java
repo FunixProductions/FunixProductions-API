@@ -6,6 +6,7 @@ import com.funixproductions.api.client.user.dtos.requests.UserSecretsDTO;
 import com.funixproductions.api.client.user.enums.UserRole;
 import com.funixproductions.api.service.core.configs.FunixProductionsAppConfiguration;
 import com.funixproductions.api.service.core.enums.RedirectAuthOrigin;
+import com.funixproductions.api.service.google.auth.config.GoogleAuthConfig;
 import com.funixproductions.api.service.google.auth.entities.GoogleAuthLinkUser;
 import com.funixproductions.api.service.google.auth.repositories.GoogleAuthRepository;
 import com.funixproductions.api.service.user.services.UserCrudService;
@@ -13,7 +14,6 @@ import com.funixproductions.api.service.user.services.UserTokenService;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
 import com.funixproductions.core.exceptions.ApiForbiddenException;
-import com.funixproductions.core.exceptions.ApiNotFoundException;
 import com.funixproductions.core.tools.string.PasswordGenerator;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
@@ -23,7 +23,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -43,9 +46,18 @@ public class GoogleAuthResource {
     private final UserCrudService userCrudService;
     private final FunixProductionsAppConfiguration appConfiguration;
     private final UserTokenService tokenService;
+    private final GoogleAuthConfig googleTokensConfig;
 
     @PostMapping("verifyGoogleIdToken")
-    public ResponseEntity<String> verifyGoogleIdToken(@RequestParam String credential, @RequestParam(required = false) String origin) {
+    public ResponseEntity<String> verifyGoogleIdToken(@RequestParam String credential, @RequestParam String aud, @RequestParam(required = false) String origin) {
+        if (Strings.isNullOrEmpty(aud)) {
+            throw new ApiBadRequestException("Audience is required");
+        } else {
+            if (!this.googleTokensConfig.getClientId().equals(aud)) {
+                throw new ApiForbiddenException("Invalid audience");
+            }
+        }
+
         try {
             final GoogleIdToken token = this.verifier.verify(credential);
 

@@ -41,4 +41,4 @@ build/
 *.key
 .idea
 logs
-gmail-credentials.json
+.github
