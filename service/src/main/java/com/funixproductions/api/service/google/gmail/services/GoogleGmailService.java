@@ -2,11 +2,11 @@ package com.funixproductions.api.service.google.gmail.services;
 
 import com.google.api.client.googleapis.json.GoogleJsonError;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
 import jakarta.mail.Session;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.stereotype.Service;
 
@@ -14,10 +14,14 @@ import java.io.ByteArrayOutputStream;
 import java.util.Properties;
 
 @Service
-@RequiredArgsConstructor
 public class GoogleGmailService {
 
-    private final GoogleGmailAuthService googleGmailAuthService;
+    private final Gmail gmailService;
+
+    public GoogleGmailService(Gmail gmailService) throws Exception {
+        this.gmailService = gmailService;
+        test();
+    }
 
     public void test() throws Exception {
         // Create the email content
@@ -44,7 +48,7 @@ public class GoogleGmailService {
 
         try {
             // Create send message
-            message = this.googleGmailAuthService.getGmailService().users().messages().send("contact@funixproductions.com", message).execute();
+            message = gmailService.users().messages().send("contact@funixproductions.com", message).execute();
             System.out.println("Message id: " + message.getId());
             System.out.println(message.toPrettyString());
         } catch (GoogleJsonResponseException e) {

@@ -9,15 +9,14 @@ import com.funixproductions.api.service.core.enums.RedirectAuthOrigin;
 import com.funixproductions.api.service.google.auth.config.GoogleAuthConfig;
 import com.funixproductions.api.service.google.auth.entities.GoogleAuthLinkUser;
 import com.funixproductions.api.service.google.auth.repositories.GoogleAuthRepository;
+import com.funixproductions.api.service.google.core.configs.GoogleCoreConfig;
 import com.funixproductions.api.service.user.services.UserCrudService;
 import com.funixproductions.api.service.user.services.UserTokenService;
-import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
 import com.funixproductions.core.exceptions.ApiForbiddenException;
 import com.funixproductions.core.tools.string.PasswordGenerator;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.google.common.base.Strings;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,21 +46,17 @@ public class GoogleAuthResource {
     private final FunixProductionsAppConfiguration appConfiguration;
     private final UserTokenService tokenService;
     private final GoogleAuthConfig googleTokensConfig;
+    private final GoogleCoreConfig googleCoreConfig;
 
     @PostMapping("verifyGoogleIdToken")
-    public ResponseEntity<String> verifyGoogleIdToken(@RequestParam String credential, @RequestParam String aud, @RequestParam(required = false) String origin) {
-        if (Strings.isNullOrEmpty(aud)) {
-            throw new ApiBadRequestException("Audience is required");
-        } else {
-            if (!this.googleTokensConfig.getClientId().equals(aud)) {
-                throw new ApiForbiddenException("Invalid audience");
-            }
-        }
+    public ResponseEntity<String> verifyGoogleIdToken(@RequestParam String credential, @RequestParam(required = false) String origin) {
 
         try {
             final GoogleIdToken token = this.verifier.verify(credential);
 
             if (token != null) {
+                this.googleCoreConfig.checkAudience(token, googleTokensConfig.getClientId());
+
                 final GoogleIdToken.Payload payload = token.getPayload();
                 final UserDTO userDTO = updateUserProfileFromGoogleToken(payload);
 
