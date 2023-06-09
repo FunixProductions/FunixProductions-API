@@ -1,6 +1,7 @@
 package com.funixproductions.api.service.core.auth;
 
 import com.funixproductions.api.client.user.enums.UserRole;
+import com.funixproductions.api.service.core.encryption.FunixProductionEncryption;
 import com.funixproductions.api.service.user.components.FunixApiAuth;
 import com.funixproductions.api.service.user.services.UserCrudService;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -89,6 +91,22 @@ public class WebSecurity {
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder(FunixProductionEncryption funixProductionEncryption) {
+        return new PasswordEncoder() {
+            @Override
+            public String encode(CharSequence rawPassword) {
+                return funixProductionEncryption.convertToDatabase(rawPassword.toString());
+            }
+
+            @Override
+            public boolean matches(CharSequence rawPassword, String encodedPassword) {
+                final String decodedPassword = funixProductionEncryption.convertToEntity(encodedPassword);
+                return rawPassword.equals(decodedPassword);
+            }
+        };
     }
 
 }
