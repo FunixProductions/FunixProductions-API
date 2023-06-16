@@ -4,13 +4,7 @@ MAINTAINER Antoine PRONNIER, <antoine.pronnier@gmail.com>
 
 WORKDIR /container/funixproductions-api/
 
-COPY pom.xml .
-
-COPY client/pom.xml ./client/
-COPY client/src ./client/src
-
-COPY service/pom.xml ./service/
-COPY service/src ./service/src
+COPY . .
 
 RUN mvn clean package -B
 RUN rm service/target/funixproductions-api-service-*-javadoc.jar

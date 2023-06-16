@@ -21,5 +21,6 @@ FROM openjdk:17 AS FINAL
 WORKDIR /container/java
 
 COPY --from=MAVEN /container/funixproductions-api/service/target/funixproductions-api-service-*.jar /container/java/server.jar
+COPY gmail-credentials.json /container/java
 
 ENTRYPOINT ["java", "-jar", "/container/java/server.jar", "-Dspring.profiles.active=docker"]
