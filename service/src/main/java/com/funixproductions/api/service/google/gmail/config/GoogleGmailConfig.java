@@ -33,11 +33,6 @@ public class GoogleGmailConfig {
      */
     private String appEmail;
 
-    /**
-     * Disable when test env
-     */
-    private Boolean testMode = false;
-
     @Bean
     public GoogleCredentials googleCredentials() {
         final File file = new File(FILE_CREDENTIALS);
