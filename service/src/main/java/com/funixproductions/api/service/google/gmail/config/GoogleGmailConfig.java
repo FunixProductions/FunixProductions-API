@@ -13,6 +13,7 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,6 +21,7 @@ import java.io.IOException;
 
 @Getter
 @Setter
+@Profile("!test")
 @Configuration
 @ConfigurationProperties("google.clients.gmail")
 public class GoogleGmailConfig {
