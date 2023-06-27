@@ -1,8 +1,13 @@
 package com.funixproductions.api.google.auth.service.resources;
 
+import com.funixproductions.api.authentification.client.enums.RedirectAuthOrigin;
 import com.funixproductions.api.google.auth.service.config.GoogleAuthConfig;
 import com.funixproductions.api.google.auth.service.entities.GoogleAuthLinkUser;
 import com.funixproductions.api.google.auth.service.repositories.GoogleAuthRepository;
+import com.funixproductions.api.user.dtos.UserDTO;
+import com.funixproductions.api.user.dtos.UserTokenDTO;
+import com.funixproductions.api.user.dtos.requests.UserSecretsDTO;
+import com.funixproductions.api.user.enums.UserRole;
 import com.funixproductions.core.exceptions.ApiException;
 import com.funixproductions.core.exceptions.ApiForbiddenException;
 import com.funixproductions.core.tools.string.PasswordGenerator;
@@ -36,8 +41,7 @@ public class GoogleAuthResource {
     private final UserCrudService userCrudService;
     private final FunixProductionsAppConfiguration appConfiguration;
     private final UserTokenService tokenService;
-    private final GoogleAuthConfig googleTokensConfig;
-    private final GoogleCoreConfig googleCoreConfig;
+    private final GoogleAuthConfig googleAuthConfig;
 
     @PostMapping("verifyGoogleIdToken")
     public ResponseEntity<String> verifyGoogleIdToken(@RequestParam String credential, @RequestParam(required = false) String origin) {
@@ -46,7 +50,7 @@ public class GoogleAuthResource {
             final GoogleIdToken token = this.verifier.verify(credential);
 
             if (token != null) {
-                this.googleCoreConfig.checkAudience(token, googleTokensConfig.getClientId());
+                this.googleAuthConfig.checkAudience(token);
 
                 final GoogleIdToken.Payload payload = token.getPayload();
                 final UserDTO userDTO = updateUserProfileFromGoogleToken(payload);

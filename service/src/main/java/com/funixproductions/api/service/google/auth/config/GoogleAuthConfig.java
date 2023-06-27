@@ -25,7 +25,7 @@ public class GoogleAuthConfig {
     /**
      * Auth client id for public auth
      */
-    private String clientId;
+    private String[] clientId;
 
     @Bean
     public GoogleIdTokenVerifier verifier(GoogleAuthConfig googleAuthConfig) {
@@ -35,18 +35,27 @@ public class GoogleAuthConfig {
                 )).build();
     }
 
-    public void checkAudience(final @NonNull GoogleIdToken idToken, final @NonNull String clientId) {
+    public void checkAudience(final @NonNull GoogleIdToken idToken) {
         if (idToken.getPayload().getAudience() instanceof final String aud) {
             if (Strings.isNullOrEmpty(aud)) {
                 throw new ApiBadRequestException("Audience is required");
             } else {
-                if (!clientId.equals(aud)) {
+                if (!hasClientId(aud)) {
                     throw new ApiForbiddenException("Invalid audience");
                 }
             }
         } else {
             throw new ApiBadRequestException("Audience is required");
         }
+    }
+    
+    private boolean hasClientId(final @NonNull String clientId) {
+        for (final String id : this.clientId) {
+            if (id.equals(clientId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

@@ -1,6 +1,6 @@
 package com.funixproductions.api.user.dtos;
 
-import com.funixproductions.api.client.user.enums.UserRole;
+import com.funixproductions.api.user.enums.UserRole;
 import com.funixproductions.core.crud.dtos.ApiDTO;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
