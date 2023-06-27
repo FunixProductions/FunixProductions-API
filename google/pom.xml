@@ -7,16 +7,14 @@
         <groupId>com.funixproductions.api</groupId>
         <artifactId>funixproductions-api</artifactId>
         <version>1.1.0</version>
-        <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <groupId>com.funixproductions.api.encryption</groupId>
-    <artifactId>funixproductions-encryption</artifactId>
+    <groupId>com.funixproductions.api.google</groupId>
+    <artifactId>funixproductions-google</artifactId>
     <packaging>pom</packaging>
-
     <modules>
-        <module>FunixProductionsEncryption-Client</module>
-        <module>FunixProductionsEncryption-Service</module>
+        <module>reCaptcha</module>
+        <module>auth</module>
     </modules>
 
     <properties>

@@ -21,7 +21,10 @@
     <modules>
         <module>service</module>
         <module>client</module>
-        <module>services/FunixProductionsEncryption</module>
+        <module>encryption</module>
+        <module>user</module>
+        <module>authentification</module>
+        <module>google</module>
     </modules>
 
     <properties>
