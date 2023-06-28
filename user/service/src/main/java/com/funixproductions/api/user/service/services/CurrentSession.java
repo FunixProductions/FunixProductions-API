@@ -1,8 +1,8 @@
 package com.funixproductions.api.user.service.services;
 
-import com.funixproductions.api.client.user.dtos.UserDTO;
-import com.funixproductions.api.service.user.entities.UserSession;
-import com.funixproductions.api.service.user.mappers.UserMapper;
+import com.funixproductions.api.user.client.dtos.UserDTO;
+import com.funixproductions.api.user.service.entities.UserSession;
+import com.funixproductions.api.user.service.mappers.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;

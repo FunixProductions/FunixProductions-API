@@ -1,12 +1,12 @@
 package com.funixproductions.api.user.service.resources;
 
-import com.funixproductions.api.client.user.dtos.UserDTO;
-import com.funixproductions.api.client.user.dtos.UserTokenDTO;
-import com.funixproductions.api.client.user.dtos.requests.UserCreationDTO;
-import com.funixproductions.api.client.user.dtos.requests.UserLoginDTO;
-import com.funixproductions.api.service.google.recaptcha.services.GoogleCaptchaService;
-import com.funixproductions.api.service.user.services.CurrentSession;
-import com.funixproductions.api.service.user.services.UserAuthService;
+import com.funixproductions.api.google.recaptcha.client.services.GoogleRecaptchaHandler;
+import com.funixproductions.api.user.client.dtos.UserDTO;
+import com.funixproductions.api.user.client.dtos.UserTokenDTO;
+import com.funixproductions.api.user.client.dtos.requests.UserCreationDTO;
+import com.funixproductions.api.user.client.dtos.requests.UserLoginDTO;
+import com.funixproductions.api.user.service.services.CurrentSession;
+import com.funixproductions.api.user.service.services.UserAuthService;
 import com.funixproductions.core.exceptions.ApiForbiddenException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -21,20 +21,20 @@ public class UserAuthResource {
     private final UserAuthService userAuthService;
     private final CurrentSession currentSession;
 
-    private final GoogleCaptchaService captchaService;
+    private final GoogleRecaptchaHandler captchaService;
     private static final String CAPTCHA_REGISTER = "register";
     private static final String CAPTCHA_LOGIN = "login";
 
     @PostMapping("register")
     public UserDTO register(@RequestBody @Valid UserCreationDTO request, final HttpServletRequest servletRequest) {
-        captchaService.checkCode(servletRequest, CAPTCHA_REGISTER);
+        captchaService.verify(servletRequest, CAPTCHA_REGISTER);
 
         return userAuthService.register(request);
     }
 
     @PostMapping("login")
     public UserTokenDTO login(@RequestBody @Valid UserLoginDTO request, final HttpServletRequest servletRequest) {
-        captchaService.checkCode(servletRequest, CAPTCHA_LOGIN);
+        captchaService.verify(servletRequest, CAPTCHA_LOGIN);
 
         return userAuthService.login(request, servletRequest);
     }

@@ -1,8 +1,8 @@
 package com.funixproductions.api.user.service.entities;
 
-import com.funixproductions.api.client.user.dtos.requests.UserCreationDTO;
-import com.funixproductions.api.client.user.enums.UserRole;
-import com.funixproductions.api.service.core.encryption.EncryptionString;
+import com.funixproductions.api.encryption.client.utils.EncryptionString;
+import com.funixproductions.api.user.client.dtos.requests.UserCreationDTO;
+import com.funixproductions.api.user.client.enums.UserRole;
 import com.funixproductions.core.crud.entities.ApiEntity;
 import jakarta.persistence.*;
 import lombok.Getter;

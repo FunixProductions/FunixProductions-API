@@ -26,8 +26,42 @@
         </dependency>
 
         <dependency>
+            <groupId>com.funixproductions.api.google.auth.client</groupId>
+            <artifactId>funixproductions-google-auth-client</artifactId>
+            <version>${com.funixproductions.api.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.funixproductions.api.google.recaptcha.client</groupId>
+            <artifactId>funixproductions-google-recaptcha-client</artifactId>
+            <version>${com.funixproductions.api.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.funixproductions.api.encryption.client</groupId>
+            <artifactId>funixproductions-encryption-client</artifactId>
+            <version>${com.funixproductions.api.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.funixproductions.api.core</groupId>
+            <artifactId>funixproductions-core</artifactId>
+            <version>${com.funixproductions.api.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
         </dependency>
 
         <!-- Used for auth tokens -->

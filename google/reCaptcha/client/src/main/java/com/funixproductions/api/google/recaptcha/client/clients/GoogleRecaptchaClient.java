@@ -1,6 +1,6 @@
 package com.funixproductions.api.google.recaptcha.client.clients;
 
-import com.funixproductions.api.google.recaptcha.client.dtos.GoogleCaptchaSiteVerifyResponseDTO;
+import com.funixproductions.api.google.recaptcha.client.services.GoogleRecaptchaHandler;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 public interface GoogleRecaptchaClient {
 
     @PostMapping("verify")
-    GoogleCaptchaSiteVerifyResponseDTO verify(@RequestHeader("X-Captcha-Google-Action") String action,
-                                              @RequestHeader("X-Captcha-Google-Code") String googleCode,
+    void verify(@RequestHeader(GoogleRecaptchaHandler.GOOGLE_ACTION_HEADER) String action,
+                                              @RequestHeader(GoogleRecaptchaHandler.GOOGLE_CODE_HEADER) String googleCode,
                                               @RequestHeader("X-FORWARDED-FOR") String ip);
 
 }

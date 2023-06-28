@@ -55,7 +55,7 @@ public class GoogleAuthResource {
             final GoogleIdToken token = this.verifier.verify(credential);
 
             if (token != null) {
-                this.googleCoreConfig.checkAudience(token, googleTokensConfig.getClientId());
+                this.googleCoreConfig.checkAudience(token, "");
 
                 final GoogleIdToken.Payload payload = token.getPayload();
                 final UserDTO userDTO = updateUserProfileFromGoogleToken(payload);

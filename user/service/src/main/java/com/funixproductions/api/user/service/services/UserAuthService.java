@@ -1,13 +1,13 @@
 package com.funixproductions.api.user.service.services;
 
-import com.funixproductions.api.client.user.dtos.UserDTO;
-import com.funixproductions.api.client.user.dtos.UserTokenDTO;
-import com.funixproductions.api.client.user.dtos.requests.UserCreationDTO;
-import com.funixproductions.api.client.user.dtos.requests.UserLoginDTO;
-import com.funixproductions.api.client.user.dtos.requests.UserSecretsDTO;
-import com.funixproductions.api.client.user.enums.UserRole;
-import com.funixproductions.api.service.user.entities.User;
-import com.funixproductions.api.service.user.entities.UserSession;
+import com.funixproductions.api.user.client.dtos.UserDTO;
+import com.funixproductions.api.user.client.dtos.UserTokenDTO;
+import com.funixproductions.api.user.client.dtos.requests.UserCreationDTO;
+import com.funixproductions.api.user.client.dtos.requests.UserLoginDTO;
+import com.funixproductions.api.user.client.dtos.requests.UserSecretsDTO;
+import com.funixproductions.api.user.client.enums.UserRole;
+import com.funixproductions.api.user.service.entities.User;
+import com.funixproductions.api.user.service.entities.UserSession;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
 import com.funixproductions.core.exceptions.ApiForbiddenException;

@@ -1,6 +1,6 @@
 package com.funixproductions.api.user.service.entities;
 
-import com.funixproductions.api.service.core.encryption.EncryptionString;
+import com.funixproductions.api.encryption.client.utils.EncryptionString;
 import com.funixproductions.core.crud.entities.ApiEntity;
 import jakarta.persistence.*;
 import lombok.Getter;

@@ -24,6 +24,12 @@
             <artifactId>funixproductions-google-recaptcha-client</artifactId>
             <version>${com.funixproductions.api.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.funixproductions.api.core</groupId>
+            <artifactId>funixproductions-core</artifactId>
+            <version>${com.funixproductions.api.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

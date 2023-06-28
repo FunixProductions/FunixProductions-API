@@ -26,8 +26,14 @@
         </dependency>
 
         <dependency>
-            <groupId>com.funixproductions.api.authentification.client</groupId>
-            <artifactId>funixproductions-authentification-client</artifactId>
+            <groupId>com.funixproductions.api.google.auth.client</groupId>
+            <artifactId>funixproductions-google-auth-client</artifactId>
+            <version>${com.funixproductions.api.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.funixproductions.api.core</groupId>
+            <artifactId>funixproductions-core</artifactId>
             <version>${com.funixproductions.api.version}</version>
         </dependency>
 

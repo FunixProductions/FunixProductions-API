@@ -1,7 +1,7 @@
 package com.funixproductions.api.google.recaptcha.service.services;
 
-import com.funixproductions.api.google.recaptcha.client.dtos.GoogleCaptchaSiteVerifyResponseDTO;
 import com.funixproductions.api.google.recaptcha.service.config.GoogleCaptchaConfig;
+import com.funixproductions.api.google.recaptcha.service.dtos.GoogleCaptchaSiteVerifyResponseDTO;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
 import com.funixproductions.core.exceptions.ApiForbiddenException;

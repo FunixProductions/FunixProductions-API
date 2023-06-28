@@ -1,9 +1,9 @@
 package com.funixproductions.api.user.service.resources;
 
-import com.funixproductions.api.client.user.clients.UserCrudClient;
-import com.funixproductions.api.client.user.dtos.UserDTO;
-import com.funixproductions.api.client.user.dtos.requests.UserSecretsDTO;
-import com.funixproductions.api.service.user.services.UserCrudService;
+import com.funixproductions.api.user.client.clients.UserCrudClient;
+import com.funixproductions.api.user.client.dtos.UserDTO;
+import com.funixproductions.api.user.client.dtos.requests.UserSecretsDTO;
+import com.funixproductions.api.user.service.services.UserCrudService;
 import com.funixproductions.core.crud.dtos.PageDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,7 +1,8 @@
 package com.funixproductions.api.user.service.services;
 
-import com.funixproductions.api.user.dtos.UserDTO;
-import com.funixproductions.api.user.dtos.requests.UserSecretsDTO;
+import com.funixproductions.api.google.auth.client.clients.InternalGoogleAuthClient;
+import com.funixproductions.api.user.client.dtos.UserDTO;
+import com.funixproductions.api.user.client.dtos.requests.UserSecretsDTO;
 import com.funixproductions.api.user.service.components.UserPasswordUtils;
 import com.funixproductions.api.user.service.entities.User;
 import com.funixproductions.api.user.service.mappers.UserMapper;
@@ -24,15 +25,15 @@ import java.util.Optional;
 public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserRepository> implements UserDetailsService {
 
     private final UserPasswordUtils passwordUtils;
-    private final GoogleAuthRepository googleAuthRepository;
+    private final InternalGoogleAuthClient googleAuthClient;
 
     public UserCrudService(UserMapper mapper,
                            UserRepository repository,
                            UserPasswordUtils passwordUtils,
-                           GoogleAuthRepository googleAuthRepository) {
+                           InternalGoogleAuthClient googleAuthClient) {
         super(repository, mapper);
         this.passwordUtils = passwordUtils;
-        this.googleAuthRepository = googleAuthRepository;
+        this.googleAuthClient = googleAuthClient;
     }
 
     @Override
@@ -71,6 +72,6 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
         for (final User user : entity) {
             uuidsToRemove.add(user.getUuid().toString());
         }
-        this.googleAuthRepository.deleteAllByUserUuidIn(uuidsToRemove);
+        this.googleAuthClient.deleteAllByUserUuidIn(uuidsToRemove);
     }
 }

@@ -1,8 +1,8 @@
 package com.funixproductions.api.user.service.mappers;
 
 
-import com.funixproductions.api.client.user.dtos.UserTokenDTO;
-import com.funixproductions.api.service.user.entities.UserToken;
+import com.funixproductions.api.user.client.dtos.UserTokenDTO;
+import com.funixproductions.api.user.service.entities.UserToken;
 import com.funixproductions.core.crud.mappers.ApiMapper;
 import org.mapstruct.*;
 

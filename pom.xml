@@ -21,10 +21,11 @@
     <modules>
         <module>service</module>
         <module>client</module>
+
         <module>encryption</module>
         <module>user</module>
-        <module>authentification</module>
         <module>google</module>
+        <module>core</module>
     </modules>
 
     <properties>

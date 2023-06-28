@@ -1,18 +1,22 @@
 package com.funixproductions.api.google.auth.service.resources;
 
-import com.funixproductions.api.authentification.client.enums.RedirectAuthOrigin;
+import com.funixproductions.api.core.configs.FrontApplicationsDomainsConfig;
+import com.funixproductions.api.core.enums.RedirectAuthOrigin;
 import com.funixproductions.api.google.auth.service.config.GoogleAuthConfig;
 import com.funixproductions.api.google.auth.service.entities.GoogleAuthLinkUser;
 import com.funixproductions.api.google.auth.service.repositories.GoogleAuthRepository;
-import com.funixproductions.api.user.dtos.UserDTO;
-import com.funixproductions.api.user.dtos.UserTokenDTO;
-import com.funixproductions.api.user.dtos.requests.UserSecretsDTO;
-import com.funixproductions.api.user.enums.UserRole;
+import com.funixproductions.api.user.client.clients.InternalUserCrudClient;
+import com.funixproductions.api.user.client.dtos.UserDTO;
+import com.funixproductions.api.user.client.dtos.UserTokenDTO;
+import com.funixproductions.api.user.client.dtos.requests.UserSecretsDTO;
+import com.funixproductions.api.user.client.enums.UserRole;
+import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
 import com.funixproductions.core.exceptions.ApiForbiddenException;
 import com.funixproductions.core.tools.string.PasswordGenerator;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import feign.FeignException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,9 +42,8 @@ public class GoogleAuthResource {
 
     private final GoogleIdTokenVerifier verifier;
     private final GoogleAuthRepository googleAuthRepository;
-    private final UserCrudService userCrudService;
-    private final FunixProductionsAppConfiguration appConfiguration;
-    private final UserTokenService tokenService;
+    private final InternalUserCrudClient userCrudClient;
+    private final FrontApplicationsDomainsConfig frontApplicationsDomainsConfig;
     private final GoogleAuthConfig googleAuthConfig;
 
     @PostMapping("verifyGoogleIdToken")
@@ -87,11 +90,14 @@ public class GoogleAuthResource {
         if (googleAuthLinkUser == null) {
             return createNewUserWithGoogleAuth(name, email, googleUserId);
         } else {
-            final UserDTO userDTO = this.userCrudService.findById(googleAuthLinkUser.getUserUuid());
-            userDTO.setUsername(name);
-            userDTO.setEmail(email);
+            final UserDTO userDTO = this.userCrudClient.findById(googleAuthLinkUser.getUserUuid());
 
-            return this.userCrudService.update(userDTO);
+            final UserSecretsDTO userSecretsDTO = new UserSecretsDTO();
+            userSecretsDTO.setId(userDTO.getId());
+            userSecretsDTO.setUsername(name);
+            userSecretsDTO.setEmail(email);
+
+            return this.userCrudClient.update(userSecretsDTO);
         }
     }
 
@@ -109,7 +115,7 @@ public class GoogleAuthResource {
         userCreationDTO.setEmail(email);
         userCreationDTO.setPassword(password);
         userCreationDTO.setRole(UserRole.USER);
-        final UserDTO userCreated = this.userCrudService.create(userCreationDTO);
+        final UserDTO userCreated = this.userCrudClient.create(userCreationDTO);
 
         this.googleAuthRepository.save(new GoogleAuthLinkUser(userCreated.getId().toString(), googleUserId));
         return userCreated;
@@ -129,8 +135,8 @@ public class GoogleAuthResource {
     private ResponseEntity<String> generateRedirectOrigin(@NonNull final RedirectAuthOrigin redirectAuthOrigin,
                                                           @NonNull final UserDTO userDTO) {
         final String domain = switch (redirectAuthOrigin) {
-            case FUNIX_PRODUCTIONS_DASHBOARD -> this.appConfiguration.getFunixproductionsWebDashboardDomain();
-            case PACIFISTA_PUBLIC_WEB -> this.appConfiguration.getPacifistaWebPublicWebsiteDomain();
+            case FUNIX_PRODUCTIONS_DASHBOARD -> this.frontApplicationsDomainsConfig.getDashboardDomain();
+            case PACIFISTA_PUBLIC_WEB -> this.frontApplicationsDomainsConfig.getPacifistaFrontDomain();
         };
         final String jwtToken = generateJwtToken(userDTO);
         final String path = domain + "/captureAuth?jwt=" + jwtToken;
@@ -141,8 +147,13 @@ public class GoogleAuthResource {
     }
 
     private String generateJwtToken(@NonNull final UserDTO userDTO) {
-        final UserTokenDTO jwtToken = this.tokenService.generateAccessToken(userDTO);
-        return jwtToken.getToken();
+        try {
+            final UserTokenDTO jwtToken = this.userCrudClient.generateAccessToken(userDTO);
+            return jwtToken.getToken();
+        } catch (FeignException e) {
+            log.warn("Erreur lors de la génération du token JWT.", e);
+            throw new ApiBadRequestException("Erreur lors de la génération du token JWT.", e);
+        }
     }
 
 }

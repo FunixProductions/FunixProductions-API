@@ -1,6 +1,6 @@
 package com.funixproductions.api.user.service.repositories;
 
-import com.funixproductions.api.service.user.entities.UserToken;
+import com.funixproductions.api.user.service.entities.UserToken;
 import com.funixproductions.core.crud.repositories.ApiRepository;
 import org.springframework.stereotype.Repository;
 

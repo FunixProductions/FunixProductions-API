@@ -1,6 +1,6 @@
 package com.funixproductions.api.google.recaptcha.service.config;
 
-import com.funixproductions.api.google.recaptcha.client.dtos.GoogleCaptchaSiteVerifyResponseDTO;
+import com.funixproductions.api.google.recaptcha.service.dtos.GoogleCaptchaSiteVerifyResponseDTO;
 import com.funixproductions.api.google.recaptcha.service.services.GoogleCaptchaService;
 import com.funixproductions.core.tools.network.IPUtils;
 import lombok.Getter;
@@ -22,11 +22,6 @@ public class GoogleCaptchaConfig {
     private Float threshold = GoogleCaptchaSiteVerifyResponseDTO.MINIMAL_THRESHOLD;
 
     private boolean disabled = false;
-
-    @Bean
-    public IPUtils ipUtils() {
-        return new IPUtils(true);
-    }
 
     @Bean
     public GoogleCaptchaService googleCaptchaService(IPUtils ipUtils) {

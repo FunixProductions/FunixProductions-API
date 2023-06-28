@@ -1,12 +1,15 @@
 package com.funixproductions.api.user.service.services;
 
-import com.funixproductions.api.user.dtos.UserDTO;
-import com.funixproductions.api.user.dtos.UserTokenDTO;
+import com.funixproductions.api.user.client.dtos.UserDTO;
+import com.funixproductions.api.user.client.dtos.UserTokenDTO;
+import com.funixproductions.api.user.service.configs.UserConfiguration;
+import com.funixproductions.api.user.service.entities.User;
 import com.funixproductions.api.user.service.entities.UserSession;
 import com.funixproductions.api.user.service.entities.UserToken;
 import com.funixproductions.api.user.service.mappers.UserTokenMapper;
 import com.funixproductions.api.user.service.repositories.UserRepository;
 import com.funixproductions.api.user.service.repositories.UserTokenRepository;
+import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
 import com.funixproductions.core.exceptions.ApiNotFoundException;
 import com.funixproductions.core.tools.time.TimeUtils;
@@ -24,11 +27,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.security.Key;
 import java.time.Instant;
 import java.util.Date;
@@ -49,11 +47,12 @@ public class UserTokenService {
 
     public UserTokenService(UserTokenRepository tokenRepository,
                             UserTokenMapper tokenMapper,
-                            UserRepository userRepository) {
+                            UserRepository userRepository,
+                            UserConfiguration userConfiguration) {
         this.tokenRepository = tokenRepository;
         this.tokenMapper = tokenMapper;
         this.userRepository = userRepository;
-        this.jwtSecretKey = getJwtCryptKey();
+        this.jwtSecretKey = getJwtCryptKey(userConfiguration);
     }
 
     /**
@@ -62,6 +61,10 @@ public class UserTokenService {
      * @return token
      */
     public UserTokenDTO generateAccessToken(final UserDTO userDTO) {
+        if (userDTO.getId() == null) {
+            throw new ApiBadRequestException("L'utilisateur demandé ne possède pas d'id.");
+        }
+
         final User user = userRepository.findByUuid(userDTO.getId().toString())
                 .orElseThrow(() -> new ApiNotFoundException(String.format("User with id %s not found", userDTO.getId())));
         return generateAccessToken(user, false);
@@ -140,54 +143,21 @@ public class UserTokenService {
         return search.orElse(null);
     }
 
-    private static Key getJwtCryptKey() {
-        final File keyFile = new File("secretJwt.key");
-        Key key = getKeyFromFile(keyFile);
-
-        if (key == null) {
-            key = generateNewKey();
-            saveKey(key, keyFile);
-            return key;
-        } else {
-            return key;
+    private static Key getJwtCryptKey(final UserConfiguration userConfiguration) {
+        if (Strings.isEmpty(userConfiguration.getJwtSecret())) {
+            throw new ApiException("JWT secret key is not defined in UserConfiguration.");
         }
+
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(userConfiguration.getJwtSecret()));
     }
 
-    @Nullable
-    private static Key getKeyFromFile(final File keyFile) throws ApiException {
-        try {
-            if (keyFile.exists()) {
-                final String content = Files.readString(keyFile.toPath(), StandardCharsets.UTF_8);
-
-                if (!Strings.isEmpty(content)) {
-                    final byte[] decodedKey = Decoders.BASE64.decode(content);
-                    return Keys.hmacShaKeyFor(decodedKey);
-                } else {
-                    return null;
-                }
-            } else {
-                return null;
-            }
-        } catch (IOException e) {
-            throw new ApiException("Une erreur est survenue lors du chargement de la clé secrete pour les tokens JWT.", e);
-        }
-    }
-
-    private static Key generateNewKey() {
-        return Keys.secretKeyFor(SignatureAlgorithm.HS512);
-    }
-
-    private static void saveKey(final Key key, final File keyFile) {
-        try {
-            if (!keyFile.exists() && !keyFile.createNewFile()) {
-                throw new IOException("Creation file failed.");
-            }
-
-            final String encodedKey = Encoders.BASE64.encode(key.getEncoded());
-            Files.writeString(keyFile.toPath(), encodedKey, StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (IOException e) {
-            throw new ApiException("Impossible de sauvegarder la clé de cryptage pour les tokens JWT.");
-        }
+    /**
+     * Generate a new secret key for jwt for this application.
+     * @return base64 encoded jwt secret key
+     */
+    public static String generateJwtSecretKey() {
+        final Key jwtSecretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+        return Encoders.BASE64.encode(jwtSecretKey.getEncoded());
     }
 
     @Scheduled(fixedRate = 20, timeUnit = TimeUnit.MINUTES)
