@@ -18,6 +18,4 @@ public class GoogleCaptchaConfig {
 
     private Float threshold = GoogleCaptchaSiteVerifyResponseDTO.MINIMAL_THRESHOLD;
 
-    private boolean disabled = false;
-
 }

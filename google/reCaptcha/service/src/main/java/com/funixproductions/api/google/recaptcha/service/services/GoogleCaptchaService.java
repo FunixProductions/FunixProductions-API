@@ -1,5 +1,6 @@
 package com.funixproductions.api.google.recaptcha.service.services;
 
+import com.funixproductions.api.google.recaptcha.client.services.GoogleRecaptchaHandler;
 import com.funixproductions.api.google.recaptcha.service.clients.GoogleRecaptchaClient;
 import com.funixproductions.api.google.recaptcha.service.config.GoogleCaptchaConfig;
 import com.funixproductions.api.google.recaptcha.service.dtos.GoogleCaptchaSiteVerifyResponseDTO;
@@ -27,7 +28,6 @@ import java.util.regex.Pattern;
 @Service
 @RequiredArgsConstructor
 public class GoogleCaptchaService {
-    private static final String CAPTCHA_CODE_HEADER = "X-Captcha-Google-Code";
     private static final Pattern RESPONSE_PATTERN = Pattern.compile("[A-Za-z0-9_-]+");
     private static final int MAX_ATTEMPT = 8;
 
@@ -40,14 +40,11 @@ public class GoogleCaptchaService {
 
     public void checkCode(final @NonNull HttpServletRequest request,
                           final @NonNull String actionCode) {
-        if (googleCaptchaConfig.isDisabled()) {
-            return;
-        }
         if (Strings.isNullOrEmpty(actionCode) || actionCode.isBlank()) {
             throw new ApiBadRequestException("Action code empty.");
         }
 
-        final String captchaCode = request.getHeader(CAPTCHA_CODE_HEADER);
+        final String captchaCode = request.getHeader(GoogleRecaptchaHandler.GOOGLE_CODE_HEADER);
         if (captchaCode == null) {
             throw new ApiBadRequestException("Le code google reCaptcha header est invalide. (code null)");
         }
