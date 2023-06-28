@@ -1,47 +1,42 @@
 package com.funixproductions.api.google.recaptcha.service.services;
 
+import com.funixproductions.api.google.recaptcha.service.clients.GoogleRecaptchaClient;
 import com.funixproductions.api.google.recaptcha.service.config.GoogleCaptchaConfig;
 import com.funixproductions.api.google.recaptcha.service.dtos.GoogleCaptchaSiteVerifyResponseDTO;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
-import com.funixproductions.core.exceptions.ApiException;
 import com.funixproductions.core.exceptions.ApiForbiddenException;
 import com.funixproductions.core.tools.network.IPUtils;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.gson.Gson;
+import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 @Slf4j
 @Getter
+@Service
+@RequiredArgsConstructor
 public class GoogleCaptchaService {
     private static final String CAPTCHA_CODE_HEADER = "X-Captcha-Google-Code";
     private static final Pattern RESPONSE_PATTERN = Pattern.compile("[A-Za-z0-9_-]+");
     private static final int MAX_ATTEMPT = 8;
 
     private final GoogleCaptchaConfig googleCaptchaConfig;
+    private final GoogleRecaptchaClient googleRecaptchaClient;
     private final IPUtils ipUtils;
 
     private final Cache<String, Integer> triesCache = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.MINUTES).build();
     private final Gson gson = new Gson();
-
-    public GoogleCaptchaService(GoogleCaptchaConfig captchaConfig,
-                                IPUtils ipUtils) {
-        this.googleCaptchaConfig = captchaConfig;
-        this.ipUtils = ipUtils;
-    }
 
     public void checkCode(final @NonNull HttpServletRequest request,
                           final @NonNull String actionCode) {
@@ -65,7 +60,20 @@ public class GoogleCaptchaService {
         }
 
         if (StringUtils.hasLength(captchaCode) && RESPONSE_PATTERN.matcher(captchaCode).matches()) {
-            final GoogleCaptchaSiteVerifyResponseDTO response = this.makeVerify(captchaCode, clientIp);
+            makeCallToGoogle(captchaCode, clientIp);
+        } else {
+            throw new ApiBadRequestException("Le code google reCaptcha est invalide. (match invalide)");
+        }
+    }
+
+    private void makeCallToGoogle(String captchaCode, String clientIp) {
+        try {
+            final GoogleCaptchaSiteVerifyResponseDTO response = this.googleRecaptchaClient.verify(
+                    this.googleCaptchaConfig.getSecret(),
+                    captchaCode,
+                    clientIp,
+                    ""
+            );
 
             if (response.isValidCaptcha(captchaCode, this.googleCaptchaConfig.getThreshold())) {
                 reCaptchaSucceeded(clientIp);
@@ -73,8 +81,8 @@ public class GoogleCaptchaService {
                 reCaptchaFailed(clientIp);
                 throw new ApiBadRequestException("Le code google reCaptcha est invalide. (google refus)");
             }
-        } else {
-            throw new ApiBadRequestException("Le code google reCaptcha est invalide. (match invalide)");
+        } catch (FeignException e) {
+            throw new ApiBadRequestException("Une erreur est survenue lors de la vérification du captcha auprès de google. (status code: " + e.status() + ")");
         }
     }
 
@@ -94,35 +102,6 @@ public class GoogleCaptchaService {
     private boolean isBlocked(@NonNull final String ip) {
         final Integer attempts = triesCache.getIfPresent(ip);
         return attempts != null && attempts >= MAX_ATTEMPT;
-    }
-
-    @NonNull
-    private GoogleCaptchaSiteVerifyResponseDTO makeVerify(final String captchaCode,
-                                                       final String remoteIp) throws ApiException {
-        final HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder()
-                .uri(URI.create("https://www.google.com/recaptcha/api/siteverify" +
-                        "?secret=" + googleCaptchaConfig.getSecret() + (
-                        "&response=" + captchaCode +
-                                "&remoteip=" + remoteIp)))
-                .POST(HttpRequest.BodyPublishers.ofString(""));
-        final HttpClient httpClient = HttpClient.newBuilder().build();
-
-        try {
-            final HttpRequest request = httpRequestBuilder.build();
-            final HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            final int resStatusCode = response.statusCode();
-
-            if (Integer.toString(resStatusCode).startsWith("2")) {
-                return gson.fromJson(response.body(), GoogleCaptchaSiteVerifyResponseDTO.class);
-            } else {
-                throw new ApiBadRequestException("Une erreur est survenue lors de la vérification du captcha. (status code: " + resStatusCode + ")");
-            }
-        } catch (IOException ioException) {
-            throw new ApiException("Une erreur est survenue lors de la vérification du captcha. Veuillez recommencer. (IOException)", ioException);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new ApiException("La requête de vérification google captcha s'est interrompue, veuillez recommencer.", e);
-        }
     }
 
 }
