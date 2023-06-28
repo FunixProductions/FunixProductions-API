@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(
-        name = "UserCrud",
+        name = "UserCrudInternal",
         url = "${funixproductions.api.user.app-domain-url}",
         path = "/kubeinternal/user/"
 )

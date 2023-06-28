@@ -64,6 +64,12 @@
             <artifactId>spring-security-config</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${org.postgresql.version}</version>
+        </dependency>
+
         <!-- Used for auth tokens -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>

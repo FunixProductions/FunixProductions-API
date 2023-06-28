@@ -20,6 +20,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserTestComponent {
 
+    public static final String USER_PASSWORD = "clearpassword";
+
     private final MockMvc mockMvc;
     private final UserRepository userRepository;
     private final JsonHelper jsonHelper;
@@ -59,7 +61,7 @@ public class UserTestComponent {
     public UserTokenDTO loginUser(final User user) throws Exception {
         final UserLoginDTO userLoginDTO = new UserLoginDTO();
         userLoginDTO.setUsername(user.getUsername());
-        userLoginDTO.setPassword(user.getPassword());
+        userLoginDTO.setPassword(USER_PASSWORD);
         userLoginDTO.setStayConnected(true);
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")

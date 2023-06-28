@@ -4,7 +4,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
 @FeignClient(
-        name = "UserCrud",
+        name = "InternalGoogleAuth",
         url = "${funixproductions.api.google.auth.app-domain-url}",
         path = "/kubeinternal/google/auth"
 )

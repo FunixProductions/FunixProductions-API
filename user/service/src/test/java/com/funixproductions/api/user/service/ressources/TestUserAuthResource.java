@@ -1,5 +1,7 @@
 package com.funixproductions.api.user.service.ressources;
 
+import com.funixproductions.api.encryption.client.clients.FunixProductionsEncryptionClient;
+import com.funixproductions.api.google.auth.client.clients.InternalGoogleAuthClient;
 import com.funixproductions.api.google.recaptcha.client.services.GoogleRecaptchaHandler;
 import com.funixproductions.api.user.client.dtos.UserDTO;
 import com.funixproductions.api.user.client.dtos.UserTokenDTO;
@@ -14,12 +16,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -28,7 +30,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.UUID;
 
+import static com.funixproductions.api.user.service.components.UserTestComponent.USER_PASSWORD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyList;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -44,12 +48,21 @@ class TestUserAuthResource {
     @Autowired
     private JsonHelper jsonHelper;
 
-    @Mock
+    @MockBean
     private GoogleRecaptchaHandler googleCaptchaService;
+
+    @MockBean
+    private FunixProductionsEncryptionClient funixProductionsEncryptionClient;
+
+    @MockBean
+    private InternalGoogleAuthClient googleAuthClient;
 
     @BeforeEach
     void setupMocks() {
         Mockito.doNothing().when(googleCaptchaService).verify(ArgumentMatchers.any(), ArgumentMatchers.anyString());
+        Mockito.when(funixProductionsEncryptionClient.encrypt(ArgumentMatchers.anyString())).thenReturn(UUID.randomUUID().toString());
+        Mockito.when(funixProductionsEncryptionClient.decrypt(ArgumentMatchers.anyString())).thenReturn(USER_PASSWORD);
+        Mockito.doNothing().when(googleAuthClient).deleteAllByUserUuidIn(anyList());
     }
 
     @Test
@@ -80,7 +93,7 @@ class TestUserAuthResource {
 
         final UserLoginDTO loginDTO = new UserLoginDTO();
         loginDTO.setUsername(account.getUsername());
-        loginDTO.setPassword(account.getPassword());
+        loginDTO.setPassword(USER_PASSWORD);
         loginDTO.setStayConnected(false);
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")
@@ -280,7 +293,7 @@ class TestUserAuthResource {
 
         final UserLoginDTO loginDTO = new UserLoginDTO();
         loginDTO.setUsername(account.getUsername());
-        loginDTO.setPassword(account.getPassword());
+        loginDTO.setPassword(USER_PASSWORD);
         loginDTO.setStayConnected(false);
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")
@@ -301,7 +314,7 @@ class TestUserAuthResource {
 
         final UserLoginDTO loginDTO = new UserLoginDTO();
         loginDTO.setUsername(account.getUsername());
-        loginDTO.setPassword(account.getPassword());
+        loginDTO.setPassword(USER_PASSWORD);
         loginDTO.setStayConnected(true);
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")
@@ -335,7 +348,7 @@ class TestUserAuthResource {
 
         final UserLoginDTO loginDTO = new UserLoginDTO();
         loginDTO.setUsername(account.getUsername());
-        loginDTO.setPassword(account.getPassword());
+        loginDTO.setPassword(USER_PASSWORD);
         loginDTO.setStayConnected(true);
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")

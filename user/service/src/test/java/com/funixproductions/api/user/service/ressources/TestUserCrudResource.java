@@ -1,6 +1,8 @@
 package com.funixproductions.api.user.service.ressources;
 
+import com.funixproductions.api.encryption.client.clients.FunixProductionsEncryptionClient;
 import com.funixproductions.api.google.auth.client.clients.InternalGoogleAuthClient;
+import com.funixproductions.api.google.recaptcha.client.services.GoogleRecaptchaHandler;
 import com.funixproductions.api.user.client.dtos.UserDTO;
 import com.funixproductions.api.user.client.dtos.UserTokenDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserSecretsDTO;
@@ -15,12 +17,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -33,6 +36,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.funixproductions.api.user.service.components.UserTestComponent.USER_PASSWORD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -53,14 +57,23 @@ class TestUserCrudResource {
     @Autowired
     private UserTokenRepository userTokenRepository;
 
-    @Mock
-    private InternalGoogleAuthClient internalGoogleAuthClient;
+    @MockBean
+    private GoogleRecaptchaHandler googleCaptchaService;
+
+    @MockBean
+    private FunixProductionsEncryptionClient funixProductionsEncryptionClient;
+
+    @MockBean
+    private InternalGoogleAuthClient googleAuthClient;
 
     private final String route = "/user";
 
     @BeforeEach
     void setupMocks() {
-        Mockito.doNothing().when(internalGoogleAuthClient).deleteAllByUserUuidIn(anyList());
+        Mockito.doNothing().when(googleCaptchaService).verify(ArgumentMatchers.any(), ArgumentMatchers.anyString());
+        Mockito.when(funixProductionsEncryptionClient.encrypt(ArgumentMatchers.anyString())).thenReturn(UUID.randomUUID().toString());
+        Mockito.when(funixProductionsEncryptionClient.decrypt(ArgumentMatchers.anyString())).thenReturn(USER_PASSWORD);
+        Mockito.doNothing().when(googleAuthClient).deleteAllByUserUuidIn(anyList());
     }
 
     @Test
@@ -136,7 +149,7 @@ class TestUserCrudResource {
 
         final Optional<User> search = userRepository.findByUuid(user.getId().toString());
         Assertions.assertTrue(search.isPresent());
-        assertEquals(requestChangePassword.getPassword(), search.get().getPassword());
+        assertEquals(USER_PASSWORD, search.get().getPassword());
     }
 
     @Test
@@ -161,6 +174,7 @@ class TestUserCrudResource {
     void testRemoveId() throws Exception {
         final UserTokenDTO tokenDTO = userTestComponent.loginUser(userTestComponent.createAdminAccount());
         final UserSecretsDTO userDTO = createUser();
+        final String jwtToken = "jshdlqkfjhslkh";
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(route)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenDTO.getToken())
@@ -170,9 +184,11 @@ class TestUserCrudResource {
                 .andReturn();
         UserDTO user = getResponse(result);
 
+        Mockito.when(funixProductionsEncryptionClient.encrypt(ArgumentMatchers.anyString())).thenReturn(jwtToken + UUID.randomUUID());
+
         UserToken userToken = new UserToken();
         userToken.setUser(userRepository.findByUuid(user.getId().toString()).get());
-        userToken.setToken("jshdlqkfjhslkh");
+        userToken.setToken(jwtToken + UUID.randomUUID());
         userToken.setExpirationDate(Date.from(Instant.now().plusSeconds(10000)));
         userToken = this.userTokenRepository.save(userToken);
 
