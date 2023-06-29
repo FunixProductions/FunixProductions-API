@@ -43,6 +43,12 @@
             <artifactId>google-api-client</artifactId>
             <version>${com.google.api.client.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${org.postgresql.version}</version>
+        </dependency>
     </dependencies>
 
 </project>
