@@ -6,15 +6,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient(
-        name = "GoogleRecaptchaClient",
+        name = "GoogleRecaptchaInternalClient",
         url = "${funixproductions.api.google.recaptcha.app-domain-url}",
         path = "/google/recaptcha"
 )
-public interface GoogleRecaptchaClient {
+public interface GoogleRecaptchaInternalClient {
 
     @PostMapping("verify")
     void verify(@RequestHeader(GoogleRecaptchaHandler.GOOGLE_ACTION_HEADER) String action,
-                                              @RequestHeader(GoogleRecaptchaHandler.GOOGLE_CODE_HEADER) String googleCode,
-                                              @RequestHeader("X-FORWARDED-FOR") String ip);
+                @RequestHeader(GoogleRecaptchaHandler.GOOGLE_CODE_HEADER) String googleCode,
+                @RequestHeader("X-FORWARDED-FOR") String ip);
 
 }

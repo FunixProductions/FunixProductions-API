@@ -1,6 +1,6 @@
 package com.funixproductions.api.google.recaptcha.client.services;
 
-import com.funixproductions.api.google.recaptcha.client.clients.GoogleRecaptchaClient;
+import com.funixproductions.api.google.recaptcha.client.clients.GoogleRecaptchaInternalClient;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.tools.network.IPUtils;
 import feign.FeignException;
@@ -14,9 +14,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class GoogleRecaptchaHandler {
     public static final String GOOGLE_CODE_HEADER = "X-Captcha-Google-Code";
-    public static final String GOOGLE_ACTION_HEADER = "X-Captcha-Google-Code";
+    public static final String GOOGLE_ACTION_HEADER = "X-Captcha-Google-Action";
 
-    private final GoogleRecaptchaClient googleRecaptchaClient;
+    private final GoogleRecaptchaInternalClient googleRecaptchaClient;
     private final IPUtils ipUtils;
 
     /**

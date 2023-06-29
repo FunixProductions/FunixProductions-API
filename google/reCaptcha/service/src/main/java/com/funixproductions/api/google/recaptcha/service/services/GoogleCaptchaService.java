@@ -63,7 +63,7 @@ public class GoogleCaptchaService {
         }
     }
 
-    private void makeCallToGoogle(String captchaCode, String clientIp) {
+    private void makeCallToGoogle(@NonNull final String captchaCode, @NonNull final String clientIp) {
         try {
             final GoogleCaptchaSiteVerifyResponseDTO response = this.googleRecaptchaClient.verify(
                     this.googleCaptchaConfig.getSecret(),
