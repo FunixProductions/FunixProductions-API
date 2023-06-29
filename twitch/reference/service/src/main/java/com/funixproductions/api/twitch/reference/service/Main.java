@@ -1,4 +1,4 @@
-package com.funixproductions.api.twitch.reference;
+package com.funixproductions.api.twitch.reference.service;
 
 public class Main {
     public static void main(String[] args) {

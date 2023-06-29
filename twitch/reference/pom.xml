@@ -11,10 +11,17 @@
 
     <groupId>com.funixproductions.api.twitch.reference</groupId>
     <artifactId>funixproductions-twitch-reference</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>client</module>
+        <module>service</module>
+    </modules>
+
 
     <properties>
-        <maven.compiler.source>20</maven.compiler.source>
-        <maven.compiler.target>20</maven.compiler.target>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
