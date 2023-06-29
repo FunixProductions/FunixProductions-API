@@ -2,6 +2,7 @@ package com.funixproductions.api.user.service.security;
 
 import com.funixproductions.api.encryption.client.utils.EncryptionString;
 import com.funixproductions.api.user.client.enums.UserRole;
+import com.funixproductions.api.user.client.security.ApiWebSecurity;
 import com.funixproductions.api.user.service.services.UserCrudService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,11 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -39,7 +35,7 @@ public class WebSecurity {
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http = http.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer
-                        .configurationSource(this.permitAllCors()))
+                        .configurationSource(ApiWebSecurity.permitAllCors()))
                 .csrf(AbstractHttpConfigurer::disable)
 
                 .sessionManagement(httpSecuritySessionManagementConfigurer ->
@@ -64,18 +60,6 @@ public class WebSecurity {
     @Bean
     public AuthenticationManager authenticationManager() {
         return new FunixApiAuth(userCrudService);
-    }
-
-    private CorsConfigurationSource permitAllCors() {
-        var config = new CorsConfiguration();
-        config.addAllowedHeader(CorsConfiguration.ALL);
-        config.addAllowedMethod(CorsConfiguration.ALL);
-        config.setAllowedOriginPatterns(Arrays.asList("http://*", "https://*"));
-        config.setAllowCredentials(true);
-
-        var source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
     }
 
     @Bean

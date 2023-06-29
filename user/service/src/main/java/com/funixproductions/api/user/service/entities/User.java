@@ -12,9 +12,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -50,21 +50,12 @@ public class User extends ApiEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (this.role.equals(UserRole.ADMIN)) {
-            final Set<SimpleGrantedAuthority> roles = new HashSet<>();
+        final List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
-            for (final UserRole roleGet : UserRole.values()) {
-                roles.add(new SimpleGrantedAuthority(roleGet.getRole()));
-            }
-            return roles;
-        } else if (this.role.equals(UserRole.MODERATOR)) {
-            return Set.of(
-                    new SimpleGrantedAuthority(UserRole.USER.getRole()),
-                    new SimpleGrantedAuthority(UserRole.MODERATOR.getRole())
-            );
-        } else {
-            return Collections.singletonList(new SimpleGrantedAuthority(UserRole.USER.getRole()));
+        for (final String authority : role.getAuthorities()) {
+            authorities.add(new SimpleGrantedAuthority(authority));
         }
+        return authorities;
     }
 
     @Override

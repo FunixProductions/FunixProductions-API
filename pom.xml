@@ -22,10 +22,11 @@
         <module>service</module>
         <module>client</module>
 
+        <module>core</module>
         <module>encryption</module>
         <module>user</module>
         <module>google</module>
-        <module>core</module>
+        <module>twitch</module>
     </modules>
 
     <properties>
