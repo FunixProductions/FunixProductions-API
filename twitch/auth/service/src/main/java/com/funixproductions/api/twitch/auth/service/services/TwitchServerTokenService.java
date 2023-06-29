@@ -1,8 +1,8 @@
 package com.funixproductions.api.twitch.auth.service.services;
 
 import com.funixproductions.api.twitch.auth.service.clients.TwitchTokenAuthClient;
+import com.funixproductions.api.twitch.auth.service.configurations.TwitchAuthConfig;
 import com.funixproductions.api.twitch.auth.service.dtos.TwitchTokenResponseDTO;
-import com.funixproductions.api.twitch.core.configs.TwitchApiConfig;
 import feign.FeignException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -25,12 +25,12 @@ public class TwitchServerTokenService {
     private String accessToken;
     private Instant expiresAt;
 
-    public TwitchServerTokenService(TwitchApiConfig twitchApiConfig,
+    public TwitchServerTokenService(TwitchAuthConfig twitchAuthConfig,
                                     TwitchTokenAuthClient twitchTokenAuthClient) {
         this.twitchTokenAuthClient = twitchTokenAuthClient;
 
-        this.bodyRequest.put("client_id", twitchApiConfig.getAppClientId());
-        this.bodyRequest.put("client_secret", twitchApiConfig.getAppClientSecret());
+        this.bodyRequest.put("client_id", twitchAuthConfig.getAppClientId());
+        this.bodyRequest.put("client_secret", twitchAuthConfig.getAppClientSecret());
         this.bodyRequest.put("grant_type", "client_credentials");
 
         this.refreshToken();

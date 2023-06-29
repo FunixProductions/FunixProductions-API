@@ -32,9 +32,9 @@ public abstract class ApiWebSecurity {
     }
 
     @Bean
-    protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http = http.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer
-                        .configurationSource(this.permitAllCors()))
+                        .configurationSource(permitAllCors()))
                 .csrf(AbstractHttpConfigurer::disable)
 
                 .sessionManagement(httpSecuritySessionManagementConfigurer ->
@@ -60,7 +60,7 @@ public abstract class ApiWebSecurity {
      * </code>
      */
     @NotNull
-    abstract Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> getUrlsMatchers();
+    public abstract Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> getUrlsMatchers();
 
     public static CorsConfigurationSource permitAllCors() {
         var config = new CorsConfiguration();

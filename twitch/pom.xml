@@ -14,7 +14,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>core</module>
         <module>auth</module>
         <module>eventsub</module>
         <module>reference</module>

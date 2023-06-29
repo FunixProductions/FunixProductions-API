@@ -8,7 +8,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableAsync
 @EnableScheduling
-@EnableFeignClients(basePackages = "com.funixproductions")
+@EnableFeignClients(basePackages = {
+        "com.funixproductions.api.encryption",
+        "com.funixproductions.api.google"
+})
 @SpringBootApplication(scanBasePackages = "com.funixproductions")
 public class FunixProductionsUserApp {
     public static void main(String[] args) {

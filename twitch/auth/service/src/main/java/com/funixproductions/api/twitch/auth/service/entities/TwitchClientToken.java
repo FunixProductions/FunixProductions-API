@@ -7,7 +7,6 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.logging.log4j.util.Strings;
 
 import java.time.Instant;
 import java.util.Date;
@@ -19,7 +18,7 @@ import java.util.UUID;
 public class TwitchClientToken extends ApiEntity {
 
     @Column(name = "user_uuid", nullable = false, unique = true)
-    private UUID userUuid;
+    private String userUuid;
 
     @Convert(converter = EncryptionString.class)
     @Column(name = "twitch_user_id", nullable = false)
@@ -48,19 +47,19 @@ public class TwitchClientToken extends ApiEntity {
         return Instant.now().isBefore(expirationDateToken.toInstant());
     }
 
-    public String getUserUuid() {
+    public UUID getUserUuid() {
         if (this.userUuid == null) {
             return null;
         }
 
-        return userUuid.toString();
+        return UUID.fromString(userUuid);
     }
 
-    public void setUserUuid(String userUuid) {
-        if (Strings.isBlank(userUuid)) {
+    public void setUserUuid(UUID userUuid) {
+        if (userUuid == null) {
             this.userUuid = null;
         } else {
-            this.userUuid = UUID.fromString(userUuid);
+            this.userUuid = userUuid.toString();
         }
     }
 }

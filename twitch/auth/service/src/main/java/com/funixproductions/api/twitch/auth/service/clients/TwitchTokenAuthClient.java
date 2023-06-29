@@ -9,7 +9,7 @@ import java.util.Map;
 
 @FeignClient(
         name = "TwitchTokenAuthClient",
-        url = "${twitch.api.app-auth-domain-url}",
+        url = "https://id.twitch.tv",
         path = "oauth2"
 )
 public interface TwitchTokenAuthClient {

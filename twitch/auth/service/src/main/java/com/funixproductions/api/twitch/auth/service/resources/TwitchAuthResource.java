@@ -4,6 +4,8 @@ import com.funixproductions.api.twitch.auth.client.clients.TwitchAuthClient;
 import com.funixproductions.api.twitch.auth.client.dtos.TwitchClientTokenDTO;
 import com.funixproductions.api.twitch.auth.client.enums.TwitchClientTokenType;
 import com.funixproductions.api.twitch.auth.service.services.TwitchClientTokenService;
+import com.funixproductions.api.user.client.dtos.UserDTO;
+import com.funixproductions.api.user.client.security.CurrentSession;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
