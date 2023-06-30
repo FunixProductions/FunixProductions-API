@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(
         name = "TwitchGameClient",
         url = "${funixproductions.api.twitch.reference.app-domain-url}",
-        path = "/kubeinternal/twitch/game"
+        path = "/twitch/reference/game"
 )
 public interface TwitchGameClient {
 

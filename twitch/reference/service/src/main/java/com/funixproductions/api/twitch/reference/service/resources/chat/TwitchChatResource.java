@@ -6,29 +6,24 @@ import com.funixproductions.api.twitch.reference.client.clients.chat.TwitchChatC
 import com.funixproductions.api.twitch.reference.client.dtos.requests.TwitchChatAnnouncement;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.chat.TwitchChannelChattersDTO;
-import com.funixproductions.api.twitch.reference.service.resources.TwitchReferenceResource;
 import com.funixproductions.api.twitch.reference.service.services.chat.TwitchReferenceChatService;
-import com.funixproductions.api.user.client.security.CurrentSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/twitch/chat")
-public class TwitchChatResource extends TwitchReferenceResource implements TwitchChatClient {
+@RequestMapping("/twitch/reference/chat")
+@RequiredArgsConstructor
+public class TwitchChatResource implements TwitchChatClient {
 
     private final TwitchReferenceChatService service;
-
-    public TwitchChatResource(CurrentSession currentSession,
-                              TwitchInternalAuthClient tokenService,
-                              TwitchReferenceChatService service) {
-        super(tokenService, currentSession);
-        this.service = service;
-    }
+    private final TwitchInternalAuthClient internalAuthClient;
 
     @Override
     public TwitchDataResponseDTO<TwitchChannelChattersDTO> getChannelChatters(Integer maxChattersReturned,
-                                                                              String paginationCursor) {
-        final TwitchClientTokenDTO tokenDTO = super.getTwitchAuthByUserConnected();
+                                                                              String paginationCursor,
+                                                                              String userId) {
+        final TwitchClientTokenDTO tokenDTO = this.internalAuthClient.fetchToken(userId);
 
         return service.getChannelChatters(
                 tokenDTO.getAccessToken(),
@@ -40,8 +35,8 @@ public class TwitchChatResource extends TwitchReferenceResource implements Twitc
     }
 
     @Override
-    public void sendChatAnnouncement(TwitchChatAnnouncement announcement) {
-        final TwitchClientTokenDTO tokenDTO = super.getTwitchAuthByUserConnected();
+    public void sendChatAnnouncement(TwitchChatAnnouncement announcement, String userId) {
+        final TwitchClientTokenDTO tokenDTO = this.internalAuthClient.fetchToken(userId);
 
         service.sendChatAnnouncement(
                 tokenDTO.getAccessToken(),

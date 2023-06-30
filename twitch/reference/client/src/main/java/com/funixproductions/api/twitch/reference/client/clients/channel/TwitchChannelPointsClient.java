@@ -4,11 +4,12 @@ import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDat
 import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.chat.TwitchChannelRewardDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(
         name = "TwitchChannelPointsClient",
         url = "${funixproductions.api.twitch.reference.app-domain-url}",
-        path = "/kubeinternal/twitch/channel/custom_rewards"
+        path = "/twitch/reference/channel/custom_rewards"
 )
 public interface TwitchChannelPointsClient {
 
@@ -19,6 +20,6 @@ public interface TwitchChannelPointsClient {
      * @return reward information
      */
     @GetMapping
-    TwitchDataResponseDTO<TwitchChannelRewardDTO> getChannelRewards();
+    TwitchDataResponseDTO<TwitchChannelRewardDTO> getChannelRewards(@RequestParam(name = "user_app_id") String userId);
 
 }

@@ -7,38 +7,32 @@ import com.funixproductions.api.twitch.reference.client.dtos.requests.TwitchChan
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.TwitchChannelDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.chat.TwitchChannelUserDTO;
-import com.funixproductions.api.twitch.reference.service.resources.TwitchReferenceResource;
 import com.funixproductions.api.twitch.reference.service.services.channel.TwitchReferenceChannelService;
-import com.funixproductions.api.user.client.security.CurrentSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/twitch/channel")
-public class TwitchChannelResource extends TwitchReferenceResource implements TwitchChannelClient {
+@RequestMapping("/twitch/reference/channel")
+@RequiredArgsConstructor
+public class TwitchChannelResource implements TwitchChannelClient {
 
+    private final TwitchInternalAuthClient internalAuthClient;
     private final TwitchReferenceChannelService service;
-
-    public TwitchChannelResource(CurrentSession currentSession,
-                                 TwitchInternalAuthClient tokenService,
-                                 TwitchReferenceChannelService service) {
-        super(tokenService, currentSession);
-        this.service = service;
-    }
 
     @Override
     public TwitchDataResponseDTO<TwitchChannelDTO> getChannelInformation(List<String> broadcasterId) {
         return service.getChannelInformation(
-                super.getTwitchAuthByUserConnected().getAccessToken(),
+                internalAuthClient.fetchServerToken(),
                 broadcasterId
         );
     }
 
     @Override
-    public void updateChannelInformation(TwitchChannelUpdateDTO channelUpdateDTO) {
-        final TwitchClientTokenDTO tokenDTO = super.getTwitchAuthByUserConnected();
+    public void updateChannelInformation(TwitchChannelUpdateDTO channelUpdateDTO, String userId) {
+        final TwitchClientTokenDTO tokenDTO = this.internalAuthClient.fetchToken(userId);
 
         service.updateChannelInformation(
                 tokenDTO.getAccessToken(),
@@ -48,8 +42,8 @@ public class TwitchChannelResource extends TwitchReferenceResource implements Tw
     }
 
     @Override
-    public TwitchDataResponseDTO<TwitchChannelUserDTO> getChannelVips(String maximumReturned, String after, List<String> userIds) {
-        final TwitchClientTokenDTO tokenDTO = super.getTwitchAuthByUserConnected();
+    public TwitchDataResponseDTO<TwitchChannelUserDTO> getChannelVips(String maximumReturned, String after, List<String> userIds, String userId) {
+        final TwitchClientTokenDTO tokenDTO = this.internalAuthClient.fetchToken(userId);
 
         return service.getChannelVips(
                 tokenDTO.getAccessToken(),

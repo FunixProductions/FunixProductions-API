@@ -5,28 +5,22 @@ import com.funixproductions.api.twitch.auth.client.dtos.TwitchClientTokenDTO;
 import com.funixproductions.api.twitch.reference.client.clients.channel.TwitchChannelPointsClient;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.chat.TwitchChannelRewardDTO;
-import com.funixproductions.api.twitch.reference.service.resources.TwitchReferenceResource;
 import com.funixproductions.api.twitch.reference.service.services.channel.TwitchReferenceChannelPointsService;
-import com.funixproductions.api.user.client.security.CurrentSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/twitch/channel/custom_rewards")
-public class TwitchChannelPointsResource extends TwitchReferenceResource implements TwitchChannelPointsClient {
+@RequestMapping("/twitch/reference/channel/custom_rewards")
+@RequiredArgsConstructor
+public class TwitchChannelPointsResource implements TwitchChannelPointsClient {
 
     private final TwitchReferenceChannelPointsService service;
-
-    public TwitchChannelPointsResource(CurrentSession currentSession,
-                                       TwitchInternalAuthClient tokenService,
-                                       TwitchReferenceChannelPointsService service) {
-        super(tokenService, currentSession);
-        this.service = service;
-    }
+    private final TwitchInternalAuthClient internalAuthClient;
 
     @Override
-    public TwitchDataResponseDTO<TwitchChannelRewardDTO> getChannelRewards() {
-        final TwitchClientTokenDTO tokenDTO = super.getTwitchAuthByUserConnected();
+    public TwitchDataResponseDTO<TwitchChannelRewardDTO> getChannelRewards(String userId) {
+        final TwitchClientTokenDTO tokenDTO = this.internalAuthClient.fetchToken(userId);
 
         return service.getChannelRewards(
                 tokenDTO.getAccessToken(),

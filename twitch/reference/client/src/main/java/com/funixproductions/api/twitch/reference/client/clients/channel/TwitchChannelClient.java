@@ -15,7 +15,7 @@ import java.util.List;
 @FeignClient(
         name = "TwitchChannelClient",
         url = "${funixproductions.api.twitch.reference.app-domain-url}",
-        path = "/kubeinternal/twitch/channel"
+        path = "/twitch/reference/channel"
 )
 public interface TwitchChannelClient {
 
@@ -31,9 +31,11 @@ public interface TwitchChannelClient {
      * Updates a channel’s properties.
      * Requires a user access token that includes the channel:manage:broadcast scope.
      * @param channelUpdateDTO update infos
+     * @param userId The user uuid funixprod app
      */
     @PatchMapping
-    void updateChannelInformation(@RequestBody TwitchChannelUpdateDTO channelUpdateDTO);
+    void updateChannelInformation(@RequestBody TwitchChannelUpdateDTO channelUpdateDTO,
+                                  @RequestParam(name = "user_app_id") String userId);
 
     /**
      * Gets a list of the broadcaster’s VIPs.
@@ -50,6 +52,7 @@ public interface TwitchChannelClient {
     @GetMapping("vips")
     TwitchDataResponseDTO<TwitchChannelUserDTO> getChannelVips(@RequestParam(name = "first", defaultValue = "100") String maximumReturned,
                                                                @RequestParam(name = "after", required = false) String after,
-                                                               @RequestParam(name = "user_id", required = false) List<String> userIds);
+                                                               @RequestParam(name = "user_id", required = false) List<String> userIds,
+                                                               @RequestParam(name = "user_app_id") String userId);
 
 }

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(
         name = "TwitchChatClient",
         url = "${funixproductions.api.twitch.reference.app-domain-url}",
-        path = "/kubeinternal/twitch/chat"
+        path = "/twitch/reference/chat"
 )
 public interface TwitchChatClient {
 
@@ -29,13 +29,14 @@ public interface TwitchChatClient {
      */
     @GetMapping("chatters")
     TwitchDataResponseDTO<TwitchChannelChattersDTO> getChannelChatters(@RequestParam(name = "first", required = false, defaultValue = "100") Integer maxChattersReturned,
-                                                                       @RequestParam(name = "after", required = false) String paginationCursor);
+                                                                       @RequestParam(name = "after", required = false) String paginationCursor,
+                                                                       @RequestParam(name = "user_app_id") String userId);
 
     /**
      * Sends an announcement to the broadcaster’s chat room.
      * Requires a user access token that includes the moderator:manage:announcements scope.
      */
     @PostMapping("announcements")
-    void sendChatAnnouncement(@RequestBody TwitchChatAnnouncement announcement);
+    void sendChatAnnouncement(@RequestBody TwitchChatAnnouncement announcement, @RequestParam(name = "user_app_id") String userId);
 
 }
