@@ -36,6 +36,12 @@
             <artifactId>funixproductions-user-client</artifactId>
             <version>${com.funixproductions.api.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.funixproductions.api.twitch.reference.client</groupId>
+            <artifactId>funixproductions-twitch-reference-client</artifactId>
+            <version>${com.funixproductions.api.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

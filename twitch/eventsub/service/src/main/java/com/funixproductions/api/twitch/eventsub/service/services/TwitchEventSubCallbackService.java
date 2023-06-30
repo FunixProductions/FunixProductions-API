@@ -64,7 +64,7 @@ public class TwitchEventSubCallbackService {
             final String bodyParsed = new String(body, StandardCharsets.UTF_8);
 
             switch (messageType) {
-                case MESSAGE_TYPE_NOTIFICATION: {
+                case MESSAGE_TYPE_NOTIFICATION -> {
                     final JsonObject message = getTwitchMessage(bodyParsed);
                     final JsonElement eventElement = message.get("event");
 
@@ -79,14 +79,14 @@ public class TwitchEventSubCallbackService {
 
                     return "s";
                 }
-                case MESSAGE_TYPE_VERIFICATION: {
+                case MESSAGE_TYPE_VERIFICATION -> {
                     final JsonObject message = getTwitchMessage(bodyParsed);
                     return getChallenge(message);
                 }
-                case MESSAGE_TYPE_REVOCATION:
+                case MESSAGE_TYPE_REVOCATION -> {
                     return "s";
-                default:
-                    throw new ApiBadRequestException("Le message type n'existe pas.");
+                }
+                default -> throw new ApiBadRequestException("Le message type n'existe pas.");
             }
         }
     }

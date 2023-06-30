@@ -1,9 +1,10 @@
 package com.funixproductions.api.twitch.eventsub.service.services;
 
-import com.funixproductions.api.twitch.auth.client.configurations.TwitchApiConfig;
+import com.funixproductions.api.twitch.auth.client.clients.TwitchInternalAuthClient;
 import com.funixproductions.api.twitch.auth.client.services.TwitchReferenceService;
 import com.funixproductions.api.twitch.eventsub.client.dtos.TwitchEventSubListDTO;
 import com.funixproductions.api.twitch.eventsub.service.clients.TwitchEventSubReferenceClient;
+import com.funixproductions.api.twitch.eventsub.service.configs.TwitchEventSubConfig;
 import com.funixproductions.api.twitch.eventsub.service.requests.TwitchSubscription;
 import feign.FeignException;
 import lombok.NonNull;
@@ -19,10 +20,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TwitchEventSubReferenceService extends TwitchReferenceService {
 
-    private final TwitchApiConfig twitchApiConfig;
     private final TwitchEventSubHmacService hmacService;
-    private final TwitchServerTokenService tokenService;
+    private final TwitchInternalAuthClient tokenService;
     private final TwitchEventSubReferenceClient eventSubReferenceClient;
+    private final TwitchEventSubConfig twitchEventSubConfig;
 
     public TwitchEventSubListDTO getSubscriptions(@Nullable String status,
                                                   @Nullable String type,
@@ -30,7 +31,7 @@ public class TwitchEventSubReferenceService extends TwitchReferenceService {
                                                   @Nullable String after) {
         try {
             return this.eventSubReferenceClient.getSubscriptions(
-                    super.addBearerPrefix(tokenService.getAccessToken()),
+                    super.addBearerPrefix(tokenService.fetchServerToken()),
                     status,
                     type,
                     userId,
@@ -42,12 +43,12 @@ public class TwitchEventSubReferenceService extends TwitchReferenceService {
     }
 
     public void createSubscription(@NonNull final TwitchSubscription request) {
-        request.setEventUrlCallback(this.twitchApiConfig.getAppEventSubCallback());
+        request.setEventUrlCallback(twitchEventSubConfig.getDomainUrlAppCallback() + "/twitch/eventsub/cb");
         request.setSecretHmacKey(hmacService.getKey());
 
         try {
             this.eventSubReferenceClient.createSubscription(
-                    super.addBearerPrefix(tokenService.getAccessToken()),
+                    super.addBearerPrefix(tokenService.fetchServerToken()),
                     MediaType.APPLICATION_JSON_VALUE,
                     request.getPayload());
         } catch (FeignException e) {
@@ -58,7 +59,7 @@ public class TwitchEventSubReferenceService extends TwitchReferenceService {
     public void deleteSubscription(@NonNull String subscriptionId) {
         try {
             this.eventSubReferenceClient.deleteSubscription(
-                    super.addBearerPrefix(this.tokenService.getAccessToken()),
+                    super.addBearerPrefix(tokenService.fetchServerToken()),
                     subscriptionId
             );
         } catch (FeignException e) {

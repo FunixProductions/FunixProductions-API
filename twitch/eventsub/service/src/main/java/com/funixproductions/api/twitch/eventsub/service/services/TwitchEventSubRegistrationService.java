@@ -1,11 +1,15 @@
 package com.funixproductions.api.twitch.eventsub.service.services;
 
+import com.funixproductions.api.twitch.auth.client.clients.TwitchInternalAuthClient;
 import com.funixproductions.api.twitch.eventsub.client.dtos.TwitchEventSubListDTO;
+import com.funixproductions.api.twitch.eventsub.service.clients.TwitchEventSubReferenceClient;
 import com.funixproductions.api.twitch.eventsub.service.entities.TwitchEventSubStreamer;
 import com.funixproductions.api.twitch.eventsub.service.enums.ChannelEventType;
 import com.funixproductions.api.twitch.eventsub.service.repositories.TwitchEventSubStreamerRepository;
 import com.funixproductions.api.twitch.eventsub.service.requests.TwitchSubscription;
 import com.funixproductions.api.twitch.eventsub.service.requests.channel.ChannelSubscription;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.user.TwitchUserDTO;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
 import com.google.common.base.Strings;
@@ -38,9 +42,9 @@ public class TwitchEventSubRegistrationService {
 
     private final TwitchEventSubStreamerRepository repository;
 
-    private final TwitchReferenceUsersService twitchReferenceUsersService;
+    private final TwitchEventSubReferenceClient twitchReferenceUsersService;
     private final TwitchEventSubReferenceService twitchEventSubReferenceService;
-    private final TwitchServerTokenService twitchServerTokenService;
+    private final TwitchInternalAuthClient twitchServerTokenService;
 
     private final Set<String> streamerIdsCreating = new HashSet<>();
     private final Set<String> streamerIdsRemoving = new HashSet<>();
