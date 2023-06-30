@@ -1,5 +1,6 @@
 package com.funixproductions.api.twitch.auth.service.services;
 
+import com.funixproductions.api.twitch.auth.client.configurations.TwitchApiConfig;
 import com.funixproductions.api.twitch.auth.client.dtos.TwitchClientTokenDTO;
 import com.funixproductions.api.twitch.auth.client.enums.TwitchClientTokenType;
 import com.funixproductions.api.twitch.auth.service.clients.TwitchTokenAuthClient;
@@ -38,6 +39,7 @@ import java.util.*;
 public class TwitchClientTokenService {
 
     private final TwitchAuthConfig twitchAuthConfig;
+    private final TwitchApiConfig twitchApiConfig;
     private final TwitchClientTokenRepository twitchClientTokenRepository;
     private final TwitchClientTokenMapper twitchClientTokenMapper;
     private final TwitchTokenAuthClient twitchTokenAuthClient;
@@ -61,6 +63,7 @@ public class TwitchClientTokenService {
                                     TwitchClientTokenMapper twitchClientTokenMapper,
                                     TwitchTokenAuthClient twitchTokenAuthClient,
                                     CurrentSession currentSession,
+                                    TwitchApiConfig twitchApiConfig,
                                     TwitchValidTokenClient twitchValidTokenClient) {
         this.twitchClientTokenRepository = twitchClientTokenRepository;
         this.twitchAuthConfig = twitchAuthConfig;
@@ -68,6 +71,7 @@ public class TwitchClientTokenService {
         this.twitchClientTokenMapper = twitchClientTokenMapper;
         this.currentSession = currentSession;
         this.validTokenClient = twitchValidTokenClient;
+        this.twitchApiConfig = twitchApiConfig;
 
         this.passwordGenerator = new PasswordGenerator();
         passwordGenerator.setSpecialCharsAmount(0);
@@ -84,7 +88,7 @@ public class TwitchClientTokenService {
     public String getAuthClientUrl(final TwitchClientTokenType tokenType) {
         return "https://id.twitch.tv/oauth2/authorize" +
                 "?response_type=code" +
-                "&client_id=" + twitchAuthConfig.getAppClientId() +
+                "&client_id=" + twitchApiConfig.getAppClientId() +
                 "&redirect_uri=" + twitchAuthConfig.getAppCallbackDomain() + "/twitch/auth/cb" +
                 "&scope=" + generateScopesForTokenType(tokenType) +
                 "&state=" + generateNewState(tokenType);
@@ -126,6 +130,20 @@ public class TwitchClientTokenService {
             return refreshToken(twitchClientToken.get());
         } else {
             throw new ApiNotFoundException(String.format("L'utilisateur %s ne possède pas de tokens twitch.", userUuid));
+        }
+    }
+
+    public TwitchClientTokenDTO fetchTokenByStreamerUsername(final String streamerUsername) {
+        if (Strings.isNullOrEmpty(streamerUsername)) {
+            throw new ApiBadRequestException("Pas de streamer username spécifié pour la récupération de tokens twitch.");
+        }
+
+        final Optional<TwitchClientToken> twitchClientToken = this.twitchClientTokenRepository.findTwitchClientTokenByTwitchUsername(streamerUsername);
+
+        if (twitchClientToken.isPresent()) {
+            return refreshToken(twitchClientToken.get());
+        } else {
+            throw new ApiNotFoundException(String.format("Le streamer %s ne possède pas de tokens twitch.", streamerUsername));
         }
     }
 
@@ -211,8 +229,8 @@ public class TwitchClientTokenService {
 
     private void generateNewAccessToken(final CsrfUser csrfUser, final UserDTO user, final String oAuthToken) {
         final Map<String, String> formData = new HashMap<>();
-        formData.put("client_id", twitchAuthConfig.getAppClientId());
-        formData.put("client_secret", twitchAuthConfig.getAppClientSecret());
+        formData.put("client_id", twitchApiConfig.getAppClientId());
+        formData.put("client_secret", twitchApiConfig.getAppClientSecret());
         formData.put("code", oAuthToken);
         formData.put("grant_type", "authorization_code");
         formData.put("redirect_uri", twitchAuthConfig.getAppCallbackDomain() + "/twitch/auth/cb");
@@ -255,8 +273,8 @@ public class TwitchClientTokenService {
                 token.setTwitchUsername(twitchValidationTokenResponseDTO.getTwitchUsername());
             } else {
                 final Map<String, String> formRequest = new HashMap<>();
-                formRequest.put("client_id", twitchAuthConfig.getAppClientId());
-                formRequest.put("client_secret", twitchAuthConfig.getAppClientSecret());
+                formRequest.put("client_id", twitchApiConfig.getAppClientId());
+                formRequest.put("client_secret", twitchApiConfig.getAppClientSecret());
                 formRequest.put("grant_type", "refresh_token");
                 formRequest.put("refresh_token", URLEncoder.encode(token.getRefreshToken(), StandardCharsets.UTF_8));
                 final TwitchTokenResponseDTO tokenResponseDTO = this.twitchTokenAuthClient.getToken(formRequest);

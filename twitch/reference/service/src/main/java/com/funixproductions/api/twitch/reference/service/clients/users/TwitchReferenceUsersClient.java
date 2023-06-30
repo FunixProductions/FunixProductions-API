@@ -1,9 +1,9 @@
 package com.funixproductions.api.twitch.reference.service.clients.users;
 
+import com.funixproductions.api.twitch.auth.client.configurations.TwitchApiRequestInterceptor;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.user.TwitchFollowDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.user.TwitchUserDTO;
-import com.funixproductions.api.twitch.reference.service.clients.TwitchReferenceRequestInterceptor;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +15,7 @@ import java.util.List;
 @FeignClient(
         name = "TwitchReferenceUsersClient",
         url = "https://api.twitch.tv",
-        configuration = TwitchReferenceRequestInterceptor.class,
+        configuration = TwitchApiRequestInterceptor.class,
         path = "helix/users"
 )
 public interface TwitchReferenceUsersClient {

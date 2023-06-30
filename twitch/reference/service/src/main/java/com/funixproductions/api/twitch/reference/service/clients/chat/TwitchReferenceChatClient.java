@@ -1,9 +1,9 @@
 package com.funixproductions.api.twitch.reference.service.clients.chat;
 
+import com.funixproductions.api.twitch.auth.client.configurations.TwitchApiRequestInterceptor;
 import com.funixproductions.api.twitch.reference.client.dtos.requests.TwitchChatAnnouncement;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.chat.TwitchChannelChattersDTO;
-import com.funixproductions.api.twitch.reference.service.clients.TwitchReferenceRequestInterceptor;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @FeignClient(
         name = "TwitchReferenceChatClient",
         url = "https://api.twitch.tv",
-        configuration = TwitchReferenceRequestInterceptor.class,
+        configuration = TwitchApiRequestInterceptor.class,
         path = "helix/chat"
 )
 public interface TwitchReferenceChatClient {

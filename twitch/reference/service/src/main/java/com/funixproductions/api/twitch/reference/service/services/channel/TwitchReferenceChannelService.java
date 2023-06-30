@@ -1,11 +1,11 @@
 package com.funixproductions.api.twitch.reference.service.services.channel;
 
+import com.funixproductions.api.twitch.auth.client.services.TwitchReferenceService;
 import com.funixproductions.api.twitch.reference.client.dtos.requests.TwitchChannelUpdateDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.TwitchChannelDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.chat.TwitchChannelUserDTO;
 import com.funixproductions.api.twitch.reference.service.clients.channel.TwitchReferenceChannelClient;
-import com.funixproductions.api.twitch.reference.service.services.TwitchReferenceService;
 import com.google.common.base.Strings;
 import feign.FeignException;
 import lombok.NonNull;

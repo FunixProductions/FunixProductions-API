@@ -30,6 +30,11 @@ public class TwitchInternalAuthResource implements TwitchInternalAuthClient {
     }
 
     @Override
+    public TwitchClientTokenDTO fetchTokenByStreamerName(String streamerName) {
+        return twitchClientTokenService.fetchTokenByStreamerUsername(streamerName);
+    }
+
+    @Override
     public String fetchServerToken() {
         return twitchServerTokenService.getAccessToken();
     }

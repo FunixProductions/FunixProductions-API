@@ -12,16 +12,6 @@ import org.springframework.context.annotation.Configuration;
 public class TwitchAuthConfig {
 
     /**
-     * Client id from twitch application
-     */
-    private String appClientId;
-
-    /**
-     * Secret from twitch application
-     */
-    private String appClientSecret;
-
-    /**
      * Domain url callback where the users are redirected before (domain)/twitch/auth/cb
      */
     private String appCallbackDomain = "https://api.funixproductions.com";

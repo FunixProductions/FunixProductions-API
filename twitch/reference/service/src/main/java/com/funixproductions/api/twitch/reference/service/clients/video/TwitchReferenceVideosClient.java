@@ -1,8 +1,8 @@
 package com.funixproductions.api.twitch.reference.service.clients.video;
 
+import com.funixproductions.api.twitch.auth.client.configurations.TwitchApiRequestInterceptor;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.video.TwitchChannelVideoDTO;
-import com.funixproductions.api.twitch.reference.service.clients.TwitchReferenceRequestInterceptor;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(
         name = "TwitchReferenceVideosClient",
         url = "https://api.twitch.tv",
-        configuration = TwitchReferenceRequestInterceptor.class,
+        configuration = TwitchApiRequestInterceptor.class,
         path = "helix/videos"
 )
 public interface TwitchReferenceVideosClient {
