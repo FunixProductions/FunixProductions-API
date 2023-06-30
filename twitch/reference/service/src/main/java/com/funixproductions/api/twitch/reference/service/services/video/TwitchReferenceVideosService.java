@@ -1,9 +1,9 @@
 package com.funixproductions.api.twitch.reference.service.services.video;
 
-import com.funixproductions.api.client.twitch.reference.dtos.responses.TwitchDataResponseDTO;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.channel.video.TwitchChannelVideoDTO;
-import com.funixproductions.api.service.twitch.configs.TwitchReferenceService;
-import com.funixproductions.api.service.twitch.reference.clients.video.TwitchReferenceVideosClient;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.video.TwitchChannelVideoDTO;
+import com.funixproductions.api.twitch.reference.service.clients.video.TwitchReferenceVideosClient;
+import com.funixproductions.api.twitch.reference.service.services.TwitchReferenceService;
 import com.google.common.base.Strings;
 import feign.FeignException;
 import lombok.NonNull;
@@ -17,14 +17,13 @@ public class TwitchReferenceVideosService extends TwitchReferenceService impleme
 
     private final TwitchReferenceVideosClient client;
 
-    @Override
-    public TwitchDataResponseDTO<TwitchChannelVideoDTO> getStreaemerVods(@NonNull final String twitchAccessToken,
-                                                                         @NonNull final String streamerId,
-                                                                         @Nullable final Integer amountReturned,
-                                                                         @Nullable final String before,
-                                                                         @Nullable final String after) {
+    public TwitchDataResponseDTO<TwitchChannelVideoDTO> getStreamerVods(@NonNull final String twitchAccessToken,
+                                                                        @NonNull final String streamerId,
+                                                                        @Nullable final Integer amountReturned,
+                                                                        @Nullable final String before,
+                                                                        @Nullable final String after) {
         try {
-            return client.getStreaemerVods(
+            return client.getStreamerVods(
                     super.addBearerPrefix(twitchAccessToken),
                     streamerId,
                     amountReturned == null || amountReturned < 0 ? null : amountReturned,

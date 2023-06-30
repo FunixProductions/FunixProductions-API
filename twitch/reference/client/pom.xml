@@ -13,9 +13,17 @@
     <artifactId>funixproductions-twitch-reference-client</artifactId>
 
     <properties>
-        <maven.compiler.source>20</maven.compiler.source>
-        <maven.compiler.target>20</maven.compiler.target>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.funixproductions.api.core</groupId>
+            <artifactId>funixproductions-core</artifactId>
+            <version>${com.funixproductions.api.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>

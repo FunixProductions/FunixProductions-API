@@ -1,9 +1,9 @@
 package com.funixproductions.api.twitch.reference.service.services.channel;
 
-import com.funixproductions.api.client.twitch.reference.dtos.responses.TwitchDataResponseDTO;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.channel.chat.TwitchChannelRewardDTO;
-import com.funixproductions.api.service.twitch.configs.TwitchReferenceService;
-import com.funixproductions.api.service.twitch.reference.clients.channel.TwitchReferenceChannelPointsClient;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.chat.TwitchChannelRewardDTO;
+import com.funixproductions.api.twitch.reference.service.clients.channel.TwitchReferenceChannelPointsClient;
+import com.funixproductions.api.twitch.reference.service.services.TwitchReferenceService;
 import feign.FeignException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

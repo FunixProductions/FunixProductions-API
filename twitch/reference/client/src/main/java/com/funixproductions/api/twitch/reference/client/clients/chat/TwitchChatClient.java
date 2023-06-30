@@ -1,9 +1,8 @@
 package com.funixproductions.api.twitch.reference.client.clients.chat;
 
-import com.funixproductions.api.client.core.config.FeignConfig;
-import com.funixproductions.api.client.twitch.reference.dtos.requests.TwitchChatAnnouncement;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.TwitchDataResponseDTO;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.channel.chat.TwitchChannelChattersDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.requests.TwitchChatAnnouncement;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.chat.TwitchChannelChattersDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,9 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(
         name = "TwitchChatClient",
-        url = "${funixproductions.api.app-domain-url}",
-        path = "twitch/chat",
-        configuration = FeignConfig.class
+        url = "${funixproductions.api.twitch.reference.app-domain-url}",
+        path = "/kubeinternal/twitch/chat"
 )
 public interface TwitchChatClient {
 

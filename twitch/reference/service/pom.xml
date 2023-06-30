@@ -18,6 +18,26 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.funixproductions.api.twitch.reference.client</groupId>
+            <artifactId>funixproductions-twitch-reference-client</artifactId>
+            <version>${com.funixproductions.api.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.funixproductions.api.user</groupId>
+            <artifactId>funixproductions-user-client</artifactId>
+            <version>${com.funixproductions.api.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.funixproductions.api.twitch.auth.client</groupId>
+            <artifactId>funixproductions-twitch-auth-client</artifactId>
+            <version>${com.funixproductions.api.version}</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>

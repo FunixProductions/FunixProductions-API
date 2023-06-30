@@ -1,7 +1,7 @@
 package com.funixproductions.api.twitch.reference.client.dtos.responses.channel.chat;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.common.TwitchImageDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.common.TwitchImageDTO;
 import lombok.Getter;
 import lombok.Setter;
 

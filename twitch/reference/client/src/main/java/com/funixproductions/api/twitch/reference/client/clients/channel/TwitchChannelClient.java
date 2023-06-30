@@ -14,9 +14,8 @@ import java.util.List;
 
 @FeignClient(
         name = "TwitchChannelClient",
-        url = "${funixproductions.api.app-domain-url}",
-        path = "twitch/channel",
-        configuration = FeignConfig.class
+        url = "${funixproductions.api.twitch.reference.app-domain-url}",
+        path = "/kubeinternal/twitch/channel"
 )
 public interface TwitchChannelClient {
 

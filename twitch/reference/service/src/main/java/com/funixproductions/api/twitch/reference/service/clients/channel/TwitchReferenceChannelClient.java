@@ -1,10 +1,10 @@
 package com.funixproductions.api.twitch.reference.service.clients.channel;
 
-import com.funixproductions.api.client.twitch.reference.dtos.requests.TwitchChannelUpdateDTO;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.TwitchDataResponseDTO;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.channel.TwitchChannelDTO;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.channel.chat.TwitchChannelUserDTO;
-import com.funixproductions.api.service.twitch.configs.TwitchReferenceRequestInterceptor;
+import com.funixproductions.api.twitch.reference.client.dtos.requests.TwitchChannelUpdateDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.TwitchChannelDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.chat.TwitchChannelUserDTO;
+import com.funixproductions.api.twitch.reference.service.clients.TwitchReferenceRequestInterceptor;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +16,7 @@ import java.util.List;
  */
 @FeignClient(
         name = "TwitchReferenceChannelClient",
-        url = "${twitch.api.app-api-domain-url}",
+        url = "https://api.twitch.tv",
         configuration = TwitchReferenceRequestInterceptor.class,
         path = "helix/channels"
 )

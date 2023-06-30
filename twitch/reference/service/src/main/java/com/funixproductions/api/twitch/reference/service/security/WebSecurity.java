@@ -1,4 +1,4 @@
-package com.funixproductions.api.twitch.auth.service.security;
+package com.funixproductions.api.twitch.reference.service.security;
 
 import com.funixproductions.api.user.client.security.ApiWebSecurity;
 import org.jetbrains.annotations.NotNull;
@@ -11,13 +11,11 @@ import org.springframework.security.config.annotation.web.configurers.AuthorizeH
 @Configuration
 @EnableWebSecurity
 public class WebSecurity extends ApiWebSecurity {
-
     @NotNull
     @Override
     public Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> getUrlsMatchers() {
-        return exchanges -> exchanges
+        return ex -> ex
                 .requestMatchers("/kubeinternal**").permitAll()
-                .requestMatchers("/twitch/auth/cb").permitAll()
                 .anyRequest().authenticated();
     }
 }

@@ -1,13 +1,13 @@
 package com.funixproductions.api.twitch.reference.service.resources.game;
 
-import com.funixproductions.api.client.twitch.auth.dtos.TwitchClientTokenDTO;
-import com.funixproductions.api.client.twitch.reference.clients.game.TwitchGameClient;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.TwitchDataResponseDTO;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.game.TwitchGameDTO;
-import com.funixproductions.api.service.twitch.auth.services.TwitchClientTokenService;
-import com.funixproductions.api.service.twitch.reference.resources.TwitchReferenceResource;
-import com.funixproductions.api.service.twitch.reference.services.game.TwitchReferenceGameService;
-import com.funixproductions.api.service.user.services.CurrentSession;
+import com.funixproductions.api.twitch.auth.client.clients.TwitchInternalAuthClient;
+import com.funixproductions.api.twitch.auth.client.dtos.TwitchClientTokenDTO;
+import com.funixproductions.api.twitch.reference.client.clients.game.TwitchGameClient;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.game.TwitchGameDTO;
+import com.funixproductions.api.twitch.reference.service.resources.TwitchReferenceResource;
+import com.funixproductions.api.twitch.reference.service.services.game.TwitchReferenceGameService;
+import com.funixproductions.api.user.client.security.CurrentSession;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,7 +17,7 @@ public class TwitchGameResource extends TwitchReferenceResource implements Twitc
 
     private final TwitchReferenceGameService gameService;
 
-    public TwitchGameResource(TwitchClientTokenService tokenService,
+    public TwitchGameResource(TwitchInternalAuthClient tokenService,
                               CurrentSession currentSession,
                               TwitchReferenceGameService gameService) {
         super(tokenService, currentSession);

@@ -1,14 +1,14 @@
 package com.funixproductions.api.twitch.reference.service.resources.chat;
 
-import com.funixproductions.api.client.twitch.auth.dtos.TwitchClientTokenDTO;
-import com.funixproductions.api.client.twitch.reference.clients.chat.TwitchChatClient;
-import com.funixproductions.api.client.twitch.reference.dtos.requests.TwitchChatAnnouncement;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.TwitchDataResponseDTO;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.channel.chat.TwitchChannelChattersDTO;
-import com.funixproductions.api.service.twitch.auth.services.TwitchClientTokenService;
-import com.funixproductions.api.service.twitch.reference.resources.TwitchReferenceResource;
-import com.funixproductions.api.service.twitch.reference.services.chat.TwitchReferenceChatService;
-import com.funixproductions.api.service.user.services.CurrentSession;
+import com.funixproductions.api.twitch.auth.client.clients.TwitchInternalAuthClient;
+import com.funixproductions.api.twitch.auth.client.dtos.TwitchClientTokenDTO;
+import com.funixproductions.api.twitch.reference.client.clients.chat.TwitchChatClient;
+import com.funixproductions.api.twitch.reference.client.dtos.requests.TwitchChatAnnouncement;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.chat.TwitchChannelChattersDTO;
+import com.funixproductions.api.twitch.reference.service.resources.TwitchReferenceResource;
+import com.funixproductions.api.twitch.reference.service.services.chat.TwitchReferenceChatService;
+import com.funixproductions.api.user.client.security.CurrentSession;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,7 +19,7 @@ public class TwitchChatResource extends TwitchReferenceResource implements Twitc
     private final TwitchReferenceChatService service;
 
     public TwitchChatResource(CurrentSession currentSession,
-                              TwitchClientTokenService tokenService,
+                              TwitchInternalAuthClient tokenService,
                               TwitchReferenceChatService service) {
         super(tokenService, currentSession);
         this.service = service;

@@ -1,16 +1,14 @@
 package com.funixproductions.api.twitch.reference.client.clients.channel;
 
-import com.funixproductions.api.client.core.config.FeignConfig;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.TwitchDataResponseDTO;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.channel.chat.TwitchChannelRewardDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.chat.TwitchChannelRewardDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @FeignClient(
         name = "TwitchChannelPointsClient",
-        url = "${funixproductions.api.app-domain-url}",
-        path = "twitch/channel/custom_rewards",
-        configuration = FeignConfig.class
+        url = "${funixproductions.api.twitch.reference.app-domain-url}",
+        path = "/kubeinternal/twitch/channel/custom_rewards"
 )
 public interface TwitchChannelPointsClient {
 

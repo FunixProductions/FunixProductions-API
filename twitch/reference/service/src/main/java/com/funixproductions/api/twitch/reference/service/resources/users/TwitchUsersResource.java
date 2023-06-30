@@ -1,13 +1,13 @@
 package com.funixproductions.api.twitch.reference.service.resources.users;
 
-import com.funixproductions.api.client.twitch.auth.dtos.TwitchClientTokenDTO;
-import com.funixproductions.api.client.twitch.reference.clients.users.TwitchUsersClient;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.TwitchDataResponseDTO;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.user.TwitchFollowDTO;
-import com.funixproductions.api.service.twitch.auth.services.TwitchClientTokenService;
-import com.funixproductions.api.service.twitch.reference.resources.TwitchReferenceResource;
-import com.funixproductions.api.service.twitch.reference.services.users.TwitchReferenceUsersService;
-import com.funixproductions.api.service.user.services.CurrentSession;
+import com.funixproductions.api.twitch.auth.client.clients.TwitchInternalAuthClient;
+import com.funixproductions.api.twitch.auth.client.dtos.TwitchClientTokenDTO;
+import com.funixproductions.api.twitch.reference.client.clients.users.TwitchUsersClient;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.user.TwitchFollowDTO;
+import com.funixproductions.api.twitch.reference.service.resources.TwitchReferenceResource;
+import com.funixproductions.api.twitch.reference.service.services.users.TwitchReferenceUsersService;
+import com.funixproductions.api.user.client.security.CurrentSession;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,7 +18,7 @@ public class TwitchUsersResource extends TwitchReferenceResource implements Twit
     private final TwitchReferenceUsersService service;
 
     public TwitchUsersResource(CurrentSession currentSession,
-                               TwitchClientTokenService tokenService,
+                               TwitchInternalAuthClient tokenService,
                                TwitchReferenceUsersService service) {
         super(tokenService, currentSession);
         this.service = service;

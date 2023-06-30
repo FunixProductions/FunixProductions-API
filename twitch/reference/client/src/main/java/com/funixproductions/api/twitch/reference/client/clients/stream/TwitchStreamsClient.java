@@ -1,17 +1,15 @@
 package com.funixproductions.api.twitch.reference.client.clients.stream;
 
-import com.funixproductions.api.client.core.config.FeignConfig;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.TwitchDataResponseDTO;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.channel.stream.TwitchStreamDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.stream.TwitchStreamDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(
         name = "TwitchStreamsClient",
-        url = "${funixproductions.api.app-domain-url}",
-        path = "twitch/streams",
-        configuration = FeignConfig.class
+        url = "${funixproductions.api.twitch.reference.app-domain-url}",
+        path = "/kubeinternal/twitch/streams"
 )
 public interface TwitchStreamsClient {
 
@@ -26,11 +24,4 @@ public interface TwitchStreamsClient {
      */
     @GetMapping
     TwitchDataResponseDTO<TwitchStreamDTO> getStreams(@RequestParam(name = "user_login") String streamerName);
-
-    /**
-     * Fetch the funixgaming stream status
-     * @return stream status
-     */
-    @GetMapping("funix")
-    TwitchDataResponseDTO<TwitchStreamDTO> getFunixStream();
 }

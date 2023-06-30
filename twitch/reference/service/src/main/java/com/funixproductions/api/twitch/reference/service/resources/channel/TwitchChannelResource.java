@@ -1,15 +1,15 @@
 package com.funixproductions.api.twitch.reference.service.resources.channel;
 
-import com.funixproductions.api.client.twitch.auth.dtos.TwitchClientTokenDTO;
-import com.funixproductions.api.client.twitch.reference.clients.channel.TwitchChannelClient;
-import com.funixproductions.api.client.twitch.reference.dtos.requests.TwitchChannelUpdateDTO;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.TwitchDataResponseDTO;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.channel.TwitchChannelDTO;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.channel.chat.TwitchChannelUserDTO;
-import com.funixproductions.api.service.twitch.auth.services.TwitchClientTokenService;
-import com.funixproductions.api.service.twitch.reference.resources.TwitchReferenceResource;
-import com.funixproductions.api.service.twitch.reference.services.channel.TwitchReferenceChannelService;
-import com.funixproductions.api.service.user.services.CurrentSession;
+import com.funixproductions.api.twitch.auth.client.clients.TwitchInternalAuthClient;
+import com.funixproductions.api.twitch.auth.client.dtos.TwitchClientTokenDTO;
+import com.funixproductions.api.twitch.reference.client.clients.channel.TwitchChannelClient;
+import com.funixproductions.api.twitch.reference.client.dtos.requests.TwitchChannelUpdateDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.TwitchChannelDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.chat.TwitchChannelUserDTO;
+import com.funixproductions.api.twitch.reference.service.resources.TwitchReferenceResource;
+import com.funixproductions.api.twitch.reference.service.services.channel.TwitchReferenceChannelService;
+import com.funixproductions.api.user.client.security.CurrentSession;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,7 +22,7 @@ public class TwitchChannelResource extends TwitchReferenceResource implements Tw
     private final TwitchReferenceChannelService service;
 
     public TwitchChannelResource(CurrentSession currentSession,
-                                 TwitchClientTokenService tokenService,
+                                 TwitchInternalAuthClient tokenService,
                                  TwitchReferenceChannelService service) {
         super(tokenService, currentSession);
         this.service = service;

@@ -1,10 +1,10 @@
 package com.funixproductions.api.twitch.reference.service.services.users;
 
-import com.funixproductions.api.client.twitch.reference.dtos.responses.TwitchDataResponseDTO;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.user.TwitchFollowDTO;
-import com.funixproductions.api.client.twitch.reference.dtos.responses.user.TwitchUserDTO;
-import com.funixproductions.api.service.twitch.configs.TwitchReferenceService;
-import com.funixproductions.api.service.twitch.reference.clients.users.TwitchReferenceUsersClient;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.user.TwitchFollowDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.user.TwitchUserDTO;
+import com.funixproductions.api.twitch.reference.service.clients.users.TwitchReferenceUsersClient;
+import com.funixproductions.api.twitch.reference.service.services.TwitchReferenceService;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.google.common.base.Strings;
 import feign.FeignException;

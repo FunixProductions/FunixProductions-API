@@ -1,6 +1,7 @@
 package com.funixproductions.api.user.client.security;
 
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,11 +24,10 @@ import java.util.Arrays;
  */
 public abstract class ApiWebSecurity {
 
-    private final UserJwtTokenFilter jwtTokenFilter;
+    @Autowired
+    private UserJwtTokenFilter jwtTokenFilter;
 
-    public ApiWebSecurity(final UserJwtTokenFilter jwtTokenFilter) {
-        this.jwtTokenFilter = jwtTokenFilter;
-
+    public ApiWebSecurity() {
         SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
     }
 
