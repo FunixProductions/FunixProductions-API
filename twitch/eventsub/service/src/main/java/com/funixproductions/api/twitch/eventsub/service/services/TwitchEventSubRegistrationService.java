@@ -8,6 +8,7 @@ import com.funixproductions.api.twitch.eventsub.service.enums.ChannelEventType;
 import com.funixproductions.api.twitch.eventsub.service.repositories.TwitchEventSubStreamerRepository;
 import com.funixproductions.api.twitch.eventsub.service.requests.TwitchSubscription;
 import com.funixproductions.api.twitch.eventsub.service.requests.channel.ChannelSubscription;
+import com.funixproductions.api.twitch.reference.client.clients.users.TwitchUsersClient;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.user.TwitchUserDTO;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
@@ -45,6 +46,7 @@ public class TwitchEventSubRegistrationService {
     private final TwitchEventSubReferenceClient twitchReferenceUsersService;
     private final TwitchEventSubReferenceService twitchEventSubReferenceService;
     private final TwitchInternalAuthClient twitchServerTokenService;
+    private final TwitchUsersClient twitchUsersClient;
 
     private final Set<String> streamerIdsCreating = new HashSet<>();
     private final Set<String> streamerIdsRemoving = new HashSet<>();
@@ -218,7 +220,7 @@ public class TwitchEventSubRegistrationService {
     }
 
     private String getUserIdFromUsername(final String username) {
-        final TwitchDataResponseDTO<TwitchUserDTO> userList = this.twitchReferenceUsersService.getUsersByName(this.twitchServerTokenService.getAccessToken(), List.of(username));
+        final TwitchDataResponseDTO<TwitchUserDTO> userList = this.twitchUsersClient.getUsersByName(List.of(username));
 
         if (userList.getData().isEmpty()) {
             throw new ApiBadRequestException(String.format("Le streamer %s n'existe pas sur twitch.", username));

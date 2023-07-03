@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @FeignClient(
         name = "TwitchEventSubReferenceClient",
-        url = "${twitch.api.app-api-domain-url}",
+        url = "https://api.twitch.tv",
         path = "/helix/eventsub/subscriptions",
         configuration = TwitchApiRequestInterceptor.class
 )

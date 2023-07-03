@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 @FeignClient(
         name = "TwitchEventSubClient",
-        url = "${funixproductions.api.app-domain-url}",
+        url = "${funixproductions.api.twitch.eventsub.app-domain-url}",
         path = "/twitch/eventsub/"
 )
 public interface TwitchEventSubClient {
