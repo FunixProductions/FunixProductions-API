@@ -27,6 +27,7 @@
         <module>user</module>
         <module>google</module>
         <module>twitch</module>
+        <module>google/gmail</module>
     </modules>
 
     <properties>

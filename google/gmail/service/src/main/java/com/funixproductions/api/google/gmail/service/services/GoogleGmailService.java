@@ -1,7 +1,7 @@
-package com.funixproductions.api.service.google.gmail.services;
+package com.funixproductions.api.google.gmail.service.services;
 
-import com.funixproductions.api.service.google.gmail.config.GoogleGmailConfig;
-import com.funixproductions.api.service.google.gmail.dto.MailDTO;
+import com.funixproductions.api.google.gmail.client.dto.MailDTO;
+import com.funixproductions.api.google.gmail.service.config.GoogleGmailConfig;
 import com.funixproductions.core.exceptions.ApiException;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
@@ -16,7 +16,7 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.Base64;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
