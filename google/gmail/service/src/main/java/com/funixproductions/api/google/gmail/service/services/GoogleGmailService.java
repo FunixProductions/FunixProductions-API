@@ -6,7 +6,7 @@ import com.funixproductions.core.exceptions.ApiException;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
 import jakarta.activation.DataHandler;
-import jakarta.activation.FileDataSource;
+import jakarta.activation.DataSource;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Multipart;
 import jakarta.mail.Session;
@@ -14,13 +14,13 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.util.ByteArrayDataSource;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -50,7 +50,7 @@ public class GoogleGmailService {
      * @param to receivers mail
      * @throws ApiException when error occurs on mail sending
      */
-    public void sendSimpleMail(final MailDTO mailDTO, final String... to) throws ApiException {
+    public void sendMail(final MailDTO mailDTO, final String... to) throws ApiException {
         final MimeMessage email = this.createEmail(mailDTO, to);
         Message message = this.createMessage(email);
 
@@ -74,7 +74,7 @@ public class GoogleGmailService {
                 email.addRecipient(jakarta.mail.Message.RecipientType.TO, new InternetAddress(receiver));
             }
 
-            if (mailDTO.getAttachment() != null) {
+            if (mailDTO.getFileAttachment() != null) {
                 email.setContent(this.createAttachmentFile(mailDTO));
             } else {
                 email.setContent(mailDTO.getBodyText(), "text/html");
@@ -100,26 +100,21 @@ public class GoogleGmailService {
     }
 
     private Multipart createAttachmentFile(@NonNull final MailDTO mailDto) throws ApiException {
-        final File file = mailDto.getAttachment();
-        if (!file.exists()) {
-            throw new ApiException(String.format("Le fichier %s n'existe pas.", file.getName()));
-        }
-
         try {
             final Multipart multipart = new MimeMultipart();
-            final FileDataSource dataSource = new FileDataSource(file);
             MimeBodyPart mimeBodyPart = new MimeBodyPart();
 
             mimeBodyPart.setContent(mailDto.getBodyText(), "text/html");
             multipart.addBodyPart(mimeBodyPart);
 
             mimeBodyPart = new MimeBodyPart();
+            final DataSource dataSource = new ByteArrayDataSource(mailDto.getFileAttachment().getFileContent(), mailDto.getFileAttachment().getMimeType());
             mimeBodyPart.setDataHandler(new DataHandler(dataSource));
-            mimeBodyPart.setFileName(file.getName());
+            mimeBodyPart.setFileName(mailDto.getFileAttachment().getName());
             multipart.addBodyPart(mimeBodyPart);
             return multipart;
         } catch (MessagingException e) {
-            throw new ApiException(String.format("Erreur lors de l'ajout du fichier %s en pièce jointe. Erreur: %s.", file.getName(), e.getMessage()), e);
+            throw new ApiException(String.format("Erreur lors de l'ajout du fichier %s en pièce jointe. Erreur: %s.", mailDto.getFileAttachment().getName(), e.getMessage()), e);
         }
     }
 

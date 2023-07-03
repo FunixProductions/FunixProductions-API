@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.File;
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -17,6 +15,5 @@ public class MailDTO {
 
     private String bodyText;
 
-    private File attachment;
-
+    private MailFileDTO fileAttachment;
 }

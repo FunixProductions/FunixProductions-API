@@ -1,6 +1,5 @@
 package com.funixproductions.api.google.gmail.service.config;
 
-import com.funixproductions.core.exceptions.ApiException;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
@@ -13,39 +12,25 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-
+/**
+ * Needs env GOOGLE_APPLICATION_CREDENTIALS
+ * to set path to google service account json file
+ */
 @Getter
 @Setter
-@Profile("!test")
 @Configuration
-@ConfigurationProperties("google.clients.gmail")
+@ConfigurationProperties("google.gmail")
 public class GoogleGmailConfig {
-
-    private static final String FILE_CREDENTIALS = "gmail-credentials.json";
 
     /**
      * App sender email, must be verified in google console
      */
-    private String appEmail;
+    private String appEmail = "contact@funixproductions.com";
 
     @Bean
-    public GoogleCredentials googleCredentials() {
-        final File file = new File(FILE_CREDENTIALS);
-
-        try (FileInputStream inputStream = new FileInputStream(file)) {
-            if (file.exists()) {
-                return GoogleCredentials.fromStream(inputStream).createScoped(GmailScopes.GMAIL_SEND).createDelegated(this.appEmail);
-            } else {
-                throw new ApiException("Can't find gmail credentials file. Please import it to root folder of project.");
-            }
-        } catch (IOException e) {
-            throw new ApiException("Can't read gmail credentials file. Please import it to root folder of project.", e);
-        }
+    public GoogleCredentials googleCredentials() throws Exception {
+        return GoogleCredentials.getApplicationDefault().createScoped(GmailScopes.GMAIL_SEND).createDelegated(this.appEmail);
     }
 
     @Bean

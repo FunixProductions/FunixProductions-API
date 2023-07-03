@@ -31,11 +31,11 @@
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.google.api-client/google-api-client -->
+        <!-- https://mvnrepository.com/artifact/com.google.auth/google-auth-library-oauth2-http -->
         <dependency>
-            <groupId>com.google.api-client</groupId>
-            <artifactId>google-api-client</artifactId>
-            <version>${com.google.api.client.version}</version>
+            <groupId>com.google.auth</groupId>
+            <artifactId>google-auth-library-oauth2-http</artifactId>
+            <version>${com.google.auth.library.oauth2.http.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.google.apis/google-api-services-gmail -->
