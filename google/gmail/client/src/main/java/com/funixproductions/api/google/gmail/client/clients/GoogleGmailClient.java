@@ -15,7 +15,7 @@ import java.util.List;
 )
 public interface GoogleGmailClient {
 
-    @PostMapping
+    @PostMapping("send")
     void sendMail(@RequestBody MailDTO mailDTO, @RequestParam("to") List<String> to);
 
 }
