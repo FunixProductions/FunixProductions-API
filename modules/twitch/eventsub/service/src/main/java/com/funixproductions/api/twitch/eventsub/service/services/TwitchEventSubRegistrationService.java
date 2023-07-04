@@ -114,7 +114,7 @@ public class TwitchEventSubRegistrationService {
 
     /**
      * Async method to run the whole subscriptions creation listed in the enums defined here: <br>
-     * Enums: {@link com.funixproductions.api.service.twitch.eventsub.enums}<br>
+     * Enums: {@link com.funixproductions.api.twitch.eventsub.service.requests}<br>
      * It will check if the subscriptions you create are not aleready activated.
      * @param streamerUsername streamer twitch username used for logging
      * @param streamerId streamer twitch id

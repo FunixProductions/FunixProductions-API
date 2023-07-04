@@ -19,12 +19,12 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>core</module>
-        <module>encryption</module>
-        <module>user</module>
-        <module>google</module>
-        <module>twitch</module>
-        <module>payment</module>
+        <module>modules/core</module>
+        <module>modules/encryption</module>
+        <module>modules/user</module>
+        <module>modules/google</module>
+        <module>modules/twitch</module>
+        <module>modules/payment</module>
     </modules>
 
     <properties>

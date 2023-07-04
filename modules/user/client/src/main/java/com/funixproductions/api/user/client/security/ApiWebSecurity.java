@@ -27,6 +27,9 @@ public abstract class ApiWebSecurity {
     @Autowired
     private UserJwtTokenFilter jwtTokenFilter;
 
+    /**
+     * This is needed for the {@link CurrentSession} to work
+     */
     public ApiWebSecurity() {
         SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
     }
