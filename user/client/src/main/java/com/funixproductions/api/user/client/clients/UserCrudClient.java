@@ -1,6 +1,5 @@
 package com.funixproductions.api.user.client.clients;
 
-import com.funixproductions.api.user.client.configs.FeignConfig;
 import com.funixproductions.api.user.client.dtos.UserDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserSecretsDTO;
 import com.funixproductions.core.crud.dtos.PageDTO;
@@ -11,8 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @FeignClient(
         name = "UserCrud",
         url = "${funixproductions.api.user.app-domain-url}",
-        path = "/user/",
-        configuration = FeignConfig.class
+        path = "/user/"
 )
 public interface UserCrudClient {
 

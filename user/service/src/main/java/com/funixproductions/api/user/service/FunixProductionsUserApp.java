@@ -12,7 +12,13 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         "com.funixproductions.api.encryption",
         "com.funixproductions.api.google"
 })
-@SpringBootApplication(scanBasePackages = "com.funixproductions")
+@SpringBootApplication(scanBasePackages = {
+        "com.funixproductions.api.encryption",
+        "com.funixproductions.api.google",
+        "com.funixproductions.api.core",
+        "com.funixproductions.api.user.service",
+        "com.funixproductions.core"
+})
 public class FunixProductionsUserApp {
     public static void main(String[] args) {
         SpringApplication.run(FunixProductionsUserApp.class, args);
