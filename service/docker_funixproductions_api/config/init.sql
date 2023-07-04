@@ -1,2 +1,0 @@
-CREATE DATABASE funixproductions_api_docker;
-CREATE DATABASE funixproductions_api_local;
