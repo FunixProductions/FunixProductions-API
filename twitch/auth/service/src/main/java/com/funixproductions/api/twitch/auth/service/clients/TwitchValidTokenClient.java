@@ -1,5 +1,6 @@
 package com.funixproductions.api.twitch.auth.service.clients;
 
+import com.funixproductions.api.twitch.auth.client.configurations.TwitchApiConfig;
 import com.funixproductions.api.twitch.auth.service.configurations.TwitchAuthConfig;
 import com.funixproductions.api.twitch.auth.service.dtos.TwitchValidationTokenResponseDTO;
 import com.funixproductions.core.exceptions.ApiException;
@@ -22,6 +23,8 @@ import java.net.http.HttpResponse;
 public class TwitchValidTokenClient {
 
     private final TwitchAuthConfig twitchAuthConfig;
+
+    private final TwitchApiConfig twitchApiConfig;
     private final Gson gson = new Gson();
 
     @Nullable
@@ -29,7 +32,7 @@ public class TwitchValidTokenClient {
         final HttpRequest.Builder httpRequest = HttpRequest.newBuilder();
         httpRequest.uri(URI.create("https://id.twitch.tv/oauth2/validate"));
         httpRequest.GET();
-        httpRequest.setHeader("Client-Id", twitchAuthConfig.getAppClientId());
+        httpRequest.setHeader("Client-Id", twitchApiConfig.getAppClientId());
         httpRequest.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         httpRequest.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
         httpRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
