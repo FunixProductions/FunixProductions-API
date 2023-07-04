@@ -4,19 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.funixproductions.api</groupId>
-        <artifactId>funixproductions-api</artifactId>
+        <groupId>com.funixproductions.api.payment</groupId>
+        <artifactId>funixproductions-payment</artifactId>
         <version>1.1.0</version>
     </parent>
 
-    <groupId>com.funixproductions.api.google</groupId>
-    <artifactId>funixproductions-google</artifactId>
+    <groupId>com.funixproductions.api.payment.paypal</groupId>
+    <artifactId>funixproductions-payment-paypal</artifactId>
     <packaging>pom</packaging>
-
     <modules>
-        <module>reCaptcha</module>
-        <module>auth</module>
-        <module>gmail</module>
+        <module>client</module>
+        <module>service</module>
     </modules>
 
     <properties>

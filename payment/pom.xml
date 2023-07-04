@@ -9,14 +9,12 @@
         <version>1.1.0</version>
     </parent>
 
-    <groupId>com.funixproductions.api.google</groupId>
-    <artifactId>funixproductions-google</artifactId>
+    <groupId>com.funixproductions.api.payment</groupId>
+    <artifactId>funixproductions-payment</artifactId>
     <packaging>pom</packaging>
 
     <modules>
-        <module>reCaptcha</module>
-        <module>auth</module>
-        <module>gmail</module>
+        <module>paypal</module>
     </modules>
 
     <properties>
