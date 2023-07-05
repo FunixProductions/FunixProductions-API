@@ -25,8 +25,8 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build with Maven
+      - name: Verify build with Maven
         env:
           ENCRYPTION_KEY: hwJdNY1/yC3miXQR+Vw2V3qtt1e3FPJ2y62BKtROUJs=
           ENCRYPTION_IV: DKKyySzj8ao5WgraQpwj+A==
-        run: mvn --batch-mode --update-snapshots verify -Dmaven.javadoc.skip -Dgpg.skip
+        run: mvn --batch-mode --update-snapshots clean package verify -Dmaven.javadoc.skip -Dgpg.skip
