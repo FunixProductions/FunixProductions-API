@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: google-gmail-microservice-deployment
+  namespace: 'funixproductions'
+  labels:
+    app: springboot
+    service: google-gmail
+
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: springboot
+      service: google-gmail
+  template:
+    metadata:
+      namespace: 'funixproductions'
+      annotations:
+        build-time: "TIME-UPDATE-BUILD-FNG"
+      labels:
+        app: springboot
+        service: google-gmail
+    spec:
+      containers:
+        - name: springboot-google-gmail
+          image: ghcr.io/funixproductions/funixproductions-api-google-gmail:latest
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+                memory: "2Gi"
+          imagePullPolicy: Always
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          env:
+            - name: APP_PORT
+              value: '80'
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: '/google/gmail/gmail-credentials.json'
+          volumeMounts:
+            - name: gmail-credentials
+              mountPath: "/google/gmail/"
+              readOnly: true
+      volumes:
+        - name: gmail-credentials
+          secret:
+            secretName: gmail-credentials
+
+---
+
+apiVersion: v1
+kind: Service
+
+metadata:
+  namespace: 'funixproductions'
+  name: google-gmail
+
+spec:
+  type: ClusterIP
+  selector:
+    app: springboot
+    service: google-gmail
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

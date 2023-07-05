@@ -45,6 +45,11 @@
             <artifactId>google-api-services-gmail</artifactId>
             <version>${com.google.apis.gmail.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

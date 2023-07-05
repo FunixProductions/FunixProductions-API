@@ -17,6 +17,8 @@ public class WebSecurity extends ApiWebSecurity {
     public Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> getUrlsMatchers() {
         return exchanges -> exchanges
                 .requestMatchers("/kubeinternal**").permitAll()
+                .requestMatchers("/actuator**").permitAll()
+
                 .requestMatchers("/twitch/auth/cb").permitAll()
                 .anyRequest().authenticated();
     }

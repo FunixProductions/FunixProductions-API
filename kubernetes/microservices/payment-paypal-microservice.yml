@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: payment-paypal-microservice-deployment
+  namespace: 'funixproductions'
+  labels:
+    app: springboot
+    service: payment-paypal
+
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: springboot
+      service: payment-paypal
+  template:
+    metadata:
+      namespace: 'funixproductions'
+      annotations:
+        build-time: "TIME-UPDATE-BUILD-FNG"
+      labels:
+        app: springboot
+        service: payment-paypal
+    spec:
+      containers:
+        - name: springboot-payment-paypal
+          image: ghcr.io/funixproductions/funixproductions-api-payment-paypal:latest
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+                memory: "2Gi"
+          imagePullPolicy: Always
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          env:
+            - name: APP_PORT
+              value: '80'
+            - name: PAYPAL_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: paypal-secret
+                  key: paypal-client-id
+            - name: PAYPAL_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: paypal-secret
+                  key: paypal-client-secret
+
+---
+
+apiVersion: v1
+kind: Service
+
+metadata:
+  namespace: 'funixproductions'
+  name: payment-paypal
+
+spec:
+  type: ClusterIP
+  selector:
+    app: springboot
+    service: payment-paypal
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
