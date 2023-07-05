@@ -5,5 +5,5 @@ metadata:
   name: postgres-config
 data:
   postgres-url: 'postgres-db-service'
-  postgres-port: '5432'
+  postgres-port: '5433'
   postgres-db: 'funixproductions_db'
