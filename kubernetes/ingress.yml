@@ -1,0 +1,42 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: 'funixproductions'
+  name: funixproductions-api-ingress
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  tls:
+    - secretName: funixproductions-api-certificate-tls
+  rules:
+    - host: api.funixproductions.com
+      http:
+        paths:
+          - path: /user
+            pathType: Prefix
+            backend:
+              service:
+                name: user-service
+                port:
+                  number: 80
+          - path: /twitch/auth
+            pathType: Prefix
+            backend:
+              service:
+                name: twitch-auth
+                port:
+                  number: 80
+          - path: /twitch/eventsub
+            pathType: Prefix
+            backend:
+              service:
+                name: twitch-eventsub
+                port:
+                  number: 80
+          - path: /google/auth
+            pathType: Prefix
+            backend:
+              service:
+                name: google-auth
+                port:
+                  number: 80

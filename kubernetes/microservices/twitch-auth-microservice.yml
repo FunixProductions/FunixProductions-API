@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: twitch-auth-microservice-deployment
+  namespace: 'funixproductions'
+  labels:
+    app: springboot
+    service: twitch-auth
+
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: springboot
+      service: twitch-auth
+  template:
+    metadata:
+      namespace: 'funixproductions'
+      annotations:
+        build-time: "TIME-UPDATE-BUILD-FNG"
+      labels:
+        app: springboot
+        service: twitch-auth
+    spec:
+      containers:
+        - name: springboot-twitch-auth
+          image: ghcr.io/funixproductions/funixproductions-api-twitch-auth:latest
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+                memory: "1Gi"
+          imagePullPolicy: Always
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          env:
+            - name: APP_PORT
+              value: '80'
+            - name: DB_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  key: postgres-url
+                  name: postgres-config
+            - name: DB_PORT
+              value: '5432'
+            - name: DB_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: postgres-db
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-password
+            - name: TWITCH_APP_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: twitch-secret
+                  key: twitch-client-id
+            - name: TWITCH_APP_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: twitch-secret
+                  key: twitch-client-secret
+
+---
+
+apiVersion: v1
+kind: Service
+
+metadata:
+  namespace: 'funixproductions'
+  name: twitch-auth
+
+spec:
+  type: ClusterIP
+  selector:
+    app: springboot
+    service: twitch-auth
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

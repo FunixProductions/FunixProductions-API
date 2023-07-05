@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: 'funixproductions'
+  name: postgres-config
+data:
+  postgres-url: 'postgres-db-service'
+  postgres-port: '5433'
+  postgres-db: 'funixproductions_db'
