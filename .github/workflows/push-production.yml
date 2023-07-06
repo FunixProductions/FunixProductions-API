@@ -95,7 +95,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Download Package Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: maven-packages
 
@@ -125,7 +125,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Download Package Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: maven-packages
 
@@ -155,7 +155,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Download Package Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: maven-packages
 
@@ -185,7 +185,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Download Package Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: maven-packages
 
@@ -215,7 +215,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Download Package Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: maven-packages
 
@@ -245,7 +245,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Download Package Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: maven-packages
 
@@ -275,7 +275,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Download Package Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: maven-packages
 
@@ -305,7 +305,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Download Package Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: maven-packages
 
@@ -335,7 +335,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Download Package Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: maven-packages
 
