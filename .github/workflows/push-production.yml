@@ -76,7 +76,8 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: maven-packages
-          path: $(cat jar-files.txt)
+          path: modules/
+          if: success()
 
   build-production-encryption-service:
     needs: build-production-maven
