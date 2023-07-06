@@ -73,7 +73,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: maven-packages
-          path: modules/**/*.jar
+          path: modules/**/target/*.jar
 
   build-production-encryption-service:
     needs: build-production-maven
