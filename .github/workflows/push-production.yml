@@ -69,23 +69,14 @@ jobs:
           ENCRYPTION_IV: DKKyySzj8ao5WgraQpwj+A==
         run: mvn --batch-mode clean package
 
+      - name: Find JAR files
+        run: find modules -name "*.jar" -type f > jar-files.txt
+
       - name: Publish Package Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: maven-packages
-          path: |
-            modules/encryption/service/target/
-            modules/user/service/target/
-            
-            modules/twitch/auth/service/target/
-            modules/twitch/eventsub/service/target/
-            modules/twitch/reference/service/target/
-            
-            modules/payment/paypal/service/target/
-            
-            modules/google/auth/service/target/
-            modules/google/gmail/service/target/
-            modules/google/reCaptcha/service/target/
+          path: $(cat jar-files.txt)
 
   build-production-encryption-service:
     needs: build-production-maven
