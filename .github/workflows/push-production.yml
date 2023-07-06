@@ -103,6 +103,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
       - name: Download Package Artifacts
         uses: actions/download-artifact@v2
         with:
@@ -129,6 +132,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout source code
+        uses: actions/checkout@v3
 
       - name: Download Package Artifacts
         uses: actions/download-artifact@v2
@@ -157,6 +163,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
       - name: Download Package Artifacts
         uses: actions/download-artifact@v2
         with:
@@ -183,6 +192,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout source code
+        uses: actions/checkout@v3
 
       - name: Download Package Artifacts
         uses: actions/download-artifact@v2
@@ -211,6 +223,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
       - name: Download Package Artifacts
         uses: actions/download-artifact@v2
         with:
@@ -237,6 +252,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout source code
+        uses: actions/checkout@v3
 
       - name: Download Package Artifacts
         uses: actions/download-artifact@v2
@@ -265,6 +283,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
       - name: Download Package Artifacts
         uses: actions/download-artifact@v2
         with:
@@ -292,6 +313,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
       - name: Download Package Artifacts
         uses: actions/download-artifact@v2
         with:
@@ -318,6 +342,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout source code
+        uses: actions/checkout@v3
 
       - name: Download Package Artifacts
         uses: actions/download-artifact@v2
