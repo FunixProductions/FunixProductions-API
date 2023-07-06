@@ -98,7 +98,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: maven-packages
-          working-directory: modules
+          path: modules
 
       - name: Build funixproductions-encryption api docker image
         run: docker build . --tag ghcr.io/funixproductions/funixproductions-api-encryption:latest --build-arg service_name=encryption --build-arg service_base_dir=encryption
@@ -129,7 +129,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: maven-packages
-          working-directory: modules
+          path: modules
 
       - name: Build funixproductions-user api docker image
         run: docker build . --tag ghcr.io/funixproductions/funixproductions-api-user:latest --build-arg service_name=user --build-arg service_base_dir=user
@@ -160,7 +160,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: maven-packages
-          working-directory: modules
+          path: modules
 
       - name: Build funixproductions-google-auth api docker image
         run: docker build . --tag ghcr.io/funixproductions/funixproductions-api-google-auth:latest --build-arg service_name=google-auth --build-arg service_base_dir=google/auth
@@ -191,7 +191,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: maven-packages
-          working-directory: modules
+          path: modules
 
       - name: Build funixproductions-google-gmail api docker image
         run: docker build . --tag ghcr.io/funixproductions/funixproductions-api-google-gmail:latest --build-arg service_name=google-gmail --build-arg service_base_dir=google/gmail
@@ -222,7 +222,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: maven-packages
-          working-directory: modules
+          path: modules
 
       - name: Build funixproductions-google-recaptcha api docker image
         run: docker build . --tag ghcr.io/funixproductions/funixproductions-api-google-recaptcha:latest --build-arg service_name=google-recaptcha --build-arg service_base_dir=google/reCaptcha
@@ -253,7 +253,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: maven-packages
-          working-directory: modules
+          path: modules
 
       - name: Build funixproductions-payment-paypal api docker image
         run: docker build . --tag ghcr.io/funixproductions/funixproductions-api-payment-paypal:latest --build-arg service_name=payment-paypal --build-arg service_base_dir=payment/paypal
@@ -284,7 +284,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: maven-packages
-          working-directory: modules
+          path: modules
 
       - name: Build funixproductions-twitch-auth api docker image
         run: docker build . --tag ghcr.io/funixproductions/funixproductions-api-twitch-auth:latest --build-arg service_name=twitch-auth --build-arg service_base_dir=twitch/auth
@@ -315,7 +315,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: maven-packages
-          working-directory: modules
+          path: modules
 
       - name: Build funixproductions-twitch-eventsub api docker image
         run: docker build . --tag ghcr.io/funixproductions/funixproductions-api-twitch-eventsub:latest --build-arg service_name=twitch-eventsub --build-arg service_base_dir=twitch/eventsub
@@ -346,7 +346,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: maven-packages
-          working-directory: modules
+          path: modules
 
       - name: Build funixproductions-twitch-reference api docker image
         run: docker build . --tag ghcr.io/funixproductions/funixproductions-api-twitch-reference:latest --build-arg service_name=twitch-reference --build-arg service_base_dir=twitch/reference
