@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.funixproductions.api.user</groupId>
         <artifactId>funixproductions-user</artifactId>
-        <version>1.2.0</version>
+        <version>1.2.1</version>
     </parent>
 
     <groupId>com.funixproductions.api.user.service</groupId>
@@ -20,7 +20,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.funixproductions.api.user</groupId>
+            <groupId>com.funixproductions.api.user.client</groupId>
             <artifactId>funixproductions-user-client</artifactId>
             <version>${com.funixproductions.api.version}</version>
         </dependency>
@@ -68,6 +68,13 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${org.postgresql.version}</version>
+        </dependency>
+
+        <!-- Migration scripts -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-maven-plugin</artifactId>
+            <version>${org.flywaydb.version}</version>
         </dependency>
 
         <!-- Used for auth tokens -->

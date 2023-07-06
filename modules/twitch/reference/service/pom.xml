@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.funixproductions.api.twitch.reference</groupId>
         <artifactId>funixproductions-twitch-reference</artifactId>
-        <version>1.2.0</version>
+        <version>1.2.1</version>
     </parent>
 
     <groupId>com.funixproductions.api.twitch.reference.service</groupId>
@@ -26,7 +26,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.funixproductions.api.user</groupId>
+            <groupId>com.funixproductions.api.user.client</groupId>
             <artifactId>funixproductions-user-client</artifactId>
             <version>${com.funixproductions.api.version}</version>
         </dependency>
