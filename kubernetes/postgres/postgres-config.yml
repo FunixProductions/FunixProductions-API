@@ -4,6 +4,6 @@ metadata:
   namespace: 'funixproductions'
   name: postgres-config
 data:
-  postgres-url: 'postgres-db-service'
+  postgres-url: '168.119.145.236'
   postgres-port: '5433'
   postgres-db: 'funixproductions_db'

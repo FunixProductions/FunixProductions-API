@@ -30,8 +30,8 @@ sed -i "s/SETUP_TWITCH_HMAC_SECRET_KEY_REPLACEME/${TWITCH_HMAC_SECRET}/g" config
 kubectl apply -f config/twitch-secret.yml
 
 #Setup database credentials
-sed -i "s/SETUP_POSTGRES_USER_REPLACEME/${DB_USER}/g" postgres/postgres-secret.yml
-sed -i "s/SETUP_POSTGRES_PASSWORD_REPLACEME/${DB_PASSWORD}/g" postgres/postgres-secret.yml
+sed -i "s/SETUP_POSTGRES_USER_REPLACEME/${DB_USER_FUNIXPROD_API}/g" postgres/postgres-secret.yml
+sed -i "s/SETUP_POSTGRES_PASSWORD_REPLACEME/${DB_PASSWORD_FUNIXPROD_API}/g" postgres/postgres-secret.yml
 kubectl apply -f postgres/postgres-config.yml
 kubectl apply -f postgres/postgres-secret.yml
 
