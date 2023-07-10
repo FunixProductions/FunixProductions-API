@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.funixproductions.api.payment.paypal</groupId>
         <artifactId>funixproductions-payment-paypal</artifactId>
-        <version>1.2.1</version>
+        <version>1.2.1.1</version>
     </parent>
 
     <groupId>com.funixproductions.api.payment.paypal.service</groupId>

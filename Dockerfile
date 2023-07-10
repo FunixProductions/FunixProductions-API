@@ -3,7 +3,7 @@ ARG service_name
 ARG service_base_dir
 ENV SERVICE_NAME=${service_name}
 ENV SERVICE_BASE_DIR=${service_base_dir}
-ENV APP_VERSION=1.2.1
+ENV APP_VERSION=1.2.1.1
 
 WORKDIR /container/java
 
