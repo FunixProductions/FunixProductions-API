@@ -18,7 +18,7 @@ public class WebSecurity extends ApiWebSecurity {
     public Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> getUrlsMatchers() {
         return ex -> ex
                 .requestMatchers("/twitch/eventsub/cb**").permitAll()
-                .requestMatchers("/actuator**").permitAll()
+                .requestMatchers("/actuator/**").permitAll()
                 .anyRequest().hasAuthority(UserRole.ADMIN.getRole());
     }
 }
