@@ -380,18 +380,4 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Update Kubernetes Cluster
-        env:
-          ENCRYPTION_IV: ${{ secrets.ENCRYPTION_IV }}
-          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
-          JWT_KEY: ${{ secrets.JWT_KEY }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          GOOGLE_RECAPTCHA_SITE_KEY: ${{ secrets.GOOGLE_RECAPTCHA_SITE_KEY }}
-          GOOGLE_RECAPTCHA_SECRET_KEY: ${{ secrets.GOOGLE_RECAPTCHA_SECRET_KEY }}
-          PAYPAL_CLIENT_ID: ${{ secrets.PAYPAL_CLIENT_ID }}
-          PAYPAL_CLIENT_SECRET: ${{ secrets.PAYPAL_CLIENT_SECRET }}
-          TWITCH_CLIENT_ID: ${{ secrets.TWITCH_CLIENT_ID }}
-          TWITCH_CLIENT_SECRET: ${{ secrets.TWITCH_CLIENT_SECRET }}
-          TWITCH_HMAC_SECRET: ${{ secrets.TWITCH_HMAC_SECRET }}
-          CLOUDFLARE_DNS_ACCESS_TOKEN: ${{ secrets.CLOUDFLARE_DNS_ACCESS_TOKEN }}
-        run: cd kubernetes && ./deploy.sh
+        run: cd kubernetes && ./deployServices.sh

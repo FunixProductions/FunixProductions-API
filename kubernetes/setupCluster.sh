@@ -1,3 +1,7 @@
+helm repo add jetstack https://charts.jetstack.io
+
+kubectl create secret generic gmail-credentials --from-file=gmail-credentials.json --namespace=funixproductions
+
 helm repo update
 
 #Setup funixproductions namespace
@@ -31,10 +35,7 @@ sed -i "s/SETUP_POSTGRES_PASSWORD_REPLACEME/${DB_PASSWORD}/g" postgres/postgres-
 kubectl apply -f postgres/postgres-config.yml
 kubectl apply -f postgres/postgres-secret.yml
 
-#Deploy microservices
-ACTUAL_TIME=$(date +%s)
-sed -i "s/TIME-UPDATE-BUILD-FNG/${ACTUAL_TIME}/g" microservices/*.yml
-kubectl apply -f microservices
+./setupServices.sh
 
 #Setup certificates ssl
 cd certificates-ssl
