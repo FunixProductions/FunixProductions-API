@@ -9,7 +9,7 @@ metadata:
     service: twitch-eventsub
 
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: springboot
@@ -30,7 +30,7 @@ spec:
             - containerPort: 80
           resources:
             limits:
-                memory: "1Gi"
+                memory: "3Gi"
           imagePullPolicy: Always
           readinessProbe:
             httpGet:
