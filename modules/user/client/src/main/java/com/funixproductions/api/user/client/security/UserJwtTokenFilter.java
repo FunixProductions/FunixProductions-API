@@ -44,7 +44,7 @@ public class UserJwtTokenFilter extends OncePerRequestFilter {
 
         try {
             final UserDTO user = userAuthClient.current(bearerTokenHeader);
-            final UserSession userSession = new UserSession(user, ipUtils.getClientIp(request));
+            final UserSession userSession = new UserSession(user, ipUtils.getClientIp(request), request);
             final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     userSession,
                     null,
