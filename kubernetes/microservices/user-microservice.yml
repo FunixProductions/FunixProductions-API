@@ -47,7 +47,10 @@ spec:
                   key: postgres-url
                   name: postgres-config
             - name: DB_PORT
-              value: '5432'
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: postgres-port
             - name: DB_DATABASE
               valueFrom:
                 configMapKeyRef:
