@@ -30,7 +30,7 @@ spec:
             - containerPort: 80
           resources:
             limits:
-                memory: "2Gi"
+                memory: "1Gi"
           imagePullPolicy: Always
           readinessProbe:
             httpGet:
@@ -104,7 +104,7 @@ spec:
     kind: Deployment
     name: user-microservice-deployment
   minReplicas: 2
-  maxReplicas: 15
+  maxReplicas: 10
   metrics:
     - type: Resource
       resource:
