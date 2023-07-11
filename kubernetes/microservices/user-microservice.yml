@@ -9,7 +9,7 @@ metadata:
     service: user
 
 spec:
-  replicas: 4
+  replicas: 2
   selector:
     matchLabels:
       app: springboot
@@ -47,7 +47,10 @@ spec:
                   key: postgres-url
                   name: postgres-config
             - name: DB_PORT
-              value: '5432'
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: postgres-port
             - name: DB_DATABASE
               valueFrom:
                 configMapKeyRef:
@@ -100,7 +103,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: user-microservice-deployment
-  minReplicas: 4
+  minReplicas: 2
   maxReplicas: 15
   metrics:
     - type: Resource
