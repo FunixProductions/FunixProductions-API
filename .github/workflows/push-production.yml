@@ -75,7 +75,7 @@ jobs:
           name: maven-packages
           path: modules/**/target/*.jar
 
-  build-production-encryption-service:
+  build-production-docker-images:
     needs: build-production-maven
     runs-on: ubuntu-latest
 
@@ -85,7 +85,7 @@ jobs:
 
     steps:
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -100,271 +100,15 @@ jobs:
           name: maven-packages
           path: modules
 
-      - name: Build funixproductions-encryption api docker image
-        run: docker build . --tag ghcr.io/funixproductions/funixproductions-api-encryption:latest --build-arg service_name=encryption --build-arg service_base_dir=encryption
+      - name: Build funixproductions api docker images
+        run: docker compose build
 
       - name: Push funixproductions-encryption api docker image
-        run: docker push ghcr.io/funixproductions/funixproductions-api-encryption:latest
-
-  build-production-user-service:
-    needs: build-production-maven
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Checkout source code
-        uses: actions/checkout@v3
-
-      - name: Download Package Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: maven-packages
-          path: modules
-
-      - name: Build funixproductions-user api docker image
-        run: docker build . --tag ghcr.io/funixproductions/funixproductions-api-user:latest --build-arg service_name=user --build-arg service_base_dir=user
-
-      - name: Push funixproductions-user api docker image
-        run: docker push ghcr.io/funixproductions/funixproductions-api-user:latest
-
-  build-production-google-auth-service:
-    needs: build-production-maven
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Checkout source code
-        uses: actions/checkout@v3
-
-      - name: Download Package Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: maven-packages
-          path: modules
-
-      - name: Build funixproductions-google-auth api docker image
-        run: docker build . --tag ghcr.io/funixproductions/funixproductions-api-google-auth:latest --build-arg service_name=google-auth --build-arg service_base_dir=google/auth
-
-      - name: Push funixproductions-google-auth api docker image
-        run: docker push ghcr.io/funixproductions/funixproductions-api-google-auth:latest
-
-  build-production-google-gmail-service:
-    needs: build-production-maven
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Checkout source code
-        uses: actions/checkout@v3
-
-      - name: Download Package Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: maven-packages
-          path: modules
-
-      - name: Build funixproductions-google-gmail api docker image
-        run: docker build . --tag ghcr.io/funixproductions/funixproductions-api-google-gmail:latest --build-arg service_name=google-gmail --build-arg service_base_dir=google/gmail
-
-      - name: Push funixproductions-google-gmail api docker image
-        run: docker push ghcr.io/funixproductions/funixproductions-api-google-gmail:latest
-
-  build-production-google-recaptcha-service:
-    needs: build-production-maven
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Checkout source code
-        uses: actions/checkout@v3
-
-      - name: Download Package Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: maven-packages
-          path: modules
-
-      - name: Build funixproductions-google-recaptcha api docker image
-        run: docker build . --tag ghcr.io/funixproductions/funixproductions-api-google-recaptcha:latest --build-arg service_name=google-recaptcha --build-arg service_base_dir=google/reCaptcha
-
-      - name: Push funixproductions-google-recaptcha api docker image
-        run: docker push ghcr.io/funixproductions/funixproductions-api-google-recaptcha:latest
-
-  build-production-payment-paypal-service:
-    needs: build-production-maven
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Checkout source code
-        uses: actions/checkout@v3
-
-      - name: Download Package Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: maven-packages
-          path: modules
-
-      - name: Build funixproductions-payment-paypal api docker image
-        run: docker build . --tag ghcr.io/funixproductions/funixproductions-api-payment-paypal:latest --build-arg service_name=payment-paypal --build-arg service_base_dir=payment/paypal
-
-      - name: Push funixproductions-payment-paypal api docker image
-        run: docker push ghcr.io/funixproductions/funixproductions-api-payment-paypal:latest
-
-  build-production-twitch-auth-service:
-    needs: build-production-maven
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Checkout source code
-        uses: actions/checkout@v3
-
-      - name: Download Package Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: maven-packages
-          path: modules
-
-      - name: Build funixproductions-twitch-auth api docker image
-        run: docker build . --tag ghcr.io/funixproductions/funixproductions-api-twitch-auth:latest --build-arg service_name=twitch-auth --build-arg service_base_dir=twitch/auth
-
-      - name: Push funixproductions-twitch-auth api docker image
-        run: docker push ghcr.io/funixproductions/funixproductions-api-twitch-auth:latest
-
-  build-production-twitch-eventsub-service:
-    needs: build-production-maven
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Checkout source code
-        uses: actions/checkout@v3
-
-      - name: Download Package Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: maven-packages
-          path: modules
-
-      - name: Build funixproductions-twitch-eventsub api docker image
-        run: docker build . --tag ghcr.io/funixproductions/funixproductions-api-twitch-eventsub:latest --build-arg service_name=twitch-eventsub --build-arg service_base_dir=twitch/eventsub
-
-      - name: Push funixproductions-twitch-eventsub api docker image
-        run: docker push ghcr.io/funixproductions/funixproductions-api-twitch-eventsub:latest
-
-  build-production-twitch-reference-service:
-    needs: build-production-maven
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Checkout source code
-        uses: actions/checkout@v3
-
-      - name: Download Package Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: maven-packages
-          path: modules
-
-      - name: Build funixproductions-twitch-reference api docker image
-        run: docker build . --tag ghcr.io/funixproductions/funixproductions-api-twitch-reference:latest --build-arg service_name=twitch-reference --build-arg service_base_dir=twitch/reference
-
-      - name: Push funixproductions-twitch-reference api docker image
-        run: docker push ghcr.io/funixproductions/funixproductions-api-twitch-reference:latest
+        run: docker compose push
 
   update-kubernetes-cluster:
     needs:
-      - build-production-encryption-service
-      - build-production-user-service
-      - build-production-google-gmail-service
-      - build-production-google-recaptcha-service
-      - build-production-google-auth-service
-      - build-production-payment-paypal-service
-      - build-production-twitch-auth-service
-      - build-production-twitch-eventsub-service
-      - build-production-twitch-reference-service
+      - build-production-docker-images
 
     runs-on: ubuntu-latest
 

@@ -1,0 +1,83 @@
+version: '3'
+
+services:
+  #Encryption microservice
+  build-production-encryption-service:
+    image: ghcr.io/funixproductions/funixproductions-api-encryption:latest
+    build:
+      context: .
+      args:
+        service_name: encryption
+        service_base_dir: encryption
+
+  #User microservice
+  build-production-user-service:
+    image: ghcr.io/funixproductions/funixproductions-api-user:latest
+    build:
+      context: .
+      args:
+        service_name: user
+        service_base_dir: user
+
+  #Google microservices - Google Auth
+  build-production-google-auth-service:
+    image: ghcr.io/funixproductions/funixproductions-api-google-auth:latest
+    build:
+      context: .
+      args:
+        service_name: google-auth
+        service_base_dir: google/auth
+
+  #Google microservices - Google Gmail
+  build-production-google-gmail-service:
+    image: ghcr.io/funixproductions/funixproductions-api-google-gmail:latest
+    build:
+      context: .
+      args:
+        service_name: google-gmail
+        service_base_dir: google/gmail
+
+  #Google microservices - Google reCaptcha
+  build-production-google-recaptcha-service:
+    image: ghcr.io/funixproductions/funixproductions-api-google-recaptcha:latest
+    build:
+      context: .
+      args:
+        service_name: google-recaptcha
+        service_base_dir: google/reCaptcha
+
+  #Payment - PayPal service
+  build-production-payment-paypal-service:
+    image: ghcr.io/funixproductions/funixproductions-api-payment-paypal:latest
+    build:
+      context: .
+      args:
+        service_name: payment-paypal
+        service_base_dir: payment/paypal
+
+  #Twitch - Auth service
+  build-production-twitch-auth-service:
+    image: ghcr.io/funixproductions/funixproductions-api-twitch-auth:latest
+    build:
+      context: .
+      args:
+        service_name: twitch-auth
+        service_base_dir: twitch/auth
+
+  #Twitch - EventSub service
+  build-production-twitch-eventsub-service:
+    image: ghcr.io/funixproductions/funixproductions-api-twitch-eventsub:latest
+    build:
+      context: .
+      args:
+        service_name: twitch-eventsub
+        service_base_dir: twitch/eventsub
+
+  #Twitch - Reference service
+  build-production-twitch-reference-service:
+    image: ghcr.io/funixproductions/funixproductions-api-twitch-reference:latest
+    build:
+      context: .
+      args:
+        service_name: twitch-reference
+        service_base_dir: twitch/reference
