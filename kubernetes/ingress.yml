@@ -16,7 +16,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: user-service
+                name: user
                 port:
                   number: 80
           - path: /twitch/auth
