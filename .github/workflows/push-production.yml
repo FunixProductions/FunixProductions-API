@@ -100,11 +100,8 @@ jobs:
           name: maven-packages
           path: modules
 
-      - name: Build funixproductions api docker images
-        run: docker compose build
-
-      - name: Push funixproductions-encryption api docker image
-        run: docker compose push
+      - name: Build funixproductions api docker images and push
+        run: docker compose build --push
 
   update-kubernetes-cluster:
     needs:
