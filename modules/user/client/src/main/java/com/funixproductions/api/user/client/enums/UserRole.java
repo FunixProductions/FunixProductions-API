@@ -20,6 +20,7 @@ public enum UserRole {
 
     PACIFISTA_ADMIN("PACIFISTA_ADMIN", new String[]{
             "USER",
+            "PACIFISTA_MODERATOR",
             "PACIFISTA_ADMIN"
     }),
 
