@@ -19,3 +19,5 @@ spec:
         selector:
           dnsZones:
             - "funixproductions.com"
+            - "pacifista.fr"
+            - "funixgaming.fr"
