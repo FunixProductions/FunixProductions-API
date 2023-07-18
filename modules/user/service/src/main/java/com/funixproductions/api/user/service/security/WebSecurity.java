@@ -43,7 +43,7 @@ public class WebSecurity {
                 .exceptionHandling(Customizer.withDefaults())
 
                 .authorizeHttpRequests(exchanges -> exchanges
-                        .requestMatchers("/kubeinternal/**").permitAll()
+                        .requestMatchers("/kubeinternal/user/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
 
                         .requestMatchers(HttpMethod.POST, "/user/auth/register**", "/user/auth/login**").permitAll()
