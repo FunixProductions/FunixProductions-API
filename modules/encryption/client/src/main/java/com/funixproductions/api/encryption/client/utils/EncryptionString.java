@@ -3,8 +3,10 @@ package com.funixproductions.api.encryption.client.utils;
 import com.funixproductions.api.encryption.client.clients.FunixProductionsEncryptionClient;
 import com.funixproductions.core.tools.encryption.ApiConverter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class EncryptionString implements ApiConverter<String> {
@@ -18,7 +20,12 @@ public class EncryptionString implements ApiConverter<String> {
      */
     @Override
     public String convertToDatabaseColumn(String s) {
-        return encryptionClient.encrypt(s);
+        try {
+            return this.encryptionClient.encrypt(s);
+        } catch (Exception e) {
+            log.error("Error while encrypting text", e);
+            throw e;
+        }
     }
 
     /**
@@ -28,6 +35,11 @@ public class EncryptionString implements ApiConverter<String> {
      */
     @Override
     public String convertToEntityAttribute(String s) {
-        return encryptionClient.decrypt(s);
+        try {
+            return this.encryptionClient.decrypt(s);
+        } catch (Exception e) {
+            log.error("Error while decrypting text", e);
+            throw e;
+        }
     }
 }
