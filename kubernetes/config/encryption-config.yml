@@ -4,7 +4,7 @@ metadata:
   namespace: 'funixproductions'
   name: encryption-secret
 type: Opaque
-data:
-    encryption-key: SETUP_ENCRYPTION_KEY_REPLACEME
-    encryption-iv-key: SETUP_ENCRYPTION_IV_KEY_REPLACEME
-    jwt-key: SETUP_JWT_KEY_REPLACEME
+stringData:
+    encryption-key: "SETUP_ENCRYPTION_KEY_REPLACEME"
+    encryption-iv-key: "SETUP_ENCRYPTION_IV_KEY_REPLACEME"
+    jwt-key: "SETUP_JWT_KEY_REPLACEME"
