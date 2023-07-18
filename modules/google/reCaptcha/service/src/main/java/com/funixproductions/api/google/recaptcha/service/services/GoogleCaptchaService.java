@@ -76,9 +76,11 @@ public class GoogleCaptchaService {
                 reCaptchaSucceeded(clientIp);
             } else {
                 reCaptchaFailed(clientIp);
+                log.info("Client ip {} failed to verify reCaptcha.", clientIp);
                 throw new ApiBadRequestException("Le code google reCaptcha est invalide. (google refus)");
             }
         } catch (FeignException e) {
+            log.info("Client ip {} failed to verify reCaptcha. Error", clientIp, e);
             throw new ApiBadRequestException("Une erreur est survenue lors de la vérification du captcha auprès de google. (status code: " + e.status() + ")");
         }
     }
