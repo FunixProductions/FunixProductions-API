@@ -32,6 +32,8 @@ public class GoogleRecaptchaHandler {
             this.googleRecaptchaClient.verify(action, googleCode, ip);
         } catch (FeignException e) {
             log.warn("Google captcha error. Code http {}. Message {}.", e.status(), e.getMessage());
+            log.warn("Ip cloudfalre get header True-Client-IP {}", servletRequest.getHeader("True-Client-IP"));
+            log.warn("With ip {} and x-forwarded-header {}.", ip, servletRequest.getHeader("x-forwarded-for"));
             throw new ApiBadRequestException(String.format("Le captcha est invalide. Code http %s. Message %s.", e.status(), e.getMessage()));
         }
     }

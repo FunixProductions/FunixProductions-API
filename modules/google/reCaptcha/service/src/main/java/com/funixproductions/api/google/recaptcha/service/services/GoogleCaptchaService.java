@@ -51,7 +51,7 @@ public class GoogleCaptchaService {
         final String clientIp = ipUtils.getClientIp(request);
 
         if (isBlocked(clientIp)) {
-            log.info("Client ip {} is blocked due to too many requests.", clientIp);
+            log.warn("Client ip {} is blocked due to too many requests.", clientIp);
             throw new ApiForbiddenException(String.format("Vous avez fait plus de %d essais. Vous êtes donc bloqué" +
                     " 15 minutes. Veuillez réessayer plus tard.", MAX_ATTEMPT));
         }
@@ -60,7 +60,7 @@ public class GoogleCaptchaService {
             try {
                 makeCallToGoogle(captchaCode, clientIp);
             } catch (ApiBadRequestException e) {
-                log.info("Header {} value: {}", IPUtils.HEADER_X_FORWARDED, request.getHeader(IPUtils.HEADER_X_FORWARDED));
+                log.warn("Header {} value: {}", IPUtils.HEADER_X_FORWARDED, request.getHeader(IPUtils.HEADER_X_FORWARDED));
                 throw e;
             }
         } else {
@@ -81,11 +81,11 @@ public class GoogleCaptchaService {
                 reCaptchaSucceeded(clientIp);
             } else {
                 reCaptchaFailed(clientIp);
-                log.info("Client ip {} failed to verify reCaptcha.", clientIp);
+                log.warn("Client ip {} failed to verify reCaptcha.", clientIp);
                 throw new ApiBadRequestException("Le code google reCaptcha est invalide. (google refus)");
             }
         } catch (FeignException e) {
-            log.info("Client ip {} failed to verify reCaptcha. Error", clientIp, e);
+            log.warn("Client ip {} failed to verify reCaptcha. Error", clientIp, e);
             throw new ApiBadRequestException("Une erreur est survenue lors de la vérification du captcha auprès de google. (status code: " + e.status() + ")");
         }
     }
