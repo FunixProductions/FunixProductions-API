@@ -57,7 +57,12 @@ public class GoogleCaptchaService {
         }
 
         if (StringUtils.hasLength(captchaCode) && RESPONSE_PATTERN.matcher(captchaCode).matches()) {
-            makeCallToGoogle(captchaCode, clientIp);
+            try {
+                makeCallToGoogle(captchaCode, clientIp);
+            } catch (ApiBadRequestException e) {
+                log.info("Header {} value: {}", IPUtils.HEADER_X_FORWARDED, request.getHeader(IPUtils.HEADER_X_FORWARDED));
+                throw e;
+            }
         } else {
             throw new ApiBadRequestException("Le code google reCaptcha est invalide. (match invalide)");
         }
