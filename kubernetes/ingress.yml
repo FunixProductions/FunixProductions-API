@@ -5,7 +5,7 @@ metadata:
   name: funixproductions-api-ingress
   annotations:
     spec.ingressClassName: traefik
-    nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
+    traefik.ingress.kubernetes.io/forwarding-headers: "X-Forwarded-For"
 spec:
   tls:
     - secretName: funixproductions-api-certificate-tls
