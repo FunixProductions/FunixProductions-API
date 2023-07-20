@@ -57,12 +57,7 @@ public class GoogleCaptchaService {
         }
 
         if (StringUtils.hasLength(captchaCode) && RESPONSE_PATTERN.matcher(captchaCode).matches()) {
-            try {
-                makeCallToGoogle(captchaCode, clientIp);
-            } catch (ApiBadRequestException e) {
-                log.warn("Header {} value: {}", IPUtils.HEADER_X_FORWARDED, request.getHeader(IPUtils.HEADER_X_FORWARDED));
-                throw e;
-            }
+            makeCallToGoogle(captchaCode, clientIp);
         } else {
             throw new ApiBadRequestException("Le code google reCaptcha est invalide. (match invalide)");
         }
@@ -81,7 +76,7 @@ public class GoogleCaptchaService {
                 reCaptchaSucceeded(clientIp);
             } else {
                 reCaptchaFailed(clientIp);
-                log.warn("Client ip {} failed to verify reCaptcha.", clientIp);
+                log.warn("Client ip {} failed to verify reCaptcha. Infos: success {}, score {} of minimal {}, action {}", clientIp, response.isSuccess(), response.getScore(), this.googleCaptchaConfig.getThreshold(), response.getAction());
                 throw new ApiBadRequestException("Le code google reCaptcha est invalide. (google refus)");
             }
         } catch (FeignException e) {
