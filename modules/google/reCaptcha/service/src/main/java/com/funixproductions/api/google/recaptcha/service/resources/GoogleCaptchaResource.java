@@ -1,5 +1,6 @@
 package com.funixproductions.api.google.recaptcha.service.resources;
 
+import com.funixproductions.api.google.recaptcha.client.services.GoogleRecaptchaHandler;
 import com.funixproductions.api.google.recaptcha.service.services.GoogleCaptchaService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ public class GoogleCaptchaResource {
 
     @PostMapping("verify")
     public void verify(final HttpServletRequest servletRequest) {
-        this.googleCaptchaService.checkCode(servletRequest, servletRequest.getHeader("X-Captcha-Google-Action"));
+        this.googleCaptchaService.checkCode(servletRequest, servletRequest.getHeader(GoogleRecaptchaHandler.GOOGLE_ACTION_HEADER));
     }
 
 }

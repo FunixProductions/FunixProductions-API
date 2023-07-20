@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 public class GoogleCaptchaSiteVerifyResponseDTO {
-    public static final float MINIMAL_THRESHOLD = 0.65f;
+    public static final float MINIMAL_THRESHOLD = 0.7f;
 
     private boolean success;
 

@@ -57,13 +57,13 @@ public class GoogleCaptchaService {
         }
 
         if (StringUtils.hasLength(captchaCode) && RESPONSE_PATTERN.matcher(captchaCode).matches()) {
-            makeCallToGoogle(captchaCode, clientIp);
+            makeCallToGoogle(captchaCode, actionCode, clientIp);
         } else {
             throw new ApiBadRequestException("Le code google reCaptcha est invalide. (match invalide)");
         }
     }
 
-    private void makeCallToGoogle(@NonNull final String captchaCode, @NonNull final String clientIp) {
+    private void makeCallToGoogle(@NonNull final String captchaCode, @NonNull final String action, @NonNull final String clientIp) {
         try {
             final GoogleCaptchaSiteVerifyResponseDTO response = this.googleRecaptchaClient.verify(
                     this.googleCaptchaConfig.getSecret(),
@@ -72,12 +72,11 @@ public class GoogleCaptchaService {
                     ""
             );
 
-            if (response.isValidCaptcha(captchaCode, this.googleCaptchaConfig.getThreshold())) {
+            if (response.isValidCaptcha(action, this.googleCaptchaConfig.getThreshold())) {
                 reCaptchaSucceeded(clientIp);
             } else {
                 reCaptchaFailed(clientIp);
-                log.warn("client public token sitecode: {}", this.googleCaptchaConfig.getSite());
-                log.warn("Client ip {} failed to verify reCaptcha. Infos: success {}, score {} of minimal {}, action {}, error codes {}", clientIp, response.isSuccess(), response.getScore(), this.googleCaptchaConfig.getThreshold(), response.getAction(), response.getErrorCodes());
+                log.warn("Client ip {} failed to verify reCaptcha. Infos: success {}, score {} of minimal {}, actionGet {} actionAsked: {}, error codes {}", clientIp, response.isSuccess(), response.getScore(), this.googleCaptchaConfig.getThreshold(), response.getAction(), response.getAction(), response.getErrorCodes());
                 throw new ApiBadRequestException("Le code google reCaptcha est invalide. (google refus)");
             }
         } catch (FeignException e) {
