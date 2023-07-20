@@ -41,12 +41,12 @@ spec:
           env:
             - name: APP_PORT
               value: '80'
-            - name: RECAPTCHA_SITE_KEY
+            - name: GOOGLE_RECAPTCHA_SITE
               valueFrom:
                 secretKeyRef:
                   name: google-secret
                   key: recaptcha-site-key
-            - name: RECAPTCHA_SECRET_KEY
+            - name: GOOGLE_RECAPTCHA_SECRET
               valueFrom:
                   secretKeyRef:
                     name: google-secret
