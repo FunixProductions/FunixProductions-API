@@ -76,7 +76,7 @@ public class GoogleCaptchaService {
                 reCaptchaSucceeded(clientIp);
             } else {
                 reCaptchaFailed(clientIp);
-                log.warn("Client ip {} failed to verify reCaptcha. Infos: success {}, score {} of minimal {}, action {}", clientIp, response.isSuccess(), response.getScore(), this.googleCaptchaConfig.getThreshold(), response.getAction());
+                log.warn("Client ip {} failed to verify reCaptcha. Infos: success {}, score {} of minimal {}, action {}, error codes {}", clientIp, response.isSuccess(), response.getScore(), this.googleCaptchaConfig.getThreshold(), response.getAction(), response.getErrorCodes());
                 throw new ApiBadRequestException("Le code google reCaptcha est invalide. (google refus)");
             }
         } catch (FeignException e) {
