@@ -50,7 +50,7 @@ public class WebSecurity {
                         .requestMatchers(HttpMethod.GET, "/user/auth/ip").permitAll()
                         .requestMatchers(HttpMethod.GET, "/user/auth/current**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/user/auth/logout**").authenticated()
-                        .requestMatchers("/user**").hasAuthority(UserRole.ADMIN.getRole())
+                        .requestMatchers("/user/**").hasAuthority(UserRole.ADMIN.getRole())
 
                         .anyRequest().authenticated()
                 ).httpBasic(Customizer.withDefaults())
