@@ -8,6 +8,7 @@ import com.funixproductions.api.user.client.dtos.requests.UserLoginDTO;
 import com.funixproductions.api.user.service.services.CurrentSession;
 import com.funixproductions.api.user.service.services.UserAuthService;
 import com.funixproductions.core.exceptions.ApiForbiddenException;
+import com.funixproductions.core.tools.network.IPUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +21,8 @@ public class UserAuthResource {
 
     private final UserAuthService userAuthService;
     private final CurrentSession currentSession;
-
     private final GoogleRecaptchaHandler captchaService;
+    private final IPUtils ipUtils;
     private static final String CAPTCHA_REGISTER = "register";
     private static final String CAPTCHA_LOGIN = "login";
 
@@ -53,5 +54,10 @@ public class UserAuthResource {
         } else {
             return userDTO;
         }
+    }
+
+    @GetMapping("ip")
+    public String getIp(final HttpServletRequest servletRequest) {
+        return this.ipUtils.getClientIp(servletRequest);
     }
 }
