@@ -52,7 +52,7 @@ public class WebSecurity {
                         .requestMatchers(HttpMethod.POST, "/user/auth/logout**").authenticated()
                         .requestMatchers("/user/**").hasAuthority(UserRole.ADMIN.getRole())
 
-                        .anyRequest().authenticated()
+                        .anyRequest().denyAll()
                 ).httpBasic(Customizer.withDefaults())
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
