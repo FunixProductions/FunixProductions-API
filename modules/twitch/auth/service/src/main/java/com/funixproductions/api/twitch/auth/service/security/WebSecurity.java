@@ -19,7 +19,7 @@ public class WebSecurity extends ApiWebSecurity {
                 .requestMatchers("/kubeinternal/**").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
 
-                .requestMatchers("/twitch/auth/cb").permitAll()
+                .requestMatchers("/twitch/auth/cb**").permitAll()
                 .anyRequest().authenticated();
     }
 }
