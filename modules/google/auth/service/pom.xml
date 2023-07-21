@@ -53,7 +53,7 @@
         <!-- Migration scripts -->
         <dependency>
             <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-maven-plugin</artifactId>
+            <artifactId>flyway-core</artifactId>
             <version>${org.flywaydb.version}</version>
         </dependency>
 
