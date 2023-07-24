@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: funixproductions-dev-api-certificate
+  namespace: "funixproductions-dev"
+spec:
+  secretName: funixproductions-dev-api-certificate-tls
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer
+  commonName: "dev.api.funixproductions.com"
+  dnsNames:
+    - "dev.api.funixproductions.com"

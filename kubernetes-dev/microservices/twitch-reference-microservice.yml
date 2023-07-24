@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: twitch-reference-microservice-deployment
+  namespace: 'funixproductions-dev'
+  labels:
+    app: springboot
+    service: twitch-reference
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: springboot
+      service: twitch-reference
+  template:
+    metadata:
+      namespace: 'funixproductions-dev'
+      annotations:
+        build-time: "TIME-UPDATE-BUILD-FNG"
+      labels:
+        app: springboot
+        service: twitch-reference
+    spec:
+      containers:
+        - name: springboot-twitch-reference
+          image: ghcr.io/funixproductions/funixproductions-api-twitch-reference:dev
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+                memory: "300Mi"
+          imagePullPolicy: Always
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          env:
+            - name: APP_PORT
+              value: '80'
+            - name: TWITCH_APP_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: twitch-secret
+                  key: twitch-client-id
+            - name: TWITCH_APP_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: twitch-secret
+                  key: twitch-client-secret
+
+---
+
+apiVersion: v1
+kind: Service
+
+metadata:
+  namespace: 'funixproductions-dev'
+  name: twitch-reference
+
+spec:
+  type: ClusterIP
+  selector:
+    app: springboot
+    service: twitch-reference
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

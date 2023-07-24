@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: google-recaptcha-microservice-deployment
+  namespace: 'funixproductions-dev'
+  labels:
+    app: springboot
+    service: google-recaptcha
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: springboot
+      service: google-recaptcha
+  template:
+    metadata:
+      namespace: 'funixproductions-dev'
+      annotations:
+        build-time: "TIME-UPDATE-BUILD-FNG"
+      labels:
+        app: springboot
+        service: google-recaptcha
+    spec:
+      containers:
+        - name: springboot-google-recaptcha
+          image: ghcr.io/funixproductions/funixproductions-api-google-recaptcha:dev
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+                memory: "300Mi"
+          imagePullPolicy: Always
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          env:
+            - name: APP_PORT
+              value: '80'
+            - name: GOOGLE_RECAPTCHA_SITE
+              valueFrom:
+                secretKeyRef:
+                  name: google-secret
+                  key: recaptcha-site-key
+            - name: GOOGLE_RECAPTCHA_SECRET
+              valueFrom:
+                  secretKeyRef:
+                    name: google-secret
+                    key: recaptcha-secret-key
+
+---
+
+apiVersion: v1
+kind: Service
+
+metadata:
+  namespace: 'funixproductions-dev'
+  name: google-recaptcha
+
+spec:
+  type: ClusterIP
+  selector:
+    app: springboot
+    service: google-recaptcha
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
