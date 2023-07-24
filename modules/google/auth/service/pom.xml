@@ -50,13 +50,6 @@
             <version>${org.postgresql.version}</version>
         </dependency>
 
-        <!-- Migration scripts -->
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-maven-plugin</artifactId>
-            <version>${org.flywaydb.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
