@@ -41,6 +41,8 @@ spec:
           env:
             - name: APP_PORT
               value: '80'
+            - name: SPRING_PROFILES_ACTIVE
+              value: 'dev'
             - name: DB_HOSTNAME
               valueFrom:
                 configMapKeyRef:
