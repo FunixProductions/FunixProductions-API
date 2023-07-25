@@ -138,4 +138,4 @@ jobs:
           DISCORD_AVATAR: https://avatars.githubusercontent.com/u/99349214?s=200&v=4
         uses: Ilshidur/action-discord@master
         with:
-          args: 'FunixProductions-API a bien été déployé sur le cluster Kubernetes !'
+          args: '✅ FunixProductions-API 🌍**PROD** (api.funixproductions.com) a bien été déployé sur le cluster Kubernetes !'
