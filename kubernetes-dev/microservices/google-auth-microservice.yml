@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: google-auth-microservice-deployment
+  namespace: 'funixproductions-dev'
+  labels:
+    app: springboot
+    service: google-auth
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: springboot
+      service: google-auth
+  template:
+    metadata:
+      namespace: 'funixproductions-dev'
+      annotations:
+        build-time: "TIME-UPDATE-BUILD-FNG"
+      labels:
+        app: springboot
+        service: google-auth
+    spec:
+      containers:
+        - name: springboot-google-auth
+          image: ghcr.io/funixproductions/funixproductions-api-google-auth:dev
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+                memory: "300Mi"
+          imagePullPolicy: Always
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          env:
+            - name: APP_PORT
+              value: '80'
+            - name: DB_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  key: postgres-url
+                  name: postgres-config
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: postgres-port
+            - name: DB_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: postgres-db
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-password
+
+---
+
+apiVersion: v1
+kind: Service
+
+metadata:
+  namespace: 'funixproductions-dev'
+  name: google-auth
+
+spec:
+  type: ClusterIP
+  selector:
+    app: springboot
+    service: google-auth
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

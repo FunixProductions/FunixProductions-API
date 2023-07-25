@@ -1,45 +1,14 @@
-name: Publish to Maven Central & Build Production FunixProductions API
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: Build Dev Environment
 
 on:
-  release:
-    types: [created]
+  push:
+    branches: [ master ]
 
 jobs:
-  publish-maven-central:
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - id: import_gpg
-        name: Import GPG key
-        uses: crazy-max/ghaction-import-gpg@v5
-        with:
-          gpg_private_key: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
-          passphrase: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
-
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          server-id: ossrh
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
-
-      - name: Publish to the Maven Central Repository
-        run: mvn --batch-mode clean deploy
-        env:
-          ENCRYPTION_KEY: hwJdNY1/yC3miXQR+Vw2V3qtt1e3FPJ2y62BKtROUJs=
-          ENCRYPTION_IV: DKKyySzj8ao5WgraQpwj+A==
-          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
-
-  build-production-maven:
+  build-dev-maven:
     runs-on: ubuntu-latest
 
     permissions:
@@ -75,7 +44,7 @@ jobs:
           path: modules/**/target/*.jar
 
   build-production-docker-images:
-    needs: build-production-maven
+    needs: build-dev-maven
     runs-on: ubuntu-latest
 
     permissions:
@@ -101,7 +70,7 @@ jobs:
 
       - name: Build funixproductions api docker images and push
         env:
-          IMAGE_TAG: latest
+          IMAGE_TAG: dev
         run: docker compose build --push
 
   update-kubernetes-cluster:
@@ -121,21 +90,5 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v3
 
-      - name: Update Kubernetes Cluster
-        run: cd kubernetes && chmod +x ./deployServices.sh && ./deployServices.sh
-
-  send-success-build-discord-notif:
-    needs:
-      - update-kubernetes-cluster
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Discord notification
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_CI_STATUS }}
-          DISCORD_USERNAME: FunixProductions-API-Deploy
-          DISCORD_AVATAR: https://avatars.githubusercontent.com/u/99349214?s=200&v=4
-        uses: Ilshidur/action-discord@master
-        with:
-          args: 'FunixProductions-API a bien été déployé sur le cluster Kubernetes !'
+      - name: Update Kubernetes Dev Cluster
+        run: cd kubernetes-dev && chmod +x ./deployServices.sh && ./deployServices.sh

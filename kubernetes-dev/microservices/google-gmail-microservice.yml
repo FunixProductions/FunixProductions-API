@@ -2,35 +2,35 @@ apiVersion: apps/v1
 kind: Deployment
 
 metadata:
-  name: payment-paypal-microservice-deployment
-  namespace: 'funixproductions'
+  name: google-gmail-microservice-deployment
+  namespace: 'funixproductions-dev'
   labels:
     app: springboot
-    service: payment-paypal
+    service: google-gmail
 
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: springboot
-      service: payment-paypal
+      service: google-gmail
   template:
     metadata:
-      namespace: 'funixproductions'
+      namespace: 'funixproductions-dev'
       annotations:
         build-time: "TIME-UPDATE-BUILD-FNG"
       labels:
         app: springboot
-        service: payment-paypal
+        service: google-gmail
     spec:
       containers:
-        - name: springboot-payment-paypal
-          image: ghcr.io/funixproductions/funixproductions-api-payment-paypal:latest
+        - name: springboot-google-gmail
+          image: ghcr.io/funixproductions/funixproductions-api-google-gmail:dev
           ports:
             - containerPort: 80
           resources:
             limits:
-                memory: "800Mi"
+                memory: "300Mi"
           imagePullPolicy: Always
           readinessProbe:
             httpGet:
@@ -41,16 +41,16 @@ spec:
           env:
             - name: APP_PORT
               value: '80'
-            - name: PAYPAL_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: paypal-secret
-                  key: paypal-client-id
-            - name: PAYPAL_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: paypal-secret
-                  key: paypal-client-secret
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: '/google/gmail/gmail-credentials.json'
+          volumeMounts:
+            - name: gmail-credentials
+              mountPath: "/google/gmail/"
+              readOnly: true
+      volumes:
+        - name: gmail-credentials
+          secret:
+            secretName: gmail-credentials
 
 ---
 
@@ -58,14 +58,14 @@ apiVersion: v1
 kind: Service
 
 metadata:
-  namespace: 'funixproductions'
-  name: payment-paypal
+  namespace: 'funixproductions-dev'
+  name: google-gmail
 
 spec:
   type: ClusterIP
   selector:
     app: springboot
-    service: payment-paypal
+    service: google-gmail
   ports:
     - protocol: TCP
       port: 80
