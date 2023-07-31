@@ -38,6 +38,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.funixproductions.api.google.gmail.client</groupId>
+            <artifactId>funixproductions-google-gmail-client</artifactId>
+            <version>${com.funixproductions.api.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.funixproductions.api.encryption.client</groupId>
             <artifactId>funixproductions-encryption-client</artifactId>
             <version>${com.funixproductions.api.version}</version>

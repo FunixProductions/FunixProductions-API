@@ -46,8 +46,7 @@ public class WebSecurity {
                         .requestMatchers("/kubeinternal/user/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
 
-                        .requestMatchers(HttpMethod.POST, "/user/auth/register**", "/user/auth/login**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/user/auth/ip").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user/auth/register**", "/user/auth/login**", "/user/auth/resetPassword**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/user/auth/current**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/user/auth/logout**").authenticated()
                         .requestMatchers("/user**").hasAuthority(UserRole.ADMIN.getRole())

@@ -33,6 +33,12 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.funixproductions.api.core</groupId>
+            <artifactId>funixproductions-core</artifactId>
+            <version>${com.funixproductions.api.version}</version>
+        </dependency>
     </dependencies>
 
 </project>
