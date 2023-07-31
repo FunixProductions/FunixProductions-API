@@ -1,15 +1,15 @@
 <h1>Réinitialisation du mot de passe</h1>
 <p>
-    Bonjour ${USERNAME},<br/>
+    Bonjour {{USERNAME}},<br/>
     Nous avons reçu une demande de réinitialisation de votre mot de passe pour le site ${ORIGIN_WEBSITE}.<br/>
-    Pour réinitialiser votre mot de passe, veuillez cliquer sur le bouton ci-dessous :
+    Pour réinitialiser votre mot de passe, veuillez cliquer sur le bouton ci-dessous (expire dans 10 minutes) :
 </p>
 
-<a class="btn btn-success" href="${URL_PASSWORD_RESET}">
+<a class="btn btn-success" href="{{URL_PASSWORD_RESET}}">
     Réinitialiser le mot de passe
 </a>
 
 <p>
     Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail.<br/>
-    Si vous ne voyez pas le bouton ci-dessus, vous pouvez copier-coller le lien suivant dans votre navigateur : ${URL_PASSWORD_RESET}
+    Si vous ne voyez pas le bouton ci-dessus, vous pouvez copier-coller le lien suivant dans votre navigateur : {{URL_PASSWORD_RESET}}
 </p>
