@@ -3,7 +3,6 @@ package com.funixproductions.api.user.service.services;
 import com.funixproductions.api.core.enums.FrontOrigins;
 import com.funixproductions.api.google.gmail.client.clients.GoogleGmailClient;
 import com.funixproductions.api.google.gmail.client.dto.MailDTO;
-import com.funixproductions.api.google.gmail.client.utils.GmailUtils;
 import com.funixproductions.api.user.client.dtos.requests.UserPasswordResetDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserPasswordResetRequestDTO;
 import com.funixproductions.api.user.service.components.UserPasswordUtils;
@@ -16,6 +15,8 @@ import com.funixproductions.core.exceptions.ApiException;
 import com.funixproductions.core.tools.network.IPUtils;
 import com.funixproductions.core.tools.string.PasswordGenerator;
 import com.google.common.base.Strings;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,8 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class UserResetService {
 
+    private static final int COOLDOWN_REQUEST_SPAM = 5;
+
     private static final String FILEPATH_RESET_MAIL = "user/reset-mail.html";
     private final UserRepository userRepository;
     private final UserPasswordUtils userPasswordUtils;
@@ -46,14 +49,19 @@ public class UserResetService {
     private final GoogleGmailClient googleGmailClient;
     private final IPUtils ipUtils;
 
+    private final Cache<Long, Integer> triesCache = CacheBuilder.newBuilder().expireAfterWrite(COOLDOWN_REQUEST_SPAM, TimeUnit.MINUTES).build();
+
     @Transactional
     public void resetPasswordRequest(final UserPasswordResetRequestDTO request, final HttpServletRequest servletRequest) {
         final Iterable<User> usersSearch = this.userRepository.findAllByEmail(request.getEmail());
         final String ipClient = this.ipUtils.getClientIp(servletRequest);
 
         for (final User user : usersSearch) {
-            final MailDTO resetMail = generateResetMail(user, request.getOrigin(), ipClient);
-            this.googleGmailClient.sendMail(resetMail, Collections.singletonList(user.getEmail()));
+            if (this.triesCache.getIfPresent(user.getId()) == null) {
+                final MailDTO resetMail = generateResetMail(user, request.getOrigin(), ipClient);
+                this.googleGmailClient.sendMail(resetMail, Collections.singletonList(user.getEmail()));
+                this.triesCache.put(user.getId(), 0);
+            }
         }
     }
 
@@ -75,6 +83,7 @@ public class UserResetService {
 
             this.userRepository.save(user);
             this.userPasswordResetRepository.delete(userPasswordReset);
+            this.triesCache.invalidate(user.getId());
         } catch (ApiException e) {
             throw e;
         } catch (Exception e) {
@@ -111,11 +120,11 @@ public class UserResetService {
                         stringBuilder.append(line);
                     }
 
-                    return GmailUtils.minifyHtml(stringBuilder.toString()
+                    return stringBuilder.toString()
                             .replace("{{USERNAME}}", user.getUsername())
                             .replace("{{IP_ADDRESS}}", ipClient)
                             .replace("{{URL_PASSWORD_RESET}}", urlRedirect)
-                            .replace("{{ORIGIN_WEBSITE}}", origin.getHumanReadableOrigin()));
+                            .replace("{{ORIGIN_WEBSITE}}", origin.getHumanReadableOrigin());
                 }
             } else {
                 final String errorMessage = "Erreur interne lors de la génération du corps du mail de réinitialisation de mot de passe. InputStream null read reset-mail.html.";
