@@ -13,8 +13,10 @@ import com.funixproductions.api.user.service.repositories.UserPasswordResetRepos
 import com.funixproductions.api.user.service.repositories.UserRepository;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
+import com.funixproductions.core.tools.network.IPUtils;
 import com.funixproductions.core.tools.string.PasswordGenerator;
 import com.google.common.base.Strings;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,13 +44,15 @@ public class UserResetService {
     private final UserPasswordUtils userPasswordUtils;
     private final UserPasswordResetRepository userPasswordResetRepository;
     private final GoogleGmailClient googleGmailClient;
+    private final IPUtils ipUtils;
 
     @Transactional
-    public void resetPasswordRequest(final UserPasswordResetRequestDTO request) {
+    public void resetPasswordRequest(final UserPasswordResetRequestDTO request, final HttpServletRequest servletRequest) {
         final Iterable<User> usersSearch = this.userRepository.findAllByEmail(request.getEmail());
+        final String ipClient = this.ipUtils.getClientIp(servletRequest);
 
         for (final User user : usersSearch) {
-            final MailDTO resetMail = generateResetMail(user, request.getOrigin());
+            final MailDTO resetMail = generateResetMail(user, request.getOrigin(), ipClient);
             this.googleGmailClient.sendMail(resetMail, Collections.singletonList(user.getEmail()));
         }
     }
@@ -81,9 +85,9 @@ public class UserResetService {
         }
     }
 
-    private MailDTO generateResetMail(final User user, final FrontOrigins origin) {
+    private MailDTO generateResetMail(final User user, final FrontOrigins origin, final String ipClient) {
         final UserPasswordReset passwordReset = this.generateNewResetToken(user, origin);
-        final String mailBody = generateResetMailBody(user, origin, passwordReset.getResetToken());
+        final String mailBody = generateResetMailBody(user, origin, passwordReset.getResetToken(), ipClient);
         final MailDTO mailDTO = new MailDTO();
 
         mailDTO.setSubject(String.format("Réinitialisation du mot de passe sur %s.", origin.getHumanReadableOrigin()));
@@ -93,7 +97,8 @@ public class UserResetService {
 
     private String generateResetMailBody(final User user,
                                          final FrontOrigins origin,
-                                         final String resetToken) {
+                                         final String resetToken,
+                                         final String ipClient) {
         final String urlRedirect = getUrlRedirect(origin, resetToken);
 
         try (final InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(FILEPATH_RESET_MAIL)) {
@@ -108,6 +113,7 @@ public class UserResetService {
 
                     return GmailUtils.minifyHtml(stringBuilder.toString()
                             .replace("{{USERNAME}}", user.getUsername())
+                            .replace("{{IP_ADDRESS}}", ipClient)
                             .replace("{{URL_PASSWORD_RESET}}", urlRedirect)
                             .replace("{{ORIGIN_WEBSITE}}", origin.getHumanReadableOrigin()));
                 }
