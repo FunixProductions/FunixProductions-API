@@ -1,7 +1,7 @@
 package com.funixproductions.api.google.auth.service.resources;
 
 import com.funixproductions.api.core.configs.FrontApplicationsDomainsConfig;
-import com.funixproductions.api.core.enums.RedirectAuthOrigin;
+import com.funixproductions.api.core.enums.FrontOrigins;
 import com.funixproductions.api.google.auth.service.config.GoogleAuthConfig;
 import com.funixproductions.api.google.auth.service.entities.GoogleAuthLinkUser;
 import com.funixproductions.api.google.auth.service.repositories.GoogleAuthRepository;
@@ -61,7 +61,7 @@ public class GoogleAuthResource {
                 final String successString = String.format("User auth success with google, userDTO id: %s, name: %s, email: %s", userDTO.getId(), userDTO.getUsername(), userDTO.getEmail());
                 log.info(successString);
 
-                final RedirectAuthOrigin redirectOrigin = RedirectAuthOrigin.getRedirectAuthOrigin(origin);
+                final FrontOrigins redirectOrigin = FrontOrigins.getRedirectAuthOrigin(origin);
                 if (redirectOrigin == null) {
                     return new ResponseEntity<>(successString, HttpStatus.OK);
                 } else {
@@ -132,9 +132,9 @@ public class GoogleAuthResource {
         return passwordGenerator.generateRandomPassword();
     }
 
-    private ResponseEntity<String> generateRedirectOrigin(@NonNull final RedirectAuthOrigin redirectAuthOrigin,
+    private ResponseEntity<String> generateRedirectOrigin(@NonNull final FrontOrigins frontOrigins,
                                                           @NonNull final UserDTO userDTO) {
-        final String domain = switch (redirectAuthOrigin) {
+        final String domain = switch (frontOrigins) {
             case FUNIX_PRODUCTIONS_DASHBOARD -> this.frontApplicationsDomainsConfig.getDashboardDomain();
             case PACIFISTA_PUBLIC_WEB -> this.frontApplicationsDomainsConfig.getPacifistaFrontDomain();
         };

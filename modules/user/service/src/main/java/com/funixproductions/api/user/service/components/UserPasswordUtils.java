@@ -9,7 +9,6 @@ public class UserPasswordUtils {
 
     private static final int MINIMUM_LENGTH = 8;
     private static final int MINIMUM_NUMBERS = 2;
-    private static final int MINIMUM_UPPERS = 2;
 
     /**
      * Check if the password is strong enough for app usage
@@ -21,16 +20,14 @@ public class UserPasswordUtils {
             throw new ApiBadRequestException("Votre mot de passe est vide.");
         }
 
-        if (password.length() <= MINIMUM_LENGTH) {
-            throw new ApiBadRequestException("Votre mot de passe doit au minimum avoir " + MINIMUM_LENGTH + " caractères.");
-        } else if (!isPasswordContainsNumbers(password)) {
-            throw new ApiBadRequestException("Votre mot de passe doit contenir " + MINIMUM_NUMBERS + " chiffres");
-        } else if (!isPasswordContainsUpperCases(password)) {
-            throw new ApiBadRequestException("Votre mot de passe doit contenir " + MINIMUM_UPPERS + " caractères en majuscules.");
+        if (password.length() < MINIMUM_LENGTH) {
+            throw new ApiBadRequestException("Votre mot de passe doit au minimum avoir au moins " + MINIMUM_LENGTH + " caractères.");
+        } else if (passwordWeakNumbers(password)) {
+            throw new ApiBadRequestException("Votre mot de passe doit contenir au moins " + MINIMUM_NUMBERS + " chiffres.");
         }
     }
 
-    private boolean isPasswordContainsNumbers(final String password) {
+    private boolean passwordWeakNumbers(final String password) {
         int numbersCount = 0;
 
         for (char c : password.toCharArray()) {
@@ -38,18 +35,6 @@ public class UserPasswordUtils {
                 ++numbersCount;
             }
         }
-        return numbersCount >= MINIMUM_NUMBERS;
+        return numbersCount < MINIMUM_NUMBERS;
     }
-
-    private boolean isPasswordContainsUpperCases(final String password) {
-        int upperCaseCount = 0;
-
-        for (char c : password.toCharArray()) {
-            if (c >= 'A' && c <= 'Z') {
-                ++upperCaseCount;
-            }
-        }
-        return upperCaseCount >= MINIMUM_UPPERS;
-    }
-
 }

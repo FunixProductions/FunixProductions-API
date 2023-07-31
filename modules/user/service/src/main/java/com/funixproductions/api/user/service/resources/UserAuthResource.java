@@ -5,10 +5,12 @@ import com.funixproductions.api.user.client.dtos.UserDTO;
 import com.funixproductions.api.user.client.dtos.UserTokenDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserCreationDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserLoginDTO;
+import com.funixproductions.api.user.client.dtos.requests.UserPasswordResetDTO;
+import com.funixproductions.api.user.client.dtos.requests.UserPasswordResetRequestDTO;
 import com.funixproductions.api.user.service.services.CurrentSession;
 import com.funixproductions.api.user.service.services.UserAuthService;
+import com.funixproductions.api.user.service.services.UserResetService;
 import com.funixproductions.core.exceptions.ApiForbiddenException;
-import com.funixproductions.core.tools.network.IPUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,11 +22,13 @@ import org.springframework.web.bind.annotation.*;
 public class UserAuthResource {
 
     private final UserAuthService userAuthService;
+    private final UserResetService userResetService;
     private final CurrentSession currentSession;
     private final GoogleRecaptchaHandler captchaService;
-    private final IPUtils ipUtils;
     private static final String CAPTCHA_REGISTER = "register";
     private static final String CAPTCHA_LOGIN = "login";
+    private static final String CAPTCHA_RESET_PASSWORD_REQUEST = "resetPasswordRequest";
+    private static final String CAPTCHA_RESET_PASSWORD = "resetPassword";
 
     @PostMapping("register")
     public UserDTO register(@RequestBody @Valid UserCreationDTO request, final HttpServletRequest servletRequest) {
@@ -56,8 +60,15 @@ public class UserAuthResource {
         }
     }
 
-    @GetMapping("ip")
-    public String getIp(final HttpServletRequest servletRequest) {
-        return this.ipUtils.getClientIp(servletRequest);
+    @PostMapping("resetPasswordRequest")
+    void resetPasswordRequest(@RequestBody @Valid UserPasswordResetRequestDTO request, final HttpServletRequest servletRequest) {
+        this.captchaService.verify(servletRequest, CAPTCHA_RESET_PASSWORD_REQUEST);
+        this.userResetService.resetPasswordRequest(request);
+    }
+
+    @PostMapping("resetPassword")
+    void resetPassword(@RequestBody @Valid UserPasswordResetDTO request, final HttpServletRequest servletRequest) {
+        this.captchaService.verify(servletRequest, CAPTCHA_RESET_PASSWORD);
+        this.userResetService.resetPassword(request);
     }
 }
