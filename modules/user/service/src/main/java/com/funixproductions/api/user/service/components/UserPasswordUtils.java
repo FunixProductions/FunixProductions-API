@@ -9,6 +9,7 @@ public class UserPasswordUtils {
 
     private static final int MINIMUM_LENGTH = 8;
     private static final int MINIMUM_NUMBERS = 2;
+    private static final int MINIMUM_CHARS = 3;
 
     /**
      * Check if the password is strong enough for app usage
@@ -22,6 +23,8 @@ public class UserPasswordUtils {
 
         if (password.length() < MINIMUM_LENGTH) {
             throw new ApiBadRequestException("Votre mot de passe doit au minimum avoir au moins " + MINIMUM_LENGTH + " caractères.");
+        } else if (passwordWeakChars(password)) {
+            throw new ApiBadRequestException("Votre mot de passe doit contenir au moins " + MINIMUM_CHARS + " lettres.");
         } else if (passwordWeakNumbers(password)) {
             throw new ApiBadRequestException("Votre mot de passe doit contenir au moins " + MINIMUM_NUMBERS + " chiffres.");
         }
@@ -36,5 +39,16 @@ public class UserPasswordUtils {
             }
         }
         return numbersCount < MINIMUM_NUMBERS;
+    }
+
+    private boolean passwordWeakChars(final String password) {
+        int numbersCount = 0;
+
+        for (char c : password.toCharArray()) {
+            if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+                ++numbersCount;
+            }
+        }
+        return numbersCount < MINIMUM_CHARS;
     }
 }

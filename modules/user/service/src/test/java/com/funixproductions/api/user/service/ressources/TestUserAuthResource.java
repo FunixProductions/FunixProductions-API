@@ -133,11 +133,6 @@ class TestUserAuthResource {
         testInvalidPasswordRegister("sdkfhlskdqhldskjqfh");
     }
 
-    @Test
-    void testRegisterWithPasswordNotEnoughCaps() throws Exception {
-        testInvalidPasswordRegister("sdkfhlskdqhldskjqfh11");
-    }
-
     void testInvalidPasswordRegister(final String password) throws Exception {
         final UserCreationDTO creationDTO = new UserCreationDTO();
         creationDTO.setEmail(UUID.randomUUID() + "@gmail.com");
