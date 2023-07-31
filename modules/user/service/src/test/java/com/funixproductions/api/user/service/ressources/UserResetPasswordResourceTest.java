@@ -111,7 +111,7 @@ class UserResetPasswordResourceTest {
     }
 
     @Test
-    void testGenerateMailBody() throws Exception {
+    void testGenerateMailBodyRequest() throws Exception {
         final String userName = "heyTestUsername";
         final String clientIp = "127.0.0.1";
         final String token = "testToken";
@@ -120,15 +120,32 @@ class UserResetPasswordResourceTest {
         final User user = new User();
         user.setUsername(userName);
 
-        final Method method = UserResetService.class.getDeclaredMethod("generateResetMailBody", User.class, FrontOrigins.class, String.class, String.class);
+        final Method method = UserResetService.class.getDeclaredMethod("generateResetMailBody", User.class, FrontOrigins.class, String.class, String.class, String.class);
         method.setAccessible(true);
-        final String mailBody = (String) method.invoke(this.userResetService, user, frontOrigin, token, clientIp);
+        final String mailBody = (String) method.invoke(this.userResetService, user, frontOrigin, token, clientIp, "user/reset-mail.html");
 
         assertTrue(mailBody.contains("<h1>Réinitialisation du mot de passe</h1>"));
         assertTrue(mailBody.contains(userName));
         assertTrue(mailBody.contains(clientIp));
         assertTrue(mailBody.contains(Base64.getEncoder().encodeToString(token.getBytes())));
         assertTrue(mailBody.contains(frontOrigin.getHumanReadableOrigin()));
+    }
+
+    @Test
+    void testGenerateMailBodyDone() throws Exception {
+        final String userName = "heyTestUsername";
+        final String clientIp = "127.0.0.1";
+
+        final User user = new User();
+        user.setUsername(userName);
+
+        final Method method = UserResetService.class.getDeclaredMethod("generateResetMailBody", User.class, FrontOrigins.class, String.class, String.class, String.class);
+        method.setAccessible(true);
+        final String mailBody = (String) method.invoke(this.userResetService, user, FrontOrigins.FUNIX_PRODUCTIONS_DASHBOARD, "", clientIp, "user/reset-mail-done.html");
+
+        assertTrue(mailBody.contains("<h1>Réinitialisation du mot de passe</h1>"));
+        assertTrue(mailBody.contains(userName));
+        assertTrue(mailBody.contains(clientIp));
     }
 
     private UserDTO generateUser(final String email, final String username) {

@@ -116,7 +116,7 @@ public class UserAuthResource {
     void resetPassword(@RequestBody @Valid UserPasswordResetDTO request, final HttpServletRequest servletRequest) {
         try {
             this.captchaService.verify(servletRequest, CAPTCHA_RESET_PASSWORD);
-            this.userResetService.resetPassword(request);
+            this.userResetService.resetPassword(request, servletRequest);
         } catch (ApiException e) {
             throw e;
         } catch (Exception e) {

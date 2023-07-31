@@ -43,6 +43,8 @@ public class UserResetService {
     private static final int COOLDOWN_REQUEST_SPAM = 5;
 
     private static final String FILEPATH_RESET_MAIL = "user/reset-mail.html";
+    private static final String FILEPATH_RESET_MAIL_DONE = "user/reset-mail-done.html";
+
     private final UserRepository userRepository;
     private final UserPasswordUtils userPasswordUtils;
     private final UserPasswordResetRepository userPasswordResetRepository;
@@ -66,7 +68,9 @@ public class UserResetService {
     }
 
     @Transactional
-    public void resetPassword(final UserPasswordResetDTO request) {
+    public void resetPassword(final UserPasswordResetDTO request, final HttpServletRequest servletRequest) {
+        final String ipClient = this.ipUtils.getClientIp(servletRequest);
+
         try {
             userPasswordUtils.checkPassword(request.getNewPassword());
             if (!request.getNewPassword().equals(request.getNewPasswordConfirmation())) {
@@ -84,6 +88,9 @@ public class UserResetService {
             this.userRepository.save(user);
             this.userPasswordResetRepository.delete(userPasswordReset);
             this.triesCache.invalidate(user.getId());
+
+            final MailDTO successMail = generateResetDoneMail(user, userPasswordReset.getOrigin(), ipClient);
+            this.googleGmailClient.sendMail(successMail, Collections.singletonList(user.getEmail()));
         } catch (ApiException e) {
             throw e;
         } catch (Exception e) {
@@ -94,9 +101,18 @@ public class UserResetService {
         }
     }
 
+    private MailDTO generateResetDoneMail(final User user, final FrontOrigins origin, final String ipClient) {
+        final MailDTO mailDTO = new MailDTO();
+        final String mailBody = generateResetMailBody(user, origin, "", ipClient, FILEPATH_RESET_MAIL_DONE);
+
+        mailDTO.setSubject(String.format("Réinitialisation du mot de passe sur %s réussi.", origin.getHumanReadableOrigin()));
+        mailDTO.setBodyText(mailBody);
+        return mailDTO;
+    }
+
     private MailDTO generateResetMail(final User user, final FrontOrigins origin, final String ipClient) {
         final UserPasswordReset passwordReset = this.generateNewResetToken(user, origin);
-        final String mailBody = generateResetMailBody(user, origin, passwordReset.getResetToken(), ipClient);
+        final String mailBody = generateResetMailBody(user, origin, passwordReset.getResetToken(), ipClient, FILEPATH_RESET_MAIL);
         final MailDTO mailDTO = new MailDTO();
 
         mailDTO.setSubject(String.format("Réinitialisation du mot de passe sur %s.", origin.getHumanReadableOrigin()));
@@ -107,10 +123,11 @@ public class UserResetService {
     private String generateResetMailBody(final User user,
                                          final FrontOrigins origin,
                                          final String resetToken,
-                                         final String ipClient) {
+                                         final String ipClient,
+                                         final String filePathMailTemplate) {
         final String urlRedirect = getUrlRedirect(origin, resetToken);
 
-        try (final InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(FILEPATH_RESET_MAIL)) {
+        try (final InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(filePathMailTemplate)) {
             if (inputStream != null) {
                 try (final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
                     final StringBuilder stringBuilder = new StringBuilder();
