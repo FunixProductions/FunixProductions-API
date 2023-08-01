@@ -88,6 +88,61 @@ class TestUserAuthResource {
     }
 
     @Test
+    void testRegisterSpecialsChars() throws Exception {
+        registerFailTest("tes##");
+        registerFailTest("!tes##");
+        registerFailTest("!tes ##");
+        registerFailTest("tes/");
+        registerFailTest("tes ");
+        registerFailTest("oui fi");
+    }
+
+    @Test
+    void testRegisterValidUsername() throws Exception {
+        registerSuccessTest("bonjourFunix");
+        registerSuccessTest("bonjourFunix22");
+        registerSuccessTest("WHATHE");
+        registerSuccessTest("bonjour-Funix22");
+        registerSuccessTest("bonjour_Funix22");
+    }
+
+    private void registerSuccessTest(final String username) throws Exception {
+        final UserCreationDTO creationDTO = new UserCreationDTO();
+        creationDTO.setEmail(UUID.randomUUID() + "@gmail.com");
+        creationDTO.setUsername(username);
+        creationDTO.setPassword("ousddffdi22AA");
+        creationDTO.setPasswordConfirmation("ousddffdi22AA");
+        creationDTO.setAcceptCGU(true);
+        creationDTO.setAcceptCGV(true);
+
+        MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonHelper.toJson(creationDTO)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        final UserDTO userDTO = jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), UserDTO.class);
+        assertEquals(creationDTO.getUsername(), userDTO.getUsername());
+        assertEquals(creationDTO.getEmail(), userDTO.getEmail());
+        assertEquals(UserRole.USER, userDTO.getRole());
+    }
+
+    private void registerFailTest(final String username) throws Exception {
+        final UserCreationDTO creationDTO = new UserCreationDTO();
+        creationDTO.setEmail(UUID.randomUUID() + "@gmail.com");
+        creationDTO.setUsername(username);
+        creationDTO.setPassword("ousddffdi22AA");
+        creationDTO.setPasswordConfirmation("ousddffdi22AA");
+        creationDTO.setAcceptCGU(true);
+        creationDTO.setAcceptCGV(true);
+
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonHelper.toJson(creationDTO)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
     void testLogout() throws Exception {
         final User account = userTestComponent.createBasicUser();
 

@@ -39,6 +39,10 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
     @Override
     public void beforeMappingToEntity(@NonNull Iterable<UserDTO> requestList) {
         for (final UserDTO request : requestList) {
+            if (!checkUsernameHasValidCharacters(request.getUsername())) {
+                throw new ApiBadRequestException("Le nom d'utilisateur ne peut contenir que des lettres, des chiffres, des underscores et des tirets. Sans espaces.");
+            }
+
             if (request.getId() == null) {
                 final Optional<User> search = this.getRepository().findByUsernameIgnoreCase(request.getUsername());
                 if (search.isPresent()) {
@@ -73,5 +77,9 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
             uuidsToRemove.add(user.getUuid().toString());
         }
         this.googleAuthClient.deleteAllByUserUuidIn(uuidsToRemove);
+    }
+
+    private boolean checkUsernameHasValidCharacters(@NonNull String username) {
+        return Strings.isNotBlank(username) && username.matches("^[a-zA-Z0-9._-]{3,}$");
     }
 }
