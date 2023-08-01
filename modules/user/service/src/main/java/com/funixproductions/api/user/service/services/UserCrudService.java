@@ -39,7 +39,7 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
     @Override
     public void beforeMappingToEntity(@NonNull Iterable<UserDTO> requestList) {
         for (final UserDTO request : requestList) {
-            if (!checkUsernameHasValidCharacters(request.getUsername())) {
+            if (request.getUsername() != null && !checkUsernameHasValidCharacters(request.getUsername())) {
                 throw new ApiBadRequestException("Le nom d'utilisateur ne peut contenir que des lettres, des chiffres, des underscores et des tirets. Sans espaces.");
             }
 
