@@ -5,6 +5,6 @@ create table user_password_reset
     updated_at      timestamp,
     uuid            varchar(255)  not null constraint UK_user_reset_token_public_id unique,
     origin          varchar(255)  not null,
-    reset_token     varchar(2000) not null constraint UK_api_token unique,
+    reset_token     varchar(2000) not null constraint UK_api_reset_token unique,
     user_id         bigint        not null constraint reset_token_link_user references api_users
 );
