@@ -17,6 +17,7 @@ import com.funixproductions.core.tools.string.PasswordGenerator;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -58,12 +59,19 @@ public class UserResetService {
         final Iterable<User> usersSearch = this.userRepository.findAllByEmail(request.getEmail());
         final String ipClient = this.ipUtils.getClientIp(servletRequest);
 
-        for (final User user : usersSearch) {
-            if (this.triesCache.getIfPresent(user.getId()) == null) {
-                final MailDTO resetMail = generateResetMail(user, request.getOrigin(), ipClient);
-                this.googleGmailClient.sendMail(resetMail, Collections.singletonList(user.getEmail()));
-                this.triesCache.put(user.getId(), 0);
+        try {
+            for (final User user : usersSearch) {
+                if (this.triesCache.getIfPresent(user.getId()) == null) {
+                    final MailDTO resetMail = generateResetMail(user, request.getOrigin(), ipClient);
+                    this.googleGmailClient.sendMail(resetMail, Collections.singletonList(user.getEmail()));
+                    this.triesCache.put(user.getId(), 0);
+                }
             }
+        } catch (FeignException e) {
+            final String errorMessage = "Erreur interne lors de l'envoi du mail de réinitialisation.";
+
+            log.error(errorMessage, e);
+            throw new ApiException(errorMessage, e);
         }
     }
 
@@ -93,6 +101,11 @@ public class UserResetService {
             this.googleGmailClient.sendMail(successMail, Collections.singletonList(user.getEmail()));
         } catch (ApiException e) {
             throw e;
+        } catch (FeignException e) {
+            final String errorMessage = "Erreur interne lors de l'envoi du mail de réinitialisation succès.";
+
+            log.error(errorMessage, e);
+            throw new ApiException(errorMessage, e);
         } catch (Exception e) {
             final String errorMessage = "Erreur interne lors de la réinitialisation du mot de passe.";
 

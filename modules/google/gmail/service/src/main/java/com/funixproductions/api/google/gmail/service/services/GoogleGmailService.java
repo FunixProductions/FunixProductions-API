@@ -58,7 +58,10 @@ public class GoogleGmailService {
             message = gmailService.users().messages().send(this.gmailConfig.getAppEmail(), message).execute();
             log.info("Mail sent successfully. Id: {}. Object: {}. Receivers: {}.", message.getId(), mailDTO.getSubject(), to);
         } catch (IOException e) {
-            throw new ApiException(String.format("Erreur lors de l'envoi du mail avec le sdk google. Erreur: %s.", e.getMessage()), e);
+            final String errorMessage = "Erreur lors de l'envoi du mail avec le sdk google.";
+
+            log.error(errorMessage, e);
+            throw new ApiException(errorMessage, e);
         }
     }
 
@@ -81,7 +84,10 @@ public class GoogleGmailService {
             }
             return email;
         } catch (Exception e) {
-            throw new ApiException(String.format("Erreur lors de la création de l'objet d'envoi de mail. Erreur: %s.", e.getMessage()), e);
+            final String errMessage = "Erreur lors de la création de l'objet d'envoi de mail.";
+
+            log.error(errMessage, e);
+            throw new ApiException(errMessage, e);
         }
     }
 
@@ -95,7 +101,10 @@ public class GoogleGmailService {
             message.setRaw(encodedEmail);
             return message;
         } catch (Exception e) {
-            throw new ApiException(String.format("Erreur lors du formattage de l'email. Erreur: %s.", e.getMessage()), e);
+            final String errMessage = "Erreur lors du formattage de l'email.";
+
+            log.error(errMessage, e);
+            throw new ApiException(errMessage, e);
         }
     }
 
@@ -114,7 +123,10 @@ public class GoogleGmailService {
             multipart.addBodyPart(mimeBodyPart);
             return multipart;
         } catch (MessagingException e) {
-            throw new ApiException(String.format("Erreur lors de l'ajout du fichier %s en pièce jointe. Erreur: %s.", mailDto.getFileAttachment().getName(), e.getMessage()), e);
+            final String errMessage = "Erreur lors de l'ajout du fichier %s en pièce jointe.";
+
+            log.error(errMessage, e);
+            throw new ApiException(errMessage, e);
         }
     }
 
