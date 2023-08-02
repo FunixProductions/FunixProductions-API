@@ -9,6 +9,7 @@ import com.funixproductions.api.user.service.entities.UserToken;
 import com.funixproductions.api.user.service.mappers.UserTokenMapper;
 import com.funixproductions.api.user.service.repositories.UserRepository;
 import com.funixproductions.api.user.service.repositories.UserTokenRepository;
+import com.funixproductions.core.crud.services.ApiService;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
 import com.funixproductions.core.exceptions.ApiNotFoundException;
@@ -36,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
-public class UserTokenService {
+public class UserTokenService extends ApiService<UserTokenDTO, UserToken, UserTokenMapper, UserTokenRepository> {
     private static final String ISSUER = "FunixProductionsApi - api.funixproductons.com";
 
     private final UserTokenRepository tokenRepository;
@@ -49,6 +50,7 @@ public class UserTokenService {
                             UserTokenMapper tokenMapper,
                             UserRepository userRepository,
                             UserConfiguration userConfiguration) {
+        super(tokenRepository, tokenMapper);
         this.tokenRepository = tokenRepository;
         this.tokenMapper = tokenMapper;
         this.userRepository = userRepository;
@@ -85,6 +87,7 @@ public class UserTokenService {
         userToken.setExpirationDate(expirationDate);
         userToken.setToken(Jwts.builder()
                 .setSubject(userToken.getUuid().toString())
+                .setAudience(user.getRole().getRole())
                 .setIssuer(ISSUER)
                 .setIssuedAt(new Date())
                 .setExpiration(expirationDate)

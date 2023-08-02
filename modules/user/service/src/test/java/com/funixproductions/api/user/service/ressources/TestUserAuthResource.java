@@ -10,7 +10,12 @@ import com.funixproductions.api.user.client.dtos.requests.UserLoginDTO;
 import com.funixproductions.api.user.client.enums.UserRole;
 import com.funixproductions.api.user.service.components.UserTestComponent;
 import com.funixproductions.api.user.service.entities.User;
+import com.funixproductions.api.user.service.repositories.UserTokenRepository;
+import com.funixproductions.api.user.service.services.UserTokenService;
+import com.funixproductions.core.crud.dtos.PageDTO;
+import com.funixproductions.core.exceptions.ApiNotFoundException;
 import com.funixproductions.core.test.beans.JsonHelper;
+import com.google.gson.reflect.TypeToken;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,10 +33,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.lang.reflect.Type;
 import java.util.UUID;
 
-import static com.funixproductions.api.user.service.components.UserTestComponent.USER_PASSWORD;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyList;
 
 @SpringBootTest
@@ -48,6 +53,12 @@ class TestUserAuthResource {
     @Autowired
     private JsonHelper jsonHelper;
 
+    @Autowired
+    private UserTokenRepository userTokenRepository;
+
+    @Autowired
+    private UserTokenService userTokenService;
+
     @MockBean
     private GoogleRecaptchaHandler googleCaptchaService;
 
@@ -61,7 +72,7 @@ class TestUserAuthResource {
     void setupMocks() {
         Mockito.doNothing().when(googleCaptchaService).verify(ArgumentMatchers.any(), ArgumentMatchers.anyString());
         Mockito.when(funixProductionsEncryptionClient.encrypt(ArgumentMatchers.anyString())).thenReturn(UUID.randomUUID().toString());
-        Mockito.when(funixProductionsEncryptionClient.decrypt(ArgumentMatchers.anyString())).thenReturn(USER_PASSWORD);
+        Mockito.when(funixProductionsEncryptionClient.decrypt(ArgumentMatchers.anyString())).thenReturn(UUID.randomUUID().toString());
         Mockito.doNothing().when(googleAuthClient).deleteAllByUserUuidIn(anyList());
     }
 
@@ -106,6 +117,61 @@ class TestUserAuthResource {
         registerSuccessTest("bonjour_Funix22");
     }
 
+    @Test
+    void testGetActualSessions() throws Exception {
+        this.userTokenRepository.deleteAll();
+
+        final User user = userTestComponent.createBasicUser();
+        final UserTokenDTO userTokenDTO = userTestComponent.loginUser(user);
+        final User adminUser = userTestComponent.createAdminAccount();
+        final Type typeToken = new TypeToken<PageDTO<UserTokenDTO>>() {}.getType();
+
+        userTestComponent.loginUser(adminUser);
+        MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.get("/user/auth/sessions")
+                        .header("Authorization", "Bearer " + userTokenDTO.getToken()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        PageDTO<UserTokenDTO> userTokenDTOS = jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), typeToken);
+        assertEquals(1, userTokenDTOS.getTotalElementsThisPage());
+        assertEquals(userTokenDTO, userTokenDTOS.getContent().get(0));
+
+        userTestComponent.loginUser(user);
+
+        mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.get("/user/auth/sessions")
+                        .header("Authorization", "Bearer " + userTokenDTO.getToken()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+        userTokenDTOS = jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), typeToken);
+        assertEquals(2, userTokenDTOS.getTotalElementsThisPage());
+    }
+
+    @Test
+    void testRemoveSessionToken() throws Exception {
+        this.userTokenRepository.deleteAll();
+        final User user = userTestComponent.createBasicUser();
+        final User adminUser = userTestComponent.createAdminAccount();
+        final UserTokenDTO userTokenDTO = userTestComponent.loginUser(user);
+        final UserTokenDTO userTokenDTO2 = userTestComponent.loginUser(user);
+        final UserTokenDTO adminTokenDTO = userTestComponent.loginUser(adminUser);
+
+        this.mockMvc.perform(MockMvcRequestBuilders.delete("/user/auth/sessions")
+                        .header("Authorization", "Bearer " + userTokenDTO.getToken()))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        this.mockMvc.perform(MockMvcRequestBuilders.delete("/user/auth/sessions?id=" + userTokenDTO.getId() + "&id=" + userTokenDTO2.getId() + "&id=" + adminTokenDTO.getId())
+                        .header("Authorization", "Bearer " + userTokenDTO.getToken()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        assertDoesNotThrow(() -> this.userTokenService.findById(adminTokenDTO.getId().toString()));
+        assertThrowsExactly(ApiNotFoundException.class, () -> {
+            this.userTokenService.findById(userTokenDTO.getId().toString());
+            this.userTokenService.findById(userTokenDTO2.getId().toString());
+        });
+    }
+
     private void registerSuccessTest(final String username) throws Exception {
         final UserCreationDTO creationDTO = new UserCreationDTO();
         creationDTO.setEmail(UUID.randomUUID() + "@gmail.com");
@@ -148,7 +214,7 @@ class TestUserAuthResource {
 
         final UserLoginDTO loginDTO = new UserLoginDTO();
         loginDTO.setUsername(account.getUsername());
-        loginDTO.setPassword(USER_PASSWORD);
+        loginDTO.setPassword(account.getPassword());
         loginDTO.setStayConnected(false);
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")
@@ -343,7 +409,7 @@ class TestUserAuthResource {
 
         final UserLoginDTO loginDTO = new UserLoginDTO();
         loginDTO.setUsername(account.getUsername());
-        loginDTO.setPassword(USER_PASSWORD);
+        loginDTO.setPassword(account.getPassword());
         loginDTO.setStayConnected(false);
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")
@@ -364,7 +430,7 @@ class TestUserAuthResource {
 
         final UserLoginDTO loginDTO = new UserLoginDTO();
         loginDTO.setUsername(account.getUsername());
-        loginDTO.setPassword(USER_PASSWORD);
+        loginDTO.setPassword(account.getPassword());
         loginDTO.setStayConnected(true);
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")
@@ -398,7 +464,7 @@ class TestUserAuthResource {
 
         final UserLoginDTO loginDTO = new UserLoginDTO();
         loginDTO.setUsername(account.getUsername());
-        loginDTO.setPassword(USER_PASSWORD);
+        loginDTO.setPassword(account.getPassword());
         loginDTO.setStayConnected(true);
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")

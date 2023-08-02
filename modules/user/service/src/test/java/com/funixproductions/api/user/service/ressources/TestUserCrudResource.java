@@ -36,7 +36,6 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.funixproductions.api.user.service.components.UserTestComponent.USER_PASSWORD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -72,7 +71,7 @@ class TestUserCrudResource {
     void setupMocks() {
         Mockito.doNothing().when(googleCaptchaService).verify(ArgumentMatchers.any(), ArgumentMatchers.anyString());
         Mockito.when(funixProductionsEncryptionClient.encrypt(ArgumentMatchers.anyString())).thenReturn(UUID.randomUUID().toString());
-        Mockito.when(funixProductionsEncryptionClient.decrypt(ArgumentMatchers.anyString())).thenReturn(USER_PASSWORD);
+        Mockito.when(funixProductionsEncryptionClient.decrypt(ArgumentMatchers.anyString())).thenReturn(UUID.randomUUID().toString());
         Mockito.doNothing().when(googleAuthClient).deleteAllByUserUuidIn(anyList());
     }
 
@@ -141,6 +140,9 @@ class TestUserCrudResource {
         requestChangePassword.setPassword("newPassword66GGS");
         requestChangePassword.setId(user.getId());
 
+        Mockito.when(funixProductionsEncryptionClient.encrypt(requestChangePassword.getPassword())).thenReturn(requestChangePassword.getPassword());
+        Mockito.when(funixProductionsEncryptionClient.decrypt(requestChangePassword.getPassword())).thenReturn(requestChangePassword.getPassword());
+
         mockMvc.perform(MockMvcRequestBuilders.patch(route)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenDTO.getToken())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -149,7 +151,7 @@ class TestUserCrudResource {
 
         final Optional<User> search = userRepository.findByUuid(user.getId().toString());
         Assertions.assertTrue(search.isPresent());
-        assertEquals(USER_PASSWORD, search.get().getPassword());
+        assertEquals(requestChangePassword.getPassword(), search.get().getPassword());
     }
 
     @Test
