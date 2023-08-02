@@ -10,6 +10,10 @@ import com.funixproductions.api.user.client.dtos.requests.UserPasswordResetReque
 import com.funixproductions.api.user.service.services.CurrentSession;
 import com.funixproductions.api.user.service.services.UserAuthService;
 import com.funixproductions.api.user.service.services.UserResetService;
+import com.funixproductions.api.user.service.services.UserTokenService;
+import com.funixproductions.core.crud.dtos.PageDTO;
+import com.funixproductions.core.crud.enums.SearchOperation;
+import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
 import com.funixproductions.core.exceptions.ApiForbiddenException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,6 +22,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Slf4j
 @RestController
 @RequestMapping("user/auth")
@@ -25,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserAuthResource {
 
     private final UserAuthService userAuthService;
+    private final UserTokenService userTokenService;
     private final UserResetService userResetService;
     private final CurrentSession currentSession;
     private final GoogleRecaptchaHandler captchaService;
@@ -91,6 +99,63 @@ public class UserAuthResource {
             throw e;
         } catch (Exception e) {
             final String message = "Une erreur interne est survenue lors de la récupération de l'utilisateur courant.";
+
+            log.error(message, e);
+            throw new ApiException(message, e);
+        }
+    }
+
+    @GetMapping("sessions")
+    public PageDTO<UserTokenDTO> getActualSessions(@RequestParam(defaultValue = "0") String page, @RequestParam(defaultValue = "10") String elementsPerPage) {
+        try {
+            final UserDTO currentUser = this.currentSession.getCurrentUser();
+
+            if (currentUser == null) {
+                throw new ApiForbiddenException("Vous n'êtes pas connecté.");
+            } else {
+                return userTokenService.getAll(page, elementsPerPage, String.format("user.uuid:%s:%s", SearchOperation.EQUALS.getOperation(), currentUser.getId()), "createdAt:desc");
+            }
+        } catch (ApiException e) {
+            throw e;
+        } catch (Exception e) {
+            final String message = "Une erreur interne est survenue lors de la récupération des sessions actuelles.";
+
+            log.error(message, e);
+            throw new ApiException(message, e);
+        }
+    }
+
+    @DeleteMapping("sessions")
+    public void removeSession(@RequestParam String[] id) {
+        if (id.length == 0) {
+            throw new ApiBadRequestException("Aucune session à supprimer.");
+        }
+
+        try {
+            final UserDTO currentUser = this.currentSession.getCurrentUser();
+
+            if (currentUser == null) {
+                throw new ApiForbiddenException("Vous n'êtes pas connecté.");
+            } else {
+                final PageDTO<UserTokenDTO> tokens = userTokenService.getAll(
+                        "0",
+                        Integer.toString(id.length),
+                        String.format("uuid:%s:[%s]", SearchOperation.EQUALS.getOperation(), String.join(",", id)),
+                        "createdAt:desc"
+                );
+                final Set<String> tokensToRemove = new HashSet<>();
+
+                for (final UserTokenDTO token : tokens.getContent()) {
+                    if (token.getUser().getId().equals(currentUser.getId())) {
+                        tokensToRemove.add(token.getId().toString());
+                    }
+                }
+                this.userTokenService.delete(tokensToRemove.toArray(new String[0]));
+            }
+        } catch (ApiException e) {
+            throw e;
+        } catch (Exception e) {
+            final String message = "Une erreur interne est survenue lors de la suppressions des sessions actuelles.";
 
             log.error(message, e);
             throw new ApiException(message, e);

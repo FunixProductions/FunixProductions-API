@@ -49,7 +49,9 @@ public class WebSecurity {
                         .requestMatchers(HttpMethod.POST, "/user/auth/register**", "/user/auth/login**", "/user/auth/resetPassword**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/user/auth/current**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/user/auth/logout**").authenticated()
+                        .requestMatchers("/user/auth/sessions**").authenticated()
                         .requestMatchers("/user**").hasAuthority(UserRole.ADMIN.getRole())
+                        .requestMatchers("/user/tokens**").hasAuthority(UserRole.ADMIN.getRole())
 
                         .anyRequest().authenticated()
                 ).httpBasic(Customizer.withDefaults())
