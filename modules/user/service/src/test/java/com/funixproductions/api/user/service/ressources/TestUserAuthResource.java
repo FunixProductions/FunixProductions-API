@@ -36,7 +36,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.lang.reflect.Type;
 import java.util.UUID;
 
-import static com.funixproductions.api.user.service.components.UserTestComponent.USER_PASSWORD;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyList;
 
@@ -73,7 +72,7 @@ class TestUserAuthResource {
     void setupMocks() {
         Mockito.doNothing().when(googleCaptchaService).verify(ArgumentMatchers.any(), ArgumentMatchers.anyString());
         Mockito.when(funixProductionsEncryptionClient.encrypt(ArgumentMatchers.anyString())).thenReturn(UUID.randomUUID().toString());
-        Mockito.when(funixProductionsEncryptionClient.decrypt(ArgumentMatchers.anyString())).thenReturn(USER_PASSWORD);
+        Mockito.when(funixProductionsEncryptionClient.decrypt(ArgumentMatchers.anyString())).thenReturn(UUID.randomUUID().toString());
         Mockito.doNothing().when(googleAuthClient).deleteAllByUserUuidIn(anyList());
     }
 
@@ -215,7 +214,7 @@ class TestUserAuthResource {
 
         final UserLoginDTO loginDTO = new UserLoginDTO();
         loginDTO.setUsername(account.getUsername());
-        loginDTO.setPassword(USER_PASSWORD);
+        loginDTO.setPassword(account.getPassword());
         loginDTO.setStayConnected(false);
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")
@@ -410,7 +409,7 @@ class TestUserAuthResource {
 
         final UserLoginDTO loginDTO = new UserLoginDTO();
         loginDTO.setUsername(account.getUsername());
-        loginDTO.setPassword(USER_PASSWORD);
+        loginDTO.setPassword(account.getPassword());
         loginDTO.setStayConnected(false);
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")
@@ -431,7 +430,7 @@ class TestUserAuthResource {
 
         final UserLoginDTO loginDTO = new UserLoginDTO();
         loginDTO.setUsername(account.getUsername());
-        loginDTO.setPassword(USER_PASSWORD);
+        loginDTO.setPassword(account.getPassword());
         loginDTO.setStayConnected(true);
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")
@@ -465,7 +464,7 @@ class TestUserAuthResource {
 
         final UserLoginDTO loginDTO = new UserLoginDTO();
         loginDTO.setUsername(account.getUsername());
-        loginDTO.setPassword(USER_PASSWORD);
+        loginDTO.setPassword(account.getPassword());
         loginDTO.setStayConnected(true);
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")
