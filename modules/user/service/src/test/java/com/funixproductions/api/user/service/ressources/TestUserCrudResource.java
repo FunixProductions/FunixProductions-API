@@ -140,6 +140,9 @@ class TestUserCrudResource {
         requestChangePassword.setPassword("newPassword66GGS");
         requestChangePassword.setId(user.getId());
 
+        Mockito.when(funixProductionsEncryptionClient.encrypt(requestChangePassword.getPassword())).thenReturn(requestChangePassword.getPassword());
+        Mockito.when(funixProductionsEncryptionClient.decrypt(requestChangePassword.getPassword())).thenReturn(requestChangePassword.getPassword());
+
         mockMvc.perform(MockMvcRequestBuilders.patch(route)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenDTO.getToken())
                         .contentType(MediaType.APPLICATION_JSON)
