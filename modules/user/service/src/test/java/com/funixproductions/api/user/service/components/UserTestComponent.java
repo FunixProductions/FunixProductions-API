@@ -23,8 +23,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserTestComponent {
 
-    public static final String USER_PASSWORD = "clearpassword";
-
     private final MockMvc mockMvc;
     private final UserRepository userRepository;
     private final FunixProductionsEncryptionClient encryptionClient;
