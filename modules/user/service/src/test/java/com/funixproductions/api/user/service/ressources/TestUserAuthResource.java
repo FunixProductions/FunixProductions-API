@@ -157,12 +157,12 @@ class TestUserAuthResource {
         final UserTokenDTO adminTokenDTO = userTestComponent.loginUser(adminUser);
 
         this.mockMvc.perform(MockMvcRequestBuilders.delete("/user/auth/sessions")
-                        .header("Authorization", "Bearer " + adminTokenDTO.getToken()))
+                        .header("Authorization", "Bearer " + userTokenDTO.getToken()))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andReturn();
 
         this.mockMvc.perform(MockMvcRequestBuilders.delete("/user/auth/sessions?id=" + userTokenDTO.getId() + "&id=" + userTokenDTO2.getId() + "&id=" + adminTokenDTO.getId())
-                        .header("Authorization", "Bearer " + adminTokenDTO.getToken()))
+                        .header("Authorization", "Bearer " + userTokenDTO.getToken()))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
 

@@ -13,7 +13,6 @@ import com.funixproductions.api.user.service.services.UserResetService;
 import com.funixproductions.api.user.service.services.UserTokenService;
 import com.funixproductions.core.crud.dtos.PageDTO;
 import com.funixproductions.core.crud.enums.SearchOperation;
-import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
 import com.funixproductions.core.exceptions.ApiForbiddenException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -127,10 +126,6 @@ public class UserAuthResource {
 
     @DeleteMapping("sessions")
     public void removeSession(@RequestParam String[] id) {
-        if (id.length == 0) {
-            throw new ApiBadRequestException("Aucune session à supprimer.");
-        }
-
         try {
             final UserDTO currentUser = this.currentSession.getCurrentUser();
 
@@ -140,7 +135,7 @@ public class UserAuthResource {
                 final PageDTO<UserTokenDTO> tokens = userTokenService.getAll(
                         "0",
                         Integer.toString(id.length),
-                        String.format("uuid:%s:[%s]", SearchOperation.EQUALS.getOperation(), String.join(",", id)),
+                        String.format("uuid:%s:[%s]", SearchOperation.EQUALS.getOperation(), String.join("|", id)),
                         "createdAt:desc"
                 );
                 final Set<String> tokensToRemove = new HashSet<>();
