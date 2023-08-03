@@ -14,20 +14,19 @@ import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
 import com.funixproductions.core.tools.network.IPUtils;
 import com.funixproductions.core.tools.string.PasswordGenerator;
+import com.funixproductions.core.tools.string.StringUtils;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -38,13 +37,14 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class UserResetService {
 
     private static final int COOLDOWN_REQUEST_SPAM = 5;
 
     private static final String FILEPATH_RESET_MAIL = "user/reset-mail.html";
     private static final String FILEPATH_RESET_MAIL_DONE = "user/reset-mail-done.html";
+    private final String resetMailTemplate;
+    private final String resetMailDoneTemplate;
 
     private final UserRepository userRepository;
     private final UserPasswordUtils userPasswordUtils;
@@ -53,6 +53,20 @@ public class UserResetService {
     private final IPUtils ipUtils;
 
     private final Cache<Long, Integer> triesCache = CacheBuilder.newBuilder().expireAfterWrite(COOLDOWN_REQUEST_SPAM, TimeUnit.MINUTES).build();
+
+    public UserResetService(final UserRepository userRepository,
+                            final UserPasswordUtils userPasswordUtils,
+                            final UserPasswordResetRepository userPasswordResetRepository,
+                            final GoogleGmailClient googleGmailClient,
+                            final IPUtils ipUtils) {
+        this.userRepository = userRepository;
+        this.userPasswordUtils = userPasswordUtils;
+        this.userPasswordResetRepository = userPasswordResetRepository;
+        this.googleGmailClient = googleGmailClient;
+        this.ipUtils = ipUtils;
+        this.resetMailTemplate = StringUtils.readFromClasspath(FILEPATH_RESET_MAIL, this.getClass());
+        this.resetMailDoneTemplate = StringUtils.readFromClasspath(FILEPATH_RESET_MAIL_DONE, this.getClass());
+    }
 
     @Transactional
     public void resetPasswordRequest(final UserPasswordResetRequestDTO request, final HttpServletRequest servletRequest) {
@@ -116,7 +130,7 @@ public class UserResetService {
 
     private MailDTO generateResetDoneMail(final User user, final FrontOrigins origin, final String ipClient) {
         final MailDTO mailDTO = new MailDTO();
-        final String mailBody = generateResetMailBody(user, origin, "", ipClient, FILEPATH_RESET_MAIL_DONE);
+        final String mailBody = generateResetMailBody(user, origin, null, ipClient);
 
         mailDTO.setSubject(String.format("Réinitialisation du mot de passe sur %s réussi.", origin.getHumanReadableOrigin()));
         mailDTO.setBodyText(mailBody);
@@ -125,7 +139,7 @@ public class UserResetService {
 
     private MailDTO generateResetMail(final User user, final FrontOrigins origin, final String ipClient) {
         final UserPasswordReset passwordReset = this.generateNewResetToken(user, origin);
-        final String mailBody = generateResetMailBody(user, origin, passwordReset.getResetToken(), ipClient, FILEPATH_RESET_MAIL);
+        final String mailBody = generateResetMailBody(user, origin, passwordReset.getResetToken(), ipClient);
         final MailDTO mailDTO = new MailDTO();
 
         mailDTO.setSubject(String.format("Réinitialisation du mot de passe sur %s.", origin.getHumanReadableOrigin()));
@@ -133,41 +147,22 @@ public class UserResetService {
         return mailDTO;
     }
 
-    private String generateResetMailBody(final User user,
-                                         final FrontOrigins origin,
-                                         final String resetToken,
-                                         final String ipClient,
-                                         final String filePathMailTemplate) {
-        final String urlRedirect = getUrlRedirect(origin, resetToken);
+    private String generateResetMailBody(@NonNull final User user,
+                                         @NonNull final FrontOrigins origin,
+                                         @Nullable final String resetToken,
+                                         @NonNull final String ipClient) {
+        final String mailBody;
 
-        try (final InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(filePathMailTemplate)) {
-            if (inputStream != null) {
-                try (final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-                    final StringBuilder stringBuilder = new StringBuilder();
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        stringBuilder.append(line);
-                    }
-
-                    return stringBuilder.toString()
-                            .replace("{{USERNAME}}", user.getUsername())
-                            .replace("{{IP_ADDRESS}}", ipClient)
-                            .replace("{{URL_PASSWORD_RESET}}", urlRedirect)
-                            .replace("{{ORIGIN_WEBSITE}}", origin.getHumanReadableOrigin());
-                }
-            } else {
-                final String errorMessage = "Erreur interne lors de la génération du corps du mail de réinitialisation de mot de passe. InputStream null read reset-mail.html.";
-
-                log.error(errorMessage);
-                throw new ApiException(errorMessage);
-            }
-        } catch (Exception e) {
-            final String errorMessage = "Erreur interne lors de la génération du corps du mail de réinitialisation de mot de passe.";
-
-            log.error(errorMessage, e);
-            throw new ApiException(errorMessage, e);
+        if (Strings.isNullOrEmpty(resetToken)) {
+            mailBody = this.resetMailDoneTemplate;
+        } else {
+            final String urlRedirect = getUrlRedirect(origin, resetToken);
+            mailBody = this.resetMailTemplate.replace("{{URL_PASSWORD_RESET}}", urlRedirect);
         }
+
+        return mailBody.replace("{{USERNAME}}", user.getUsername())
+                .replace("{{IP_ADDRESS}}", ipClient)
+                .replace("{{ORIGIN_WEBSITE}}", origin.getHumanReadableOrigin());
     }
 
     private String getUrlRedirect(final FrontOrigins origin, final String resetToken) {

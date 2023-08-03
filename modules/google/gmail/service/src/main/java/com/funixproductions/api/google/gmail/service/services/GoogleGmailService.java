@@ -4,6 +4,7 @@ import com.funixproductions.api.google.gmail.client.dto.MailDTO;
 import com.funixproductions.api.google.gmail.service.config.GoogleGmailConfig;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
+import com.funixproductions.core.tools.string.StringUtils;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
 import jakarta.activation.DataHandler;
@@ -19,6 +20,9 @@ import jakarta.mail.util.ByteArrayDataSource;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Entities;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -29,6 +33,9 @@ import java.util.Properties;
 @Service
 public class GoogleGmailService {
 
+    private static final String TEMPLATE_FILE_NAME = "templates/template.html";
+    private final String templateMail;
+
     private final GoogleGmailConfig gmailConfig;
     private final InternetAddress serverEmailAddress;
     private final Gmail gmailService;
@@ -37,6 +44,7 @@ public class GoogleGmailService {
                               GoogleGmailConfig gmailConfig) throws ApiException {
         this.gmailService = gmailService;
         this.gmailConfig = gmailConfig;
+        this.templateMail = StringUtils.readFromClasspath(TEMPLATE_FILE_NAME, this.getClass());
 
         try {
             this.serverEmailAddress = new InternetAddress(gmailConfig.getAppEmail());
@@ -88,7 +96,7 @@ public class GoogleGmailService {
             if (mailDTO.getFileAttachment() != null) {
                 email.setContent(this.createAttachmentFile(mailDTO));
             } else {
-                email.setContent(mailDTO.getBodyText(), "text/html");
+                email.setContent(generateHtml(mailDTO), "text/html");
             }
             return email;
         } catch (Exception e) {
@@ -121,7 +129,7 @@ public class GoogleGmailService {
             final Multipart multipart = new MimeMultipart();
             MimeBodyPart mimeBodyPart = new MimeBodyPart();
 
-            mimeBodyPart.setContent(mailDto.getBodyText(), "text/html");
+            mimeBodyPart.setContent(generateHtml(mailDto), "text/html");
             multipart.addBodyPart(mimeBodyPart);
 
             mimeBodyPart = new MimeBodyPart();
@@ -132,6 +140,22 @@ public class GoogleGmailService {
             return multipart;
         } catch (MessagingException e) {
             final String errMessage = "Erreur lors de l'ajout du fichier %s en pièce jointe.";
+
+            log.error(errMessage, e);
+            throw new ApiException(errMessage, e);
+        }
+    }
+
+    private String generateHtml(final MailDTO mailDTO) {
+        try {
+            final String html = this.templateMail.replace("{{MAIL_CONTENT}}", mailDTO.getBodyText());
+            final Document document = Jsoup.parse(html);
+
+            document.outputSettings().prettyPrint(false);
+            document.outputSettings().escapeMode(Entities.EscapeMode.xhtml);
+            return document.html();
+        } catch (Exception e) {
+            final String errMessage = "Erreur lors de la génération du code html du mail.";
 
             log.error(errMessage, e);
             throw new ApiException(errMessage, e);
