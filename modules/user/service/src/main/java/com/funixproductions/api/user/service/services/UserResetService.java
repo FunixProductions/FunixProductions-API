@@ -28,10 +28,10 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -63,7 +63,7 @@ public class UserResetService {
             for (final User user : usersSearch) {
                 if (this.triesCache.getIfPresent(user.getId()) == null) {
                     final MailDTO resetMail = generateResetMail(user, request.getOrigin(), ipClient);
-                    this.googleGmailClient.sendMail(resetMail, Collections.singletonList(user.getEmail()));
+                    this.googleGmailClient.sendMail(resetMail, new String[]{user.getEmail()});
                     this.triesCache.put(user.getId(), 0);
                 }
             }
@@ -85,7 +85,7 @@ public class UserResetService {
                 throw new ApiBadRequestException("Les mots de passe ne correspondent pas.");
             }
 
-            final String resetToken = new String(Base64.getDecoder().decode(request.getResetToken()));
+            final String resetToken = new String(Base64.getDecoder().decode(request.getResetToken()), StandardCharsets.UTF_8);
             final UserPasswordReset userPasswordReset = this.userPasswordResetRepository.findByResetToken(resetToken)
                     .orElseThrow(() -> new ApiBadRequestException("Le token de réinitialisation est invalide."));
 
@@ -98,7 +98,7 @@ public class UserResetService {
             this.triesCache.invalidate(user.getId());
 
             final MailDTO successMail = generateResetDoneMail(user, userPasswordReset.getOrigin(), ipClient);
-            this.googleGmailClient.sendMail(successMail, Collections.singletonList(user.getEmail()));
+            this.googleGmailClient.sendMail(successMail, new String[]{user.getEmail()});
         } catch (ApiException e) {
             throw e;
         } catch (FeignException e) {

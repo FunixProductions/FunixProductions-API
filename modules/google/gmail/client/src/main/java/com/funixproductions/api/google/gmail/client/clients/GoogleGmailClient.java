@@ -6,8 +6,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
-
 @FeignClient(
         name = "GoogleGmailClient",
         url = "${funixproductions.api.google.gmail.app-domain-url}",
@@ -16,6 +14,6 @@ import java.util.List;
 public interface GoogleGmailClient {
 
     @PostMapping("send")
-    void sendMail(@RequestBody MailDTO mailDTO, @RequestParam("to") List<String> to);
+    void sendMail(@RequestBody MailDTO mailDTO, @RequestParam("to") String[] to);
 
 }
