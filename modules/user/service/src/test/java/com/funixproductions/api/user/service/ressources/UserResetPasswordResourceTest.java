@@ -9,13 +9,16 @@ import com.funixproductions.api.user.client.dtos.requests.UserPasswordResetDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserPasswordResetRequestDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserSecretsDTO;
 import com.funixproductions.api.user.client.enums.UserRole;
+import com.funixproductions.api.user.service.components.UserPasswordUtils;
 import com.funixproductions.api.user.service.entities.User;
 import com.funixproductions.api.user.service.entities.UserPasswordReset;
 import com.funixproductions.api.user.service.repositories.UserPasswordResetRepository;
+import com.funixproductions.api.user.service.repositories.UserRepository;
 import com.funixproductions.api.user.service.services.UserCrudService;
 import com.funixproductions.api.user.service.services.UserResetService;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.test.beans.JsonHelper;
+import com.funixproductions.core.tools.network.IPUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +56,13 @@ class UserResetPasswordResourceTest {
     private UserPasswordResetRepository userPasswordResetRepository;
 
     @Autowired
-    private UserResetService userResetService;
+    private UserRepository userRepository;
+
+    @Autowired
+    private UserPasswordUtils userPasswordUtils;
+
+    @Autowired
+    private IPUtils ipUtils;
 
     @MockBean
     private GoogleRecaptchaInternalClient captchaService;
@@ -120,9 +129,15 @@ class UserResetPasswordResourceTest {
         final User user = new User();
         user.setUsername(userName);
 
-        final Method method = UserResetService.class.getDeclaredMethod("generateResetMailBody", User.class, FrontOrigins.class, String.class, String.class, String.class);
+        final Method method = UserResetService.class.getDeclaredMethod("generateResetMailBody", User.class, FrontOrigins.class, String.class, String.class);
         method.setAccessible(true);
-        final String mailBody = (String) method.invoke(this.userResetService, user, frontOrigin, token, clientIp, "user/reset-mail.html");
+        final String mailBody = (String) method.invoke(new UserResetService(
+                userRepository,
+                userPasswordUtils,
+                userPasswordResetRepository,
+                gmailClient,
+                ipUtils
+        ), user, frontOrigin, token, clientIp);
 
         assertTrue(mailBody.contains("<h1>Réinitialisation du mot de passe</h1>"));
         assertTrue(mailBody.contains(userName));
@@ -139,9 +154,15 @@ class UserResetPasswordResourceTest {
         final User user = new User();
         user.setUsername(userName);
 
-        final Method method = UserResetService.class.getDeclaredMethod("generateResetMailBody", User.class, FrontOrigins.class, String.class, String.class, String.class);
+        final Method method = UserResetService.class.getDeclaredMethod("generateResetMailBody", User.class, FrontOrigins.class, String.class, String.class);
         method.setAccessible(true);
-        final String mailBody = (String) method.invoke(this.userResetService, user, FrontOrigins.FUNIX_PRODUCTIONS_DASHBOARD, "", clientIp, "user/reset-mail-done.html");
+        final String mailBody = (String) method.invoke(new UserResetService(
+                userRepository,
+                userPasswordUtils,
+                userPasswordResetRepository,
+                gmailClient,
+                ipUtils
+        ), user, FrontOrigins.FUNIX_PRODUCTIONS_DASHBOARD, null, clientIp);
 
         assertTrue(mailBody.contains("<h1>Réinitialisation du mot de passe</h1>"));
         assertTrue(mailBody.contains(userName));
