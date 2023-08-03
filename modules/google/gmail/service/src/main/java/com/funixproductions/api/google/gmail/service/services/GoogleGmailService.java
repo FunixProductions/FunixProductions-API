@@ -34,6 +34,7 @@ import java.util.Properties;
 public class GoogleGmailService {
 
     private static final String TEMPLATE_FILE_NAME = "templates/template.html";
+    private static final String TEMPLATE_CSS_FILE_NAME = "templates/css_bootstrap.min.css";
     private final String templateMail;
 
     private final GoogleGmailConfig gmailConfig;
@@ -44,7 +45,9 @@ public class GoogleGmailService {
                               GoogleGmailConfig gmailConfig) throws ApiException {
         this.gmailService = gmailService;
         this.gmailConfig = gmailConfig;
-        this.templateMail = StringUtils.readFromClasspath(TEMPLATE_FILE_NAME, this.getClass());
+
+        final String cssData = StringUtils.readFromClasspath(TEMPLATE_CSS_FILE_NAME, this.getClass());
+        this.templateMail = StringUtils.readFromClasspath(TEMPLATE_FILE_NAME, this.getClass()).replace("{{CSS_DATA}}", cssData);
 
         try {
             this.serverEmailAddress = new InternetAddress(gmailConfig.getAppEmail());
