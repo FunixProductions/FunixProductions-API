@@ -2,6 +2,7 @@ package com.funixproductions.api.google.gmail.service.services;
 
 import com.funixproductions.api.google.gmail.client.dto.MailDTO;
 import com.funixproductions.api.google.gmail.service.config.GoogleGmailConfig;
+import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
@@ -51,6 +52,13 @@ public class GoogleGmailService {
      * @throws ApiException when error occurs on mail sending
      */
     public void sendMail(final MailDTO mailDTO, final String... to) throws ApiException {
+        if (to.length == 0) {
+            final String errorMessage = "Aucun destinataire n'a été renseigné.";
+
+            log.warn(errorMessage);
+            throw new ApiBadRequestException(errorMessage);
+        }
+
         final MimeMessage email = this.createEmail(mailDTO, to);
         Message message = this.createMessage(email);
 
