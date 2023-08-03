@@ -101,11 +101,11 @@ public class GoogleGmailService {
 
     private Message createMessage(final MimeMessage email) {
         try (final ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            final Message message = new Message();
+            email.writeTo(outputStream);
             final byte[] bytes = outputStream.toByteArray();
             final String encodedEmail = Base64.encodeBase64URLSafeString(bytes);
 
-            email.writeTo(outputStream);
+            final Message message = new Message();
             message.setRaw(encodedEmail);
             return message;
         } catch (Exception e) {
