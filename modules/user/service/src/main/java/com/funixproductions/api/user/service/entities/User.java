@@ -42,14 +42,20 @@ public class User extends ApiEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole role = UserRole.USER;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "boolean default false")
     private Boolean banned = false;
+
+    @Column(columnDefinition = "boolean default false")
+    private Boolean valid = false;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserToken> tokens;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserPasswordReset> passwordResets;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserValidAccountToken> validTokens;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

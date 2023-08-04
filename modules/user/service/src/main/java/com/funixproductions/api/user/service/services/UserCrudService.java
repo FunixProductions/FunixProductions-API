@@ -25,14 +25,17 @@ import java.util.Optional;
 public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserRepository> implements UserDetailsService {
 
     private final UserPasswordUtils passwordUtils;
+    private final UserValidationAccountService validationAccountService;
     private final InternalGoogleAuthClient googleAuthClient;
 
     public UserCrudService(UserMapper mapper,
                            UserRepository repository,
                            UserPasswordUtils passwordUtils,
+                           UserValidationAccountService validationAccountService,
                            InternalGoogleAuthClient googleAuthClient) {
         super(repository, mapper);
         this.passwordUtils = passwordUtils;
+        this.validationAccountService = validationAccountService;
         this.googleAuthClient = googleAuthClient;
     }
 
@@ -49,6 +52,13 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
                     throw new ApiBadRequestException(String.format("L'utilisateur %s existe déjà.", request.getUsername()));
                 }
             }
+        }
+    }
+
+    @Override
+    public void afterSavingEntity(@NonNull Iterable<User> entity) {
+        for (final User user : entity) {
+            this.validationAccountService.sendMailValidationRequest(user);
         }
     }
 

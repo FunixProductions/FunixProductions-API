@@ -41,8 +41,6 @@ public class UserResetService {
 
     private static final int COOLDOWN_REQUEST_SPAM = 5;
 
-    private static final String FILEPATH_RESET_MAIL = "user/reset-mail.html";
-    private static final String FILEPATH_RESET_MAIL_DONE = "user/reset-mail-done.html";
     private final String resetMailTemplate;
     private final String resetMailDoneTemplate;
 
@@ -64,8 +62,8 @@ public class UserResetService {
         this.userPasswordResetRepository = userPasswordResetRepository;
         this.googleGmailClient = googleGmailClient;
         this.ipUtils = ipUtils;
-        this.resetMailTemplate = StringUtils.readFromClasspath(FILEPATH_RESET_MAIL, this.getClass());
-        this.resetMailDoneTemplate = StringUtils.readFromClasspath(FILEPATH_RESET_MAIL_DONE, this.getClass());
+        this.resetMailTemplate = StringUtils.readFromClasspath("user/reset-mail.html", this.getClass());
+        this.resetMailDoneTemplate = StringUtils.readFromClasspath("user/reset-mail-done.html", this.getClass());
     }
 
     @Transactional

@@ -14,7 +14,6 @@ public interface UserMapper extends ApiMapper<User, UserDTO> {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "tokens", ignore = true)
-    @Mapping(target = "banned", ignore = true)
     @Mapping(target = "authorities", ignore = true)
     User toEntity(UserDTO dto);
 
@@ -30,7 +29,6 @@ public interface UserMapper extends ApiMapper<User, UserDTO> {
     @Mapping(target = "uuid", source = "id")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "tokens", ignore = true)
-    @Mapping(target = "banned", ignore = true)
     @Mapping(target = "authorities", ignore = true)
     User toEntity(UserSecretsDTO secretsDTO);
 

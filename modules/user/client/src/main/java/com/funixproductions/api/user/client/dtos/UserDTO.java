@@ -20,4 +20,6 @@ public class UserDTO extends ApiDTO {
 
     @NotNull
     private UserRole role;
+
+    private Boolean valid;
 }
