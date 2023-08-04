@@ -81,7 +81,7 @@ public class UserValidationAccountService {
             throw new ApiBadRequestException("Le compte est déjà validé.");
         }
         if (this.triesCache.getIfPresent(user.getId()) != null) {
-            throw new ApiBadRequestException("Veuillez patienter 5 entre chaque demande avant de demander un nouveau token.");
+            throw new ApiBadRequestException("Veuillez patienter 5 minutes entre chaque demande avant de demander un nouveau token de validation de compte.");
         }
 
         try {
