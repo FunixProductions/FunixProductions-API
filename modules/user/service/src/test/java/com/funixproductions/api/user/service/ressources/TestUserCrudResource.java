@@ -135,6 +135,11 @@ class TestUserCrudResource {
                 .andReturn();
         final UserDTO user = getResponse(result);
 
+        this.userRepository.findByUuid(user.getId().toString()).ifPresent(u -> {
+            u.setValid(true);
+            this.userRepository.save(u);
+        });
+
         user.setUsername("sdkjfhsdkjh");
         mockMvc.perform(MockMvcRequestBuilders.patch(route)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenDTO.getToken())
