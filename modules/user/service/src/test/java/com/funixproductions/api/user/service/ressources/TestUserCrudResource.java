@@ -2,6 +2,7 @@ package com.funixproductions.api.user.service.ressources;
 
 import com.funixproductions.api.encryption.client.clients.FunixProductionsEncryptionClient;
 import com.funixproductions.api.google.auth.client.clients.InternalGoogleAuthClient;
+import com.funixproductions.api.google.gmail.client.clients.GoogleGmailClient;
 import com.funixproductions.api.google.recaptcha.client.services.GoogleRecaptchaHandler;
 import com.funixproductions.api.user.client.dtos.UserDTO;
 import com.funixproductions.api.user.client.dtos.UserTokenDTO;
@@ -38,6 +39,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 
 @SpringBootTest
@@ -65,6 +67,9 @@ class TestUserCrudResource {
     @MockBean
     private InternalGoogleAuthClient googleAuthClient;
 
+    @MockBean
+    private GoogleGmailClient googleGmailClient;
+
     private final String route = "/user";
 
     @BeforeEach
@@ -73,6 +78,7 @@ class TestUserCrudResource {
         Mockito.when(funixProductionsEncryptionClient.encrypt(ArgumentMatchers.anyString())).thenReturn(UUID.randomUUID().toString());
         Mockito.when(funixProductionsEncryptionClient.decrypt(ArgumentMatchers.anyString())).thenReturn(UUID.randomUUID().toString());
         Mockito.doNothing().when(googleAuthClient).deleteAllByUserUuidIn(anyList());
+        Mockito.doNothing().when(googleGmailClient).sendMail(any(), any());
     }
 
     @Test

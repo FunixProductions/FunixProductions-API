@@ -21,6 +21,7 @@ import com.funixproductions.core.test.beans.JsonHelper;
 import com.funixproductions.core.tools.network.IPUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -79,6 +80,7 @@ class UserResetPasswordResourceTest {
         doNothing().when(gmailClient).sendMail(any(), any());
         when(funixProductionsEncryptionClient.encrypt(any())).thenReturn("encryptedText" + UUID.randomUUID());
         when(funixProductionsEncryptionClient.decrypt(any())).thenReturn("decryptedText" + UUID.randomUUID());
+        Mockito.doNothing().when(gmailClient).sendMail(any(), any());
     }
 
     @Test

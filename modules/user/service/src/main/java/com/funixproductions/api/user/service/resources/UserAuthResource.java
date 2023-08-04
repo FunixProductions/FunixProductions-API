@@ -7,10 +7,7 @@ import com.funixproductions.api.user.client.dtos.requests.UserCreationDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserLoginDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserPasswordResetDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserPasswordResetRequestDTO;
-import com.funixproductions.api.user.service.services.CurrentSession;
-import com.funixproductions.api.user.service.services.UserAuthService;
-import com.funixproductions.api.user.service.services.UserResetService;
-import com.funixproductions.api.user.service.services.UserTokenService;
+import com.funixproductions.api.user.service.services.*;
 import com.funixproductions.core.crud.dtos.PageDTO;
 import com.funixproductions.core.crud.enums.SearchOperation;
 import com.funixproductions.core.exceptions.ApiException;
@@ -19,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashSet;
@@ -30,15 +28,18 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class UserAuthResource {
 
-    private final UserAuthService userAuthService;
-    private final UserTokenService userTokenService;
-    private final UserResetService userResetService;
-    private final CurrentSession currentSession;
-    private final GoogleRecaptchaHandler captchaService;
     private static final String CAPTCHA_REGISTER = "register";
     private static final String CAPTCHA_LOGIN = "login";
     private static final String CAPTCHA_RESET_PASSWORD_REQUEST = "resetPasswordRequest";
     private static final String CAPTCHA_RESET_PASSWORD = "resetPassword";
+
+    private final UserAuthService userAuthService;
+    private final UserTokenService userTokenService;
+    private final UserResetService userResetService;
+    private final UserValidationAccountService userValidationAccountService;
+
+    private final CurrentSession currentSession;
+    private final GoogleRecaptchaHandler captchaService;
 
     @PostMapping("register")
     public UserDTO register(@RequestBody @Valid UserCreationDTO request, final HttpServletRequest servletRequest) {
@@ -158,7 +159,7 @@ public class UserAuthResource {
     }
 
     @PostMapping("resetPasswordRequest")
-    void resetPasswordRequest(@RequestBody @Valid UserPasswordResetRequestDTO request, final HttpServletRequest servletRequest) {
+    public void resetPasswordRequest(@RequestBody @Valid UserPasswordResetRequestDTO request, final HttpServletRequest servletRequest) {
         try {
             this.captchaService.verify(servletRequest, CAPTCHA_RESET_PASSWORD_REQUEST);
             this.userResetService.resetPasswordRequest(request, servletRequest);
@@ -173,7 +174,7 @@ public class UserAuthResource {
     }
 
     @PostMapping("resetPassword")
-    void resetPassword(@RequestBody @Valid UserPasswordResetDTO request, final HttpServletRequest servletRequest) {
+    public void resetPassword(@RequestBody @Valid UserPasswordResetDTO request, final HttpServletRequest servletRequest) {
         try {
             this.captchaService.verify(servletRequest, CAPTCHA_RESET_PASSWORD);
             this.userResetService.resetPassword(request, servletRequest);
@@ -181,6 +182,47 @@ public class UserAuthResource {
             throw e;
         } catch (Exception e) {
             final String message = "Une erreur interne est survenue lors de la réinitialisation du mot de passe.";
+
+            log.error(message, e);
+            throw new ApiException(message, e);
+        }
+    }
+
+    @GetMapping("valid-account")
+    public ResponseEntity<String> validAccount(@RequestParam String token) {
+        try {
+            final UserDTO currentUser = this.currentSession.getCurrentUser();
+
+            if (currentUser == null) {
+                throw new ApiForbiddenException("Vous n'êtes pas connecté.");
+            } else {
+                this.userValidationAccountService.validateAccount(currentUser, token);
+                return ResponseEntity.ok("Votre compte a été validé avec succès. Vous pouvez fermer cette page.");
+            }
+        } catch (ApiException e) {
+            throw e;
+        } catch (Exception e) {
+            final String message = "Une erreur interne est survenue lors de la validation du compte.";
+
+            log.error(message, e);
+            throw new ApiException(message, e);
+        }
+    }
+
+    @PostMapping("valid-account")
+    public void requestNewValidationCodeAccount() {
+        try {
+            final UserDTO currentUser = this.currentSession.getCurrentUser();
+
+            if (currentUser == null) {
+                throw new ApiForbiddenException("Vous n'êtes pas connecté.");
+            } else {
+                this.userValidationAccountService.requestNewToken(currentUser);
+            }
+        } catch (ApiException e) {
+            throw e;
+        } catch (Exception e) {
+            final String message = "Une erreur interne est survenue lors de la demande d'un nouveau code de validation.";
 
             log.error(message, e);
             throw new ApiException(message, e);

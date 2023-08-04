@@ -19,5 +19,7 @@ public class UserDTO extends ApiDTO {
     private String email;
 
     @NotNull
-    private UserRole role;
+    private UserRole role = UserRole.USER;
+
+    private Boolean valid = false;
 }
