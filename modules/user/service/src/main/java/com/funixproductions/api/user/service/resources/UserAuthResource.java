@@ -191,14 +191,8 @@ public class UserAuthResource {
     @GetMapping("valid-account")
     public ResponseEntity<String> validAccount(@RequestParam String token) {
         try {
-            final UserDTO currentUser = this.currentSession.getCurrentUser();
-
-            if (currentUser == null) {
-                throw new ApiForbiddenException("Vous n'êtes pas connecté.");
-            } else {
-                this.userValidationAccountService.validateAccount(currentUser, token);
-                return ResponseEntity.ok("Votre compte a été validé avec succès. Vous pouvez fermer cette page.");
-            }
+            this.userValidationAccountService.validateAccount(token);
+            return ResponseEntity.ok("Votre compte a été validé avec succès. Vous pouvez fermer cette page.");
         } catch (ApiException e) {
             throw e;
         } catch (Exception e) {
@@ -217,7 +211,7 @@ public class UserAuthResource {
             if (currentUser == null) {
                 throw new ApiForbiddenException("Vous n'êtes pas connecté.");
             } else {
-                this.userValidationAccountService.requestNewToken(currentUser);
+                this.userValidationAccountService.sendMailValidationRequest(currentUser.getId());
             }
         } catch (ApiException e) {
             throw e;

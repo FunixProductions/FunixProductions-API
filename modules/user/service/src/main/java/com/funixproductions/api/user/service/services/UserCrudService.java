@@ -58,7 +58,9 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
     @Override
     public void afterSavingEntity(@NonNull Iterable<User> entity) {
         for (final User user : entity) {
-            this.validationAccountService.sendMailValidationRequest(user);
+            if (Boolean.FALSE.equals(user.getValid())) {
+                this.validationAccountService.sendMailValidationRequest(user.getUuid());
+            }
         }
     }
 

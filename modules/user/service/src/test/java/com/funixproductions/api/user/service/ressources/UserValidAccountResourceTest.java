@@ -86,12 +86,7 @@ class UserValidAccountResourceTest {
 
         final UserValidAccountToken userValidAccountToken = userValidAccountTokenRepository.findByUser(user).get();
 
-        mockMvc.perform(get("/user/auth/valid-account?token=" + userValidAccountToken.getValidationToken())
-                        .header("Authorization", "Bearer " + token.getToken()))
-                .andExpect(status().isOk());
-
-        mockMvc.perform(get("/user/auth/valid-account?token" + userValidAccountToken.getValidationToken()))
-                .andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/user/auth/valid-account?token=" + userValidAccountToken.getValidationToken())).andExpect(status().isOk());
 
         final UserDTO userDTO = jsonHelper.fromJson(mockMvc.perform(get("/user/auth/current")
                         .header("Authorization", "Bearer " + token.getToken()))
@@ -103,12 +98,7 @@ class UserValidAccountResourceTest {
 
     @Test
     void testSendRequestValidationEmailWithInvalidToken() throws Exception {
-        final User user = userTestComponent.createBasicUser();
-        final UserTokenDTO token = userTestComponent.loginUser(user);
-
-        mockMvc.perform(get("/user/auth/valid-account?token=invalidToken")
-                        .header("Authorization", "Bearer " + token.getToken()))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(get("/user/auth/valid-account?token=invalidToken")).andExpect(status().isBadRequest());
     }
 
     @Test
@@ -122,48 +112,11 @@ class UserValidAccountResourceTest {
 
         assertTrue(userValidAccountTokenRepository.findByUser(user).isPresent());
         final UserValidAccountToken userValidAccountToken = userValidAccountTokenRepository.findByUser(user).get();
-        mockMvc.perform(get("/user/auth/valid-account?token=" + userValidAccountToken.getValidationToken())
-                        .header("Authorization", "Bearer " + token.getToken()))
-                .andExpect(status().isOk());
+        mockMvc.perform(get("/user/auth/valid-account?token=" + userValidAccountToken.getValidationToken())).andExpect(status().isOk());
 
         mockMvc.perform(post("/user/auth/valid-account")
                         .header("Authorization", "Bearer " + token.getToken()))
                 .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void testTryValidAnotherAccount() throws Exception {
-        final User user = userTestComponent.createBasicUser();
-        final UserTokenDTO token = userTestComponent.loginUser(user);
-        final User user2 = userTestComponent.createBasicUser();
-        final UserTokenDTO token2 = userTestComponent.loginUser(user2);
-
-        mockMvc.perform(post("/user/auth/valid-account")
-                        .header("Authorization", "Bearer " + token.getToken()))
-                .andExpect(status().isOk());
-        mockMvc.perform(post("/user/auth/valid-account")
-                        .header("Authorization", "Bearer " + token2.getToken()))
-                .andExpect(status().isOk());
-        assertTrue(userValidAccountTokenRepository.findByUser(user).isPresent());
-        assertTrue(userValidAccountTokenRepository.findByUser(user2).isPresent());
-        final UserValidAccountToken userValidAccountToken = userValidAccountTokenRepository.findByUser(user).get();
-        final UserValidAccountToken userValidAccountToken2 = userValidAccountTokenRepository.findByUser(user2).get();
-
-        mockMvc.perform(get("/user/auth/valid-account?token=" + userValidAccountToken.getValidationToken())
-                        .header("Authorization", "Bearer " + token2.getToken()))
-                .andExpect(status().isBadRequest());
-
-        mockMvc.perform(get("/user/auth/valid-account?token=" + userValidAccountToken2.getValidationToken())
-                        .header("Authorization", "Bearer " + token.getToken()))
-                .andExpect(status().isBadRequest());
-
-        mockMvc.perform(get("/user/auth/valid-account?token=" + userValidAccountToken.getValidationToken())
-                        .header("Authorization", "Bearer " + token.getToken()))
-                .andExpect(status().isOk());
-
-        mockMvc.perform(get("/user/auth/valid-account?token=" + userValidAccountToken2.getValidationToken())
-                        .header("Authorization", "Bearer " + token2.getToken()))
-                .andExpect(status().isOk());
     }
 
     @Test
@@ -189,14 +142,11 @@ class UserValidAccountResourceTest {
         assertFalse(userDTO.getValid());
         assertTrue(userRepository.findByUuid(userDTO.getId().toString()).isPresent());
         final User user = userRepository.findByUuid(userDTO.getId().toString()).get();
-        final UserTokenDTO token = userTestComponent.loginUser(user);
 
         assertTrue(userValidAccountTokenRepository.findByUser(user).isPresent());
         final UserValidAccountToken userValidAccountToken = userValidAccountTokenRepository.findByUser(user).get();
 
-        mockMvc.perform(get("/user/auth/valid-account?token=" + userValidAccountToken.getValidationToken())
-                        .header("Authorization", "Bearer " + token.getToken()))
-                .andExpect(status().isOk());
+        mockMvc.perform(get("/user/auth/valid-account?token=" + userValidAccountToken.getValidationToken())).andExpect(status().isOk());
 
         final User userAfter = userRepository.findByUuid(userDTO.getId().toString()).get();
         assertTrue(userAfter.getValid());
