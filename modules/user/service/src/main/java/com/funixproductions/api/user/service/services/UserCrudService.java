@@ -41,17 +41,17 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
 
     @Override
     public void beforeMappingToEntity(@NonNull Iterable<UserDTO> requestList) {
+        final List<String> ids = new ArrayList<>();
         for (final UserDTO request : requestList) {
-            if (request.getUsername() != null && !checkUsernameHasValidCharacters(request.getUsername())) {
-                throw new ApiBadRequestException("Le nom d'utilisateur ne peut contenir que des lettres, des chiffres, des underscores et des tirets. Sans espaces.");
+            if (request.getId() != null) {
+                ids.add(request.getId().toString());
             }
+        }
+        final Iterable<User> users = this.getRepository().findAllByUuidIn(ids);
 
-            if (request.getId() == null) {
-                final Optional<User> search = this.getRepository().findByUsernameIgnoreCase(request.getUsername());
-                if (search.isPresent()) {
-                    throw new ApiBadRequestException(String.format("L'utilisateur %s existe déjà.", request.getUsername()));
-                }
-            }
+        this.validAccountCheckerFilter(requestList, users);
+        for (final UserDTO request : requestList) {
+            this.checkUsernameFilter(request);
         }
     }
 
@@ -59,7 +59,7 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
     public void afterSavingEntity(@NonNull Iterable<User> entity) {
         for (final User user : entity) {
             if (Boolean.FALSE.equals(user.getValid())) {
-                this.validationAccountService.sendMailValidationRequest(user.getUuid());
+                this.validationAccountService.sendMailValidationRequest(user);
             }
         }
     }
@@ -89,6 +89,29 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
             uuidsToRemove.add(user.getUuid().toString());
         }
         this.googleAuthClient.deleteAllByUserUuidIn(uuidsToRemove);
+    }
+
+    private void validAccountCheckerFilter(final Iterable<UserDTO> requestList, final Iterable<User> users) {
+        for (final UserDTO request : requestList) {
+            final User userDatabase = super.getEntityFromUidInList(users, request.getId());
+
+            if (userDatabase != null) {
+                request.setValid(userDatabase.getValid());
+            }
+        }
+    }
+
+    private void checkUsernameFilter(@NonNull final UserDTO request) {
+        if (request.getUsername() != null && !checkUsernameHasValidCharacters(request.getUsername())) {
+            throw new ApiBadRequestException("Le nom d'utilisateur ne peut contenir que des lettres, des chiffres, des underscores et des tirets. Sans espaces.");
+        }
+
+        if (request.getId() == null) {
+            final Optional<User> search = this.getRepository().findByUsernameIgnoreCase(request.getUsername());
+            if (search.isPresent()) {
+                throw new ApiBadRequestException(String.format("L'utilisateur %s existe déjà.", request.getUsername()));
+            }
+        }
     }
 
     private boolean checkUsernameHasValidCharacters(@NonNull String username) {

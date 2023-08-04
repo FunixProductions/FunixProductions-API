@@ -46,9 +46,7 @@ public class UserValidationAccountService {
     }
 
     @Transactional
-    public void sendMailValidationRequest(final UUID userUuid) {
-        final User user = this.userRepository.findByUuid(userUuid.toString()).orElseThrow(() -> new ApiNotFoundException("Utilisateur introuvable."));
-
+    public void sendMailValidationRequest(final User user) {
         final String validToken = generateNewValidToken(user);
         final MailDTO mailDTO = generateMailValidationRequest(user, validToken);
 
@@ -57,6 +55,16 @@ public class UserValidationAccountService {
         } catch (Exception e) {
             log.error("Erreur interne lors de l'envoi du mail de validation pour le compte {}", user.getUsername(), e);
             throw new ApiException("Erreur interne lors de l'envoi du mail de validation pour le compte " + user.getUsername(), e);
+        }
+    }
+
+    public void sendMailValidationRequest(final UUID userUuid) {
+        final Optional<User> search = this.userRepository.findByUuid(userUuid.toString());
+
+        if (search.isPresent()) {
+            sendMailValidationRequest(search.get());
+        } else {
+            throw new ApiNotFoundException("Le compte id " + userUuid + " n'existe pas.");
         }
     }
 

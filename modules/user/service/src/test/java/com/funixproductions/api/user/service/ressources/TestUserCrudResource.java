@@ -137,7 +137,7 @@ class TestUserCrudResource {
 
         this.userRepository.findByUuid(user.getId().toString()).ifPresent(u -> {
             u.setValid(true);
-            this.userRepository.save(u);
+            this.userRepository.saveAndFlush(u);
         });
 
         user.setUsername("sdkjfhsdkjh");
