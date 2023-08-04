@@ -2,10 +2,14 @@ package com.funixproductions.api.user.service.services;
 
 import com.funixproductions.api.google.gmail.client.clients.GoogleGmailClient;
 import com.funixproductions.api.google.gmail.client.dto.MailDTO;
+import com.funixproductions.api.user.client.dtos.UserDTO;
 import com.funixproductions.api.user.service.entities.User;
 import com.funixproductions.api.user.service.entities.UserValidAccountToken;
+import com.funixproductions.api.user.service.repositories.UserRepository;
 import com.funixproductions.api.user.service.repositories.UserValidAccountTokenRepository;
+import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
+import com.funixproductions.core.exceptions.ApiNotFoundException;
 import com.funixproductions.core.tools.string.PasswordGenerator;
 import com.funixproductions.core.tools.string.StringUtils;
 import com.google.common.base.Strings;
@@ -13,17 +17,23 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Base64;
+import java.util.Optional;
+
 @Slf4j
 @Service
 public class UserValidationAccountService {
 
     private final GoogleGmailClient googleGmailClient;
     private final UserValidAccountTokenRepository userValidAccountTokenRepository;
+    private final UserRepository userRepository;
     private final String mailTemplate;
 
     public UserValidationAccountService(GoogleGmailClient googleGmailClient,
+                                        UserRepository userRepository,
                                         UserValidAccountTokenRepository userValidAccountTokenRepository) {
         this.googleGmailClient = googleGmailClient;
+        this.userRepository = userRepository;
         this.userValidAccountTokenRepository = userValidAccountTokenRepository;
         this.mailTemplate = StringUtils.readFromClasspath("user/valid-account-mail.html", this.getClass());
     }
@@ -41,8 +51,41 @@ public class UserValidationAccountService {
         }
     }
 
+    @Transactional
+    public void validateAccount(final UserDTO userDTO, final String token) {
+        final Optional<UserValidAccountToken> search = this.userValidAccountTokenRepository.findByValidationToken(token);
+
+        if (search.isPresent()) {
+            final UserValidAccountToken userValidAccountToken = search.get();
+            final User user = userValidAccountToken.getUser();
+
+            if (userDTO.getId().equals(user.getUuid())) {
+                user.setValid(true);
+                this.userRepository.save(user);
+                this.userValidAccountTokenRepository.delete(userValidAccountToken);
+            } else {
+                throw new ApiBadRequestException("Token invalide. Veuillez en demander un nouveau.");
+            }
+        } else {
+            throw new ApiBadRequestException("Token invalide. Veuillez en demander un nouveau.");
+        }
+    }
+
+    @Transactional
+    public void requestNewToken(final UserDTO userDTO) {
+        final User user = this.userRepository.findByUuid(userDTO.getId().toString()).orElseThrow(() -> new ApiNotFoundException("Utilisateur introuvable."));
+        sendMailValidationRequest(user);
+    }
+
     private String generateNewValidToken(final User user) {
+        if (Boolean.TRUE.equals(user.getValid())) {
+            throw new ApiBadRequestException("Le compte est déjà validé.");
+        }
+
         try {
+            final Optional<UserValidAccountToken> oldToken = this.userValidAccountTokenRepository.findByUser(user);
+            oldToken.ifPresent(this.userValidAccountTokenRepository::delete);
+
             final PasswordGenerator passwordGenerator = new PasswordGenerator();
             UserValidAccountToken userValidAccountToken = new UserValidAccountToken();
 
@@ -51,7 +94,8 @@ public class UserValidationAccountService {
             passwordGenerator.setAlphaDown(40);
             passwordGenerator.setSpecialCharsAmount(40);
             userValidAccountToken.setUser(user);
-            userValidAccountToken.setValidationToken(passwordGenerator.generateRandomPassword());
+            final String token = Base64.getEncoder().encodeToString(passwordGenerator.generateRandomPassword().getBytes());
+            userValidAccountToken.setValidationToken(token);
 
             userValidAccountToken = userValidAccountTokenRepository.save(userValidAccountToken);
             return userValidAccountToken.getValidationToken();
@@ -68,7 +112,7 @@ public class UserValidationAccountService {
         final MailDTO mailDTO = new MailDTO();
 
         mailDTO.setBodyText(mailContent);
-        mailDTO.setSubject("Validation de vôtre compte.");
+        mailDTO.setSubject("Validation de votre compte.");
         return mailDTO;
     }
 
