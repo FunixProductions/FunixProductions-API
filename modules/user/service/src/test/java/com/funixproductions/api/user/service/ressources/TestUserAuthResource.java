@@ -8,10 +8,12 @@ import com.funixproductions.api.user.client.dtos.UserDTO;
 import com.funixproductions.api.user.client.dtos.UserTokenDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserCreationDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserLoginDTO;
+import com.funixproductions.api.user.client.dtos.requests.UserUpdateRequestDTO;
 import com.funixproductions.api.user.client.enums.UserRole;
 import com.funixproductions.api.user.service.components.UserTestComponent;
 import com.funixproductions.api.user.service.entities.User;
 import com.funixproductions.api.user.service.repositories.UserTokenRepository;
+import com.funixproductions.api.user.service.services.UserCrudService;
 import com.funixproductions.api.user.service.services.UserTokenService;
 import com.funixproductions.core.crud.dtos.PageDTO;
 import com.funixproductions.core.exceptions.ApiNotFoundException;
@@ -28,11 +30,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.lang.reflect.Type;
 import java.util.UUID;
@@ -40,6 +42,8 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -57,6 +61,9 @@ class TestUserAuthResource {
 
     @Autowired
     private UserTokenRepository userTokenRepository;
+
+    @Autowired
+    private UserCrudService userCrudService;
 
     @Autowired
     private UserTokenService userTokenService;
@@ -95,7 +102,7 @@ class TestUserAuthResource {
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonHelper.toJson(creationDTO)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andReturn();
 
         final UserDTO userDTO = jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), UserDTO.class);
@@ -135,7 +142,7 @@ class TestUserAuthResource {
         userTestComponent.loginUser(adminUser);
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.get("/user/auth/sessions")
                         .header("Authorization", "Bearer " + userTokenDTO.getToken()))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andReturn();
 
         PageDTO<UserTokenDTO> userTokenDTOS = jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), typeToken);
@@ -146,7 +153,7 @@ class TestUserAuthResource {
 
         mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.get("/user/auth/sessions")
                         .header("Authorization", "Bearer " + userTokenDTO.getToken()))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andReturn();
         userTokenDTOS = jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), typeToken);
         assertEquals(2, userTokenDTOS.getTotalElementsThisPage());
@@ -163,12 +170,12 @@ class TestUserAuthResource {
 
         this.mockMvc.perform(MockMvcRequestBuilders.delete("/user/auth/sessions")
                         .header("Authorization", "Bearer " + userTokenDTO.getToken()))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(status().isBadRequest())
                 .andReturn();
 
         this.mockMvc.perform(MockMvcRequestBuilders.delete("/user/auth/sessions?id=" + userTokenDTO.getId() + "&id=" + userTokenDTO2.getId() + "&id=" + adminTokenDTO.getId())
                         .header("Authorization", "Bearer " + userTokenDTO.getToken()))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andReturn();
 
         assertDoesNotThrow(() -> this.userTokenService.findById(adminTokenDTO.getId().toString()));
@@ -190,7 +197,7 @@ class TestUserAuthResource {
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonHelper.toJson(creationDTO)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andReturn();
 
         final UserDTO userDTO = jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), UserDTO.class);
@@ -211,7 +218,7 @@ class TestUserAuthResource {
         this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonHelper.toJson(creationDTO)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -226,7 +233,7 @@ class TestUserAuthResource {
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonHelper.toJson(loginDTO)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andReturn();
 
         final UserTokenDTO tokenDTO = jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), UserTokenDTO.class);
@@ -237,12 +244,12 @@ class TestUserAuthResource {
         this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/logout")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenDTO.getToken()))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(status().isOk());
 
         this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/logout")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenDTO.getToken()))
-                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -272,7 +279,7 @@ class TestUserAuthResource {
         this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonHelper.toJson(creationDTO)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -288,7 +295,7 @@ class TestUserAuthResource {
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonHelper.toJson(creationDTO)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andReturn();
 
         final UserDTO userDTO = jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), UserDTO.class);
@@ -299,7 +306,7 @@ class TestUserAuthResource {
         this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonHelper.toJson(creationDTO)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -315,7 +322,7 @@ class TestUserAuthResource {
         this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonHelper.toJson(creationDTO)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -331,12 +338,12 @@ class TestUserAuthResource {
         this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonHelper.toJson(creationDTO)))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(status().isOk());
 
         this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonHelper.toJson(creationDTO)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -352,13 +359,13 @@ class TestUserAuthResource {
         this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonHelper.toJson(creationDTO)))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(status().isOk());
 
         creationDTO.setUsername("patrickBalkany");
         this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonHelper.toJson(creationDTO)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -374,7 +381,7 @@ class TestUserAuthResource {
         this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonHelper.toJson(creationDTO)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -390,7 +397,7 @@ class TestUserAuthResource {
         this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonHelper.toJson(creationDTO)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -406,7 +413,7 @@ class TestUserAuthResource {
         this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonHelper.toJson(creationDTO)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -421,7 +428,7 @@ class TestUserAuthResource {
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonHelper.toJson(loginDTO)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andReturn();
 
         final UserTokenDTO tokenDTO = jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), UserTokenDTO.class);
@@ -442,7 +449,7 @@ class TestUserAuthResource {
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonHelper.toJson(loginDTO)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andReturn();
 
         final UserTokenDTO tokenDTO = jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), UserTokenDTO.class);
@@ -461,7 +468,7 @@ class TestUserAuthResource {
         this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonHelper.toJson(loginDTO)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -476,14 +483,14 @@ class TestUserAuthResource {
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonHelper.toJson(loginDTO)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andReturn();
 
         final UserTokenDTO tokenDTO = jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), UserTokenDTO.class);
 
         mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.get("/user/auth/current")
                 .header("Authorization", "Bearer " + tokenDTO.getToken())
-        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        ).andExpect(status().isOk()).andReturn();
         final UserDTO userDTO = jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), UserDTO.class);
 
         assertEquals(tokenDTO.getUser().getUsername(), userDTO.getUsername());
@@ -494,14 +501,88 @@ class TestUserAuthResource {
 
     @Test
     void testFailGetCurrentUserNoAuth() throws Exception {
-        this.mockMvc.perform(MockMvcRequestBuilders.get("/user/auth/current")).andExpect(MockMvcResultMatchers.status().isUnauthorized());
+        this.mockMvc.perform(MockMvcRequestBuilders.get("/user/auth/current")).andExpect(status().isUnauthorized());
     }
 
     @Test
     void testFailGetCurrentUserBadAuth() throws Exception {
         this.mockMvc.perform(MockMvcRequestBuilders.get("/user/auth/current")
                         .header("Authorization", "Bearer " + "BADTOKEN"))
-                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testUpdateSelfAccountSuccess() throws Exception {
+        final User userTest = this.userTestComponent.createBasicUser();
+        final UserTokenDTO tokenDTO = this.userTestComponent.loginUser(userTest);
+
+        final UserUpdateRequestDTO userUpdateRequestDTO = new UserUpdateRequestDTO();
+        userUpdateRequestDTO.setUsername("new_username");
+
+        MvcResult mvcResult = this.mockMvc.perform(patch("/user/auth")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenDTO.getToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.jsonHelper.toJson(userUpdateRequestDTO))
+        ).andExpect(status().isOk()).andReturn();
+        UserDTO response = jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), UserDTO.class);
+
+        assertEquals(userUpdateRequestDTO.getUsername(), response.getUsername());
+
+        final UserDTO user = this.userCrudService.findById(userTest.getUuid().toString());
+        assertEquals(userUpdateRequestDTO.getUsername(), user.getUsername());
+    }
+
+    @Test
+    void testUpdateSelfAccountPasswordSuccess() throws Exception {
+        final User userTest = this.userTestComponent.createBasicUser();
+        final UserTokenDTO tokenDTO = this.userTestComponent.loginUser(userTest);
+
+        final String newPassword = "superNewPassword22";
+        final UserUpdateRequestDTO userUpdateRequestDTO = new UserUpdateRequestDTO();
+        userUpdateRequestDTO.setNewPassword(newPassword);
+        userUpdateRequestDTO.setNewPasswordConfirmation(newPassword);
+        userUpdateRequestDTO.setOldPassword(userTest.getPassword());
+
+        this.mockMvc.perform(patch("/user/auth")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenDTO.getToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.jsonHelper.toJson(userUpdateRequestDTO))
+        ).andExpect(status().isOk());
+    }
+
+    @Test
+    void testUpdateSelfAccountPasswordFailNewPasswordMissMatch() throws Exception {
+        final User userTest = this.userTestComponent.createBasicUser();
+        final UserTokenDTO tokenDTO = this.userTestComponent.loginUser(userTest);
+
+        final UserUpdateRequestDTO userUpdateRequestDTO = new UserUpdateRequestDTO();
+        userUpdateRequestDTO.setNewPassword("newPassword");
+        userUpdateRequestDTO.setNewPasswordConfirmation("newPasswordMissMatch");
+        userUpdateRequestDTO.setOldPassword(userTest.getPassword());
+
+        this.mockMvc.perform(patch("/user/auth")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenDTO.getToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.jsonHelper.toJson(userUpdateRequestDTO))
+        ).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testUpdateSelfAccountPasswordFailOldPasswordNoMatch() throws Exception {
+        final User userTest = this.userTestComponent.createBasicUser();
+        final UserTokenDTO tokenDTO = this.userTestComponent.loginUser(userTest);
+
+        final String newPassword = "superNewPassword";
+        final UserUpdateRequestDTO userUpdateRequestDTO = new UserUpdateRequestDTO();
+        userUpdateRequestDTO.setNewPassword(newPassword);
+        userUpdateRequestDTO.setNewPasswordConfirmation(newPassword);
+        userUpdateRequestDTO.setOldPassword(UUID.randomUUID().toString());
+
+        this.mockMvc.perform(patch("/user/auth")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenDTO.getToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.jsonHelper.toJson(userUpdateRequestDTO))
+        ).andExpect(status().isBadRequest());
     }
 
 }
