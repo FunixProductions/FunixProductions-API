@@ -114,6 +114,11 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
         }
     }
 
+    /**
+     * Valid majs, mins, - and _
+     * @param username
+     * @return
+     */
     private boolean checkUsernameHasValidCharacters(@NonNull String username) {
         return Strings.isNotBlank(username) && username.matches("^[a-zA-Z0-9._-]{3,}$");
     }
