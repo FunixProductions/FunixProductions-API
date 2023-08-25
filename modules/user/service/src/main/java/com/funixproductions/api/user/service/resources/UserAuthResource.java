@@ -3,10 +3,7 @@ package com.funixproductions.api.user.service.resources;
 import com.funixproductions.api.google.recaptcha.client.services.GoogleRecaptchaHandler;
 import com.funixproductions.api.user.client.dtos.UserDTO;
 import com.funixproductions.api.user.client.dtos.UserTokenDTO;
-import com.funixproductions.api.user.client.dtos.requests.UserCreationDTO;
-import com.funixproductions.api.user.client.dtos.requests.UserLoginDTO;
-import com.funixproductions.api.user.client.dtos.requests.UserPasswordResetDTO;
-import com.funixproductions.api.user.client.dtos.requests.UserPasswordResetRequestDTO;
+import com.funixproductions.api.user.client.dtos.requests.*;
 import com.funixproductions.api.user.service.services.*;
 import com.funixproductions.core.crud.dtos.PageDTO;
 import com.funixproductions.core.crud.enums.SearchOperation;
@@ -36,6 +33,7 @@ public class UserAuthResource {
     private final UserAuthService userAuthService;
     private final UserTokenService userTokenService;
     private final UserResetService userResetService;
+    private final UserUpdateAccountService userUpdateAccountService;
     private final UserValidationAccountService userValidationAccountService;
 
     private final CurrentSession currentSession;
@@ -205,20 +203,39 @@ public class UserAuthResource {
 
     @PostMapping("valid-account")
     public void requestNewValidationCodeAccount() {
-        try {
-            final UserDTO currentUser = this.currentSession.getCurrentUser();
+        final UserDTO currentUser = this.currentSession.getCurrentUser();
+        if (currentUser == null) {
+            throw new ApiForbiddenException("Vous n'êtes pas connecté.");
+        }
 
-            if (currentUser == null) {
-                throw new ApiForbiddenException("Vous n'êtes pas connecté.");
-            } else {
-                this.userValidationAccountService.sendMailValidationRequest(currentUser.getId());
-            }
+        try {
+            this.userValidationAccountService.sendMailValidationRequest(currentUser.getId());
         } catch (ApiException e) {
             throw e;
         } catch (Exception e) {
             final String message = "Une erreur interne est survenue lors de la demande d'un nouveau code de validation.";
 
             log.error(message, e);
+            throw new ApiException(message, e);
+        }
+    }
+
+    @PatchMapping
+    public UserDTO updateAccount(@RequestBody UserUpdateRequestDTO request) {
+        final UserDTO currentUser = this.currentSession.getCurrentUser();
+        if (currentUser == null) {
+            throw new ApiForbiddenException("Vous n'êtes pas connecté.");
+        }
+
+        try {
+            request.setId(currentUser.getId());
+            return this.userUpdateAccountService.updateUser(request);
+        } catch (ApiException e) {
+            throw e;
+        } catch (Exception e) {
+            final String message = "Une erreur interne est survenue lors de la mise à jour du compte.";
+
+            log.error(message + " Username: {} Id: {}", currentUser.getUsername(), currentUser.getId(), e);
             throw new ApiException(message, e);
         }
     }
