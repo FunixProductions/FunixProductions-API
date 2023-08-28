@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class UserJwtTokenFilter extends OncePerRequestFilter {
 
-    private final Cache<String, UserDTO> sessionsCache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build();
+    private final Cache<String, UserDTO> sessionsCache = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.MINUTES).build();
     private final UserAuthClient userAuthClient;
     private final IPUtils ipUtils;
 
