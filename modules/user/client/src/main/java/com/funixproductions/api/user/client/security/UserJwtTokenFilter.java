@@ -4,6 +4,8 @@ import com.funixproductions.api.user.client.clients.UserAuthClient;
 import com.funixproductions.api.user.client.dtos.UserDTO;
 import com.funixproductions.api.user.client.dtos.UserSession;
 import com.funixproductions.core.tools.network.IPUtils;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import feign.FeignException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,11 +25,13 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
 public class UserJwtTokenFilter extends OncePerRequestFilter {
 
+    private final Cache<String, UserDTO> sessionsCache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build();
     private final UserAuthClient userAuthClient;
     private final IPUtils ipUtils;
 
@@ -43,7 +47,7 @@ public class UserJwtTokenFilter extends OncePerRequestFilter {
         }
 
         try {
-            final UserDTO user = userAuthClient.current(bearerTokenHeader);
+            final UserDTO user = fetchActualUser(bearerTokenHeader);
             final UserSession userSession = new UserSession(user, ipUtils.getClientIp(request), request);
             final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     userSession,
@@ -66,5 +70,15 @@ public class UserJwtTokenFilter extends OncePerRequestFilter {
             authorities.add(new SimpleGrantedAuthority(authority));
         }
         return authorities;
+    }
+
+    private UserDTO fetchActualUser(final String headerAuth) throws FeignException {
+        UserDTO userDTO = this.sessionsCache.getIfPresent(headerAuth);
+
+        if (userDTO == null) {
+            userDTO = this.userAuthClient.current(headerAuth);
+            this.sessionsCache.put(headerAuth, userDTO);
+        }
+        return userDTO;
     }
 }
