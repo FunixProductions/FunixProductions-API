@@ -30,7 +30,7 @@ spec:
             - containerPort: 80
           resources:
             limits:
-                memory: "1Gi"
+                memory: "700Mi"
           imagePullPolicy: Always
           readinessProbe:
             httpGet:
