@@ -7,6 +7,7 @@ import com.funixproductions.api.twitch.reference.client.dtos.requests.TwitchChan
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.TwitchChannelDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.chat.TwitchChannelUserDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.user.TwitchFollowDTO;
 import com.funixproductions.api.twitch.reference.service.services.channel.TwitchReferenceChannelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,6 +52,19 @@ public class TwitchChannelResource implements TwitchChannelClient {
                 maximumReturned,
                 after,
                 userIds
+        );
+    }
+
+    @Override
+    public TwitchDataResponseDTO<TwitchFollowDTO> getChannelFollowers(String maximumReturned, String after, String userTwitchId, String userAppId) {
+        final TwitchClientTokenDTO tokenDTO = this.internalAuthClient.fetchToken(userAppId);
+
+        return service.getChannelFollowers(
+                tokenDTO.getAccessToken(),
+                tokenDTO.getTwitchUserId(),
+                maximumReturned,
+                after,
+                userTwitchId
         );
     }
 }

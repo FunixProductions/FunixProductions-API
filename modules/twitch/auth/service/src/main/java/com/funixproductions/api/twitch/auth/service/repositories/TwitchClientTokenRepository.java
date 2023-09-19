@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface TwitchClientTokenRepository extends ApiRepository<TwitchClientToken> {
     Optional<TwitchClientToken> findTwitchClientTokenByUserUuid(String userUuid);
     Optional<TwitchClientToken> findTwitchClientTokenByTwitchUsername(String username);
+    Optional<TwitchClientToken> findTwitchClientTokenByTwitchUserId(String streamerId);
 }

@@ -18,6 +18,9 @@ public interface TwitchInternalAuthClient {
     @GetMapping("clientByStreamerName")
     TwitchClientTokenDTO fetchTokenByStreamerName(@RequestParam String streamerName);
 
+    @GetMapping("clientByStreamerId")
+    TwitchClientTokenDTO fetchTokenByStreamerId(@RequestParam String streamerId);
+
     @GetMapping("server")
     String fetchServerToken();
 

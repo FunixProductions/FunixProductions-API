@@ -147,6 +147,20 @@ public class TwitchClientTokenService {
         }
     }
 
+    public TwitchClientTokenDTO fetchTokenByStreamerId(final String streamerId) {
+        if (Strings.isNullOrEmpty(streamerId)) {
+            throw new ApiBadRequestException("Pas de streamer id spécifié pour la récupération de tokens twitch.");
+        }
+
+        final Optional<TwitchClientToken> twitchClientToken = this.twitchClientTokenRepository.findTwitchClientTokenByTwitchUserId(streamerId);
+
+        if (twitchClientToken.isPresent()) {
+            return refreshToken(twitchClientToken.get());
+        } else {
+            throw new ApiNotFoundException(String.format("Le streamer %s ne possède pas de tokens twitch.", streamerId));
+        }
+    }
+
     /**
      * <a href="https://dev.twitch.tv/docs/authentication/scopes">Scopes list</a>
      * <p>Encoders: %20 is space and %3A is :</p>
