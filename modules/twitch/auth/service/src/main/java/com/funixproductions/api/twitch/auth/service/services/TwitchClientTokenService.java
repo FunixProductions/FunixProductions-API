@@ -277,6 +277,8 @@ public class TwitchClientTokenService {
 
     private TwitchClientTokenDTO refreshToken(final TwitchClientToken token) {
         try {
+            final List<String> scopes;
+
             if (token.isUsable()) {
                 final TwitchValidationTokenResponseDTO twitchValidationTokenResponseDTO = validTokenClient.makeHttpRequestValidation(token.getAccessToken());
 
@@ -285,6 +287,7 @@ public class TwitchClientTokenService {
                 }
                 token.setTwitchUserId(twitchValidationTokenResponseDTO.getTwitchUserId());
                 token.setTwitchUsername(twitchValidationTokenResponseDTO.getTwitchUsername());
+                scopes = twitchValidationTokenResponseDTO.getScopes();
             } else {
                 final Map<String, String> formRequest = new HashMap<>();
                 formRequest.put("client_id", twitchApiConfig.getAppClientId());
@@ -296,9 +299,12 @@ public class TwitchClientTokenService {
                 token.setAccessToken(tokenResponseDTO.getAccessToken());
                 token.setRefreshToken(tokenResponseDTO.getRefreshToken());
                 token.setExpirationDateToken(Date.from(Instant.now().plusSeconds(tokenResponseDTO.getExpiresIn() - 60L)));
+                scopes = tokenResponseDTO.getScopes();
             }
 
-            return twitchClientTokenMapper.toDto(twitchClientTokenRepository.save(token));
+            final TwitchClientTokenDTO tokenToSend = twitchClientTokenMapper.toDto(twitchClientTokenRepository.save(token));
+            tokenToSend.setScopes(scopes);
+            return tokenToSend;
         } catch (FeignException e) {
             if (e.status() == HttpStatus.UNAUTHORIZED.value()) {
                 throw new ApiForbiddenException(String.format("L'utilisateur %s à retiré l'accès à la FunixAPI sur twitch.", token.getUserUuid()));

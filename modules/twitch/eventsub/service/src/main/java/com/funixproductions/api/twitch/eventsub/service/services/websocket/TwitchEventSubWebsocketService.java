@@ -52,6 +52,7 @@ public class TwitchEventSubWebsocketService extends ApiWebsocketServerHandler {
     protected void newWebsocketMessage(@NonNull WebSocketSession session, @NonNull String message) {
         if (message.startsWith(LISTEN_CALL_CLIENT)) {
             final String[] data = message.split(":");
+
             if (data.length == 2) {
                 final String streamerUsername = data[1];
                 final TwitchClientTokenDTO token = twitchInternalAuthClient.fetchTokenByStreamerName(streamerUsername);

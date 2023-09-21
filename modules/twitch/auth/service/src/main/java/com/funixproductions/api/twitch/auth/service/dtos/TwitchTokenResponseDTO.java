@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * Token dto app token
  * <a href="https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#client-credentials-grant-flow">Documentation</a>
@@ -29,6 +31,9 @@ public class TwitchTokenResponseDTO {
      */
     @JsonProperty(value = "expires_in")
     private Integer expiresIn;
+
+    @JsonProperty(value = "scope")
+    private List<String> scopes;
 
     /**
      * Token type, bearer

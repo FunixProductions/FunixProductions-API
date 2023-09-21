@@ -7,6 +7,7 @@ import com.funixproductions.api.twitch.reference.client.dtos.requests.TwitchChat
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.chat.TwitchChannelChattersDTO;
 import com.funixproductions.api.twitch.reference.service.services.chat.TwitchReferenceChatService;
+import com.funixproductions.core.exceptions.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,26 +24,38 @@ public class TwitchChatResource implements TwitchChatClient {
     public TwitchDataResponseDTO<TwitchChannelChattersDTO> getChannelChatters(Integer maxChattersReturned,
                                                                               String paginationCursor,
                                                                               String userId) {
-        final TwitchClientTokenDTO tokenDTO = this.internalAuthClient.fetchToken(userId);
+        try {
+            final TwitchClientTokenDTO tokenDTO = this.internalAuthClient.fetchToken(userId);
 
-        return service.getChannelChatters(
-                tokenDTO.getAccessToken(),
-                tokenDTO.getTwitchUserId(),
-                tokenDTO.getTwitchUserId(),
-                maxChattersReturned,
-                paginationCursor
-        );
+            return service.getChannelChatters(
+                    tokenDTO.getAccessToken(),
+                    tokenDTO.getTwitchUserId(),
+                    tokenDTO.getTwitchUserId(),
+                    maxChattersReturned,
+                    paginationCursor
+            );
+        } catch (ApiException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ApiException(e.getMessage(), e);
+        }
     }
 
     @Override
     public void sendChatAnnouncement(TwitchChatAnnouncement announcement, String userId) {
-        final TwitchClientTokenDTO tokenDTO = this.internalAuthClient.fetchToken(userId);
+        try {
+            final TwitchClientTokenDTO tokenDTO = this.internalAuthClient.fetchToken(userId);
 
-        service.sendChatAnnouncement(
-                tokenDTO.getAccessToken(),
-                tokenDTO.getTwitchUserId(),
-                tokenDTO.getTwitchUserId(),
-                announcement
-        );
+            service.sendChatAnnouncement(
+                    tokenDTO.getAccessToken(),
+                    tokenDTO.getTwitchUserId(),
+                    tokenDTO.getTwitchUserId(),
+                    announcement
+            );
+        } catch (ApiException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ApiException(e.getMessage(), e);
+        }
     }
 }

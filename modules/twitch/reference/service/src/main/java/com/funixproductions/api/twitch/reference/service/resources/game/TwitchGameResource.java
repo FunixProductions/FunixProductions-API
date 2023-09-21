@@ -5,6 +5,7 @@ import com.funixproductions.api.twitch.reference.client.clients.game.TwitchGameC
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.game.TwitchGameDTO;
 import com.funixproductions.api.twitch.reference.service.services.game.TwitchReferenceGameService;
+import com.funixproductions.core.exceptions.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,11 +20,23 @@ public class TwitchGameResource implements TwitchGameClient {
 
     @Override
     public TwitchDataResponseDTO<TwitchGameDTO> getGameByName(String name) {
-        return gameService.getGameInfoByName(this.internalAuthClient.fetchServerToken(), name);
+        try {
+            return gameService.getGameInfoByName(this.internalAuthClient.fetchServerToken(), name);
+        } catch (ApiException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ApiException(e.getMessage(), e);
+        }
     }
 
     @Override
     public TwitchDataResponseDTO<TwitchGameDTO> getGameById(String id) {
-        return gameService.getGameInfoById(this.internalAuthClient.fetchServerToken(), id);
+        try {
+            return gameService.getGameInfoById(this.internalAuthClient.fetchServerToken(), id);
+        } catch (ApiException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ApiException(e.getMessage(), e);
+        }
     }
 }

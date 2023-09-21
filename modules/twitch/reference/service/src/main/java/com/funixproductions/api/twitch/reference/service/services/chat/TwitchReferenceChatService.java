@@ -1,10 +1,10 @@
 package com.funixproductions.api.twitch.reference.service.services.chat;
 
-import com.funixproductions.api.twitch.auth.client.services.TwitchReferenceService;
 import com.funixproductions.api.twitch.reference.client.dtos.requests.TwitchChatAnnouncement;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.chat.TwitchChannelChattersDTO;
 import com.funixproductions.api.twitch.reference.service.clients.chat.TwitchReferenceChatClient;
+import com.funixproductions.api.twitch.reference.service.services.TwitchReferenceService;
 import com.google.common.base.Strings;
 import feign.FeignException;
 import lombok.NonNull;

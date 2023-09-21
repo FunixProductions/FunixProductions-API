@@ -5,6 +5,7 @@ import com.funixproductions.api.twitch.reference.client.clients.users.TwitchUser
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.user.TwitchUserDTO;
 import com.funixproductions.api.twitch.reference.service.services.users.TwitchReferenceUsersService;
+import com.funixproductions.core.exceptions.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,17 +22,29 @@ public class TwitchUsersResource implements TwitchUsersClient {
 
     @Override
     public TwitchDataResponseDTO<TwitchUserDTO> getUsersByName(List<String> name) {
-        return service.getUsersByName(
-                this.internalAuthClient.fetchServerToken(),
-                name
-        );
+        try {
+            return service.getUsersByName(
+                    this.internalAuthClient.fetchServerToken(),
+                    name
+            );
+        } catch (ApiException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ApiException(e.getMessage(), e);
+        }
     }
 
     @Override
     public TwitchDataResponseDTO<TwitchUserDTO> getUsersById(List<String> id) {
-        return service.getUsersById(
-                this.internalAuthClient.fetchServerToken(),
-                id
-        );
+        try {
+            return service.getUsersById(
+                    this.internalAuthClient.fetchServerToken(),
+                    id
+            );
+        } catch (ApiException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ApiException(e.getMessage(), e);
+        }
     }
 }

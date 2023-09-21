@@ -5,6 +5,7 @@ import com.funixproductions.api.twitch.reference.client.clients.stream.TwitchStr
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.stream.TwitchStreamDTO;
 import com.funixproductions.api.twitch.reference.service.services.stream.TwitchReferenceStreamService;
+import com.funixproductions.core.exceptions.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,9 +20,15 @@ public class TwitchStreamResource implements TwitchStreamsClient {
 
     @Override
     public TwitchDataResponseDTO<TwitchStreamDTO> getStreams(String streamerName) {
-        return streamService.getStreams(
-                internalAuthClient.fetchServerToken(),
-                streamerName
-        );
+        try {
+            return streamService.getStreams(
+                    internalAuthClient.fetchServerToken(),
+                    streamerName
+            );
+        } catch (ApiException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ApiException(e.getMessage(), e);
+        }
     }
 }
