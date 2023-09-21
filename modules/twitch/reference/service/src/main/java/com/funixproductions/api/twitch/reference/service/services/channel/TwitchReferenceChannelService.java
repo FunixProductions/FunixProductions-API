@@ -5,8 +5,8 @@ import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDat
 import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.TwitchChannelDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.chat.TwitchChannelUserDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.user.TwitchFollowDTO;
+import com.funixproductions.api.twitch.reference.client.services.TwitchReferenceService;
 import com.funixproductions.api.twitch.reference.service.clients.channel.TwitchReferenceChannelClient;
-import com.funixproductions.api.twitch.reference.service.services.TwitchReferenceService;
 import com.google.common.base.Strings;
 import feign.FeignException;
 import lombok.NonNull;

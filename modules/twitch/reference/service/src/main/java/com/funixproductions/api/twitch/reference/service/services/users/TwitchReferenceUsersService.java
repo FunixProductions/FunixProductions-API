@@ -2,8 +2,8 @@ package com.funixproductions.api.twitch.reference.service.services.users;
 
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.user.TwitchUserDTO;
+import com.funixproductions.api.twitch.reference.client.services.TwitchReferenceService;
 import com.funixproductions.api.twitch.reference.service.clients.users.TwitchReferenceUsersClient;
-import com.funixproductions.api.twitch.reference.service.services.TwitchReferenceService;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
 import feign.FeignException;
 import lombok.NonNull;
