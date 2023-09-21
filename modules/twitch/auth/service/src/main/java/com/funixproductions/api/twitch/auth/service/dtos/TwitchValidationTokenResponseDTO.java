@@ -5,6 +5,8 @@ import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class TwitchValidationTokenResponseDTO {
@@ -16,5 +18,7 @@ public class TwitchValidationTokenResponseDTO {
     @JsonProperty(value = "user_id")
     @SerializedName(value = "user_id")
     private String twitchUserId;
+
+    private List<String> scopes;
 
 }

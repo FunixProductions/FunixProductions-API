@@ -1,8 +1,8 @@
 package com.funixproductions.api.twitch.reference.service.services.video;
 
-import com.funixproductions.api.twitch.auth.client.services.TwitchReferenceService;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.video.TwitchChannelVideoDTO;
+import com.funixproductions.api.twitch.reference.client.services.TwitchReferenceService;
 import com.funixproductions.api.twitch.reference.service.clients.video.TwitchReferenceVideosClient;
 import com.google.common.base.Strings;
 import feign.FeignException;

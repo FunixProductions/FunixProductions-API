@@ -1,10 +1,11 @@
 package com.funixproductions.api.twitch.reference.service.services.channel;
 
-import com.funixproductions.api.twitch.auth.client.services.TwitchReferenceService;
 import com.funixproductions.api.twitch.reference.client.dtos.requests.TwitchChannelUpdateDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.TwitchChannelDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.chat.TwitchChannelUserDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.user.TwitchFollowDTO;
+import com.funixproductions.api.twitch.reference.client.services.TwitchReferenceService;
 import com.funixproductions.api.twitch.reference.service.clients.channel.TwitchReferenceChannelClient;
 import com.google.common.base.Strings;
 import feign.FeignException;
@@ -47,6 +48,25 @@ public class TwitchReferenceChannelService extends TwitchReferenceService implem
                     Strings.isNullOrEmpty(maximumReturned) ? "20" : maximumReturned,
                     Strings.isNullOrEmpty(after) ? null : after,
                     userIds
+            );
+        } catch (FeignException e) {
+            throw super.handleFeignException(e);
+        }
+    }
+
+    @Override
+    public TwitchDataResponseDTO<TwitchFollowDTO> getChannelFollowers(String twitchAccessToken,
+                                                                      String streamerId,
+                                                                      String maximumReturned,
+                                                                      String after,
+                                                                      String userId) {
+        try {
+            return client.getChannelFollowers(
+                    super.addBearerPrefix(twitchAccessToken),
+                    streamerId,
+                    Strings.isNullOrEmpty(maximumReturned) ? "20" : maximumReturned,
+                    Strings.isNullOrEmpty(after) ? null : after,
+                    userId
             );
         } catch (FeignException e) {
             throw super.handleFeignException(e);

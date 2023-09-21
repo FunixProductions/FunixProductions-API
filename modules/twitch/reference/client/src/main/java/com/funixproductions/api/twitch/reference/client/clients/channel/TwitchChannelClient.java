@@ -4,6 +4,7 @@ import com.funixproductions.api.twitch.reference.client.dtos.requests.TwitchChan
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.TwitchChannelDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.chat.TwitchChannelUserDTO;
+import com.funixproductions.api.twitch.reference.client.dtos.responses.user.TwitchFollowDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -54,5 +55,21 @@ public interface TwitchChannelClient {
                                                                @RequestParam(name = "after", required = false) String after,
                                                                @RequestParam(name = "user_id", required = false) List<String> userIds,
                                                                @RequestParam(name = "user_app_id") String userId);
+
+    /**
+     * <p>Gets a list of users that follow the specified broadcaster. You can also use this endpoint to see whether a specific user follows the broadcaster.</p>
+     * <p>This endpoint will return specific follower information only if both of the above are true. If a scope is not provided or the user isn’t the broadcaster or a moderator for the specified channel, only the total follower count will be included in the response.</p>
+     * <p>Requires a user access token.</p>
+     * @param maximumReturned The maximum number of items to return per page in the response. The minimum page size is 1 item per page and the maximum is 100. The default is 20.
+     * @param after The cursor used to get the next page of results. The Pagination object in the response contains the cursor’s value. Read more.
+     * @param userId A user’s ID. Use this parameter to see whether the user follows this broadcaster. If specified, the response contains this user if they follow the broadcaster. If not specified, the response contains all users that follow the broadcaster.
+     * @param userAppId The user uuid funixprod app
+     * @return The list of users that follow the specified broadcaster. The list is in descending order by followed_at (with the most recent follower first). The list is empty if nobody follows the broadcaster, the specified user_id isn’t in the follower list, the user access token is missing the moderator:read:followers scope, or the user isn’t the broadcaster or moderator for the channel.
+     */
+    @GetMapping("followers")
+    TwitchDataResponseDTO<TwitchFollowDTO> getChannelFollowers(@RequestParam(name = "first", required = false, defaultValue = "20") String maximumReturned,
+                                                               @RequestParam(name = "after", required = false) String after,
+                                                               @RequestParam(name = "user_id", required = false) String userId,
+                                                               @RequestParam(name = "user_app_id") String userAppId);
 
 }

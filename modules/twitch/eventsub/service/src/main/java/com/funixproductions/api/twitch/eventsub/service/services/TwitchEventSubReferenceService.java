@@ -1,11 +1,11 @@
 package com.funixproductions.api.twitch.eventsub.service.services;
 
 import com.funixproductions.api.twitch.auth.client.clients.TwitchInternalAuthClient;
-import com.funixproductions.api.twitch.auth.client.services.TwitchReferenceService;
 import com.funixproductions.api.twitch.eventsub.client.dtos.TwitchEventSubListDTO;
 import com.funixproductions.api.twitch.eventsub.service.clients.TwitchEventSubReferenceClient;
 import com.funixproductions.api.twitch.eventsub.service.configs.TwitchEventSubConfig;
 import com.funixproductions.api.twitch.eventsub.service.requests.TwitchSubscription;
+import com.funixproductions.api.twitch.reference.client.services.TwitchReferenceService;
 import feign.FeignException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

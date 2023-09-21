@@ -13,38 +13,20 @@ public class TwitchFollowDTO {
     /**
      * The ID of the user that’s following the user in to_id.
      */
-    @JsonProperty(value = "from_id")
-    private String fromId;
+    @JsonProperty(value = "user_id")
+    private String userId;
 
     /**
      * The follower’s login name.
      */
-    @JsonProperty(value = "from_login")
-    private String fromLogin;
+    @JsonProperty(value = "user_login")
+    private String userLogin;
 
     /**
      * The follower’s display name.
      */
-    @JsonProperty(value = "from_name")
-    private String fromName;
-
-    /**
-     * The ID of the user that’s being followed by the user in from_id.
-     */
-    @JsonProperty(value = "to_id")
-    private String toId;
-
-    /**
-     * The login name of the user that’s being followed.
-     */
-    @JsonProperty(value = "to_login")
-    private String toLogin;
-
-    /**
-     * The display name of the user that’s being followed.
-     */
-    @JsonProperty(value = "to_name")
-    private String toName;
+    @JsonProperty(value = "user_name")
+    private String userName;
 
     /**
      * The UTC date and time (in RFC3339 format) of when the user in from_id began following the user in to_id.

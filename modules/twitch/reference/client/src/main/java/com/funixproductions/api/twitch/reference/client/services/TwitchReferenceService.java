@@ -1,4 +1,4 @@
-package com.funixproductions.api.twitch.auth.client.services;
+package com.funixproductions.api.twitch.reference.client.services;
 
 import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;

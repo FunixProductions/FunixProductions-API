@@ -147,6 +147,20 @@ public class TwitchClientTokenService {
         }
     }
 
+    public TwitchClientTokenDTO fetchTokenByStreamerId(final String streamerId) {
+        if (Strings.isNullOrEmpty(streamerId)) {
+            throw new ApiBadRequestException("Pas de streamer id spécifié pour la récupération de tokens twitch.");
+        }
+
+        final Optional<TwitchClientToken> twitchClientToken = this.twitchClientTokenRepository.findTwitchClientTokenByTwitchUserId(streamerId);
+
+        if (twitchClientToken.isPresent()) {
+            return refreshToken(twitchClientToken.get());
+        } else {
+            throw new ApiNotFoundException(String.format("Le streamer %s ne possède pas de tokens twitch.", streamerId));
+        }
+    }
+
     /**
      * <a href="https://dev.twitch.tv/docs/authentication/scopes">Scopes list</a>
      * <p>Encoders: %20 is space and %3A is :</p>
@@ -263,6 +277,8 @@ public class TwitchClientTokenService {
 
     private TwitchClientTokenDTO refreshToken(final TwitchClientToken token) {
         try {
+            final List<String> scopes;
+
             if (token.isUsable()) {
                 final TwitchValidationTokenResponseDTO twitchValidationTokenResponseDTO = validTokenClient.makeHttpRequestValidation(token.getAccessToken());
 
@@ -271,6 +287,7 @@ public class TwitchClientTokenService {
                 }
                 token.setTwitchUserId(twitchValidationTokenResponseDTO.getTwitchUserId());
                 token.setTwitchUsername(twitchValidationTokenResponseDTO.getTwitchUsername());
+                scopes = twitchValidationTokenResponseDTO.getScopes();
             } else {
                 final Map<String, String> formRequest = new HashMap<>();
                 formRequest.put("client_id", twitchApiConfig.getAppClientId());
@@ -282,9 +299,12 @@ public class TwitchClientTokenService {
                 token.setAccessToken(tokenResponseDTO.getAccessToken());
                 token.setRefreshToken(tokenResponseDTO.getRefreshToken());
                 token.setExpirationDateToken(Date.from(Instant.now().plusSeconds(tokenResponseDTO.getExpiresIn() - 60L)));
+                scopes = tokenResponseDTO.getScopes();
             }
 
-            return twitchClientTokenMapper.toDto(twitchClientTokenRepository.save(token));
+            final TwitchClientTokenDTO tokenToSend = twitchClientTokenMapper.toDto(twitchClientTokenRepository.save(token));
+            tokenToSend.setScopes(scopes);
+            return tokenToSend;
         } catch (FeignException e) {
             if (e.status() == HttpStatus.UNAUTHORIZED.value()) {
                 throw new ApiForbiddenException(String.format("L'utilisateur %s à retiré l'accès à la FunixAPI sur twitch.", token.getUserUuid()));

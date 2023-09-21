@@ -37,5 +37,6 @@ public interface UserMapper extends ApiMapper<User, UserDTO> {
     @Mapping(target = "valid", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "password", ignore = true)
     UserSecretsDTO toSecretsDto(UserUpdateRequestDTO updateDTO);
 }

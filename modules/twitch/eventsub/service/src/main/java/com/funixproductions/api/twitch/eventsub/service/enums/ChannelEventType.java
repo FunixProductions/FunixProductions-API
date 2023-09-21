@@ -15,7 +15,7 @@ public enum ChannelEventType {
     /**
      * <a href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelupdate">Doc</a>
      */
-    UPDATE("channel.update", "1", ChannelUpdateSubscription.class),
+    UPDATE("channel.update", "2", ChannelUpdateSubscription.class),
 
     /**
      * <a href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelsubscribe">Doc</a>

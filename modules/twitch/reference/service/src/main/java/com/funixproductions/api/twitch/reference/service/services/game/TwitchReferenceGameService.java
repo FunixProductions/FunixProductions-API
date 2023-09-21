@@ -1,8 +1,8 @@
 package com.funixproductions.api.twitch.reference.service.services.game;
 
-import com.funixproductions.api.twitch.auth.client.services.TwitchReferenceService;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.game.TwitchGameDTO;
+import com.funixproductions.api.twitch.reference.client.services.TwitchReferenceService;
 import com.funixproductions.api.twitch.reference.service.clients.game.TwitchReferenceGameClient;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;

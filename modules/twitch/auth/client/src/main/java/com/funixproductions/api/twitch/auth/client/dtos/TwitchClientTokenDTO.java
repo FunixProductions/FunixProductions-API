@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.apache.logging.log4j.util.Strings;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -18,6 +19,8 @@ public class TwitchClientTokenDTO extends ApiDTO {
     private String twitchUsername;
 
     private String accessToken;
+
+    private List<String> scopes;
 
     private Date expirationDateToken;
 
