@@ -12,7 +12,7 @@
 
     <groupId>com.funixproductions.api</groupId>
     <artifactId>funixproductions-api</artifactId>
-    <version>1.2.2.2</version>
+    <version>1.2.2.3</version>
     <name>FunixProductions-API</name>
     <description>Main api for all funixproductions projects</description>
     <url>https://funixproductions.com</url>
@@ -32,7 +32,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <com.funixproductions.api.version>1.2.2.2</com.funixproductions.api.version>
+        <com.funixproductions.api.version>1.2.2.3</com.funixproductions.api.version>
 
         <!-- Google api client version https://central.sonatype.com/artifact/com.google.api-client/google-api-client -->
         <com.google.api.client.version>2.2.0</com.google.api.client.version>
