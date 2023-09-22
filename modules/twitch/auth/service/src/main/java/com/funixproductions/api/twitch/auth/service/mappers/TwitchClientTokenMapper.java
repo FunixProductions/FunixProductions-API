@@ -16,4 +16,9 @@ public interface TwitchClientTokenMapper extends ApiMapper<TwitchClientToken, Tw
     @Mapping(target = "refreshToken", ignore = true)
     TwitchClientToken toEntity(TwitchClientTokenDTO dto);
 
+    @Override
+    @Mapping(target = "id", source = "uuid")
+    @Mapping(target = "scopes", ignore = true)
+    TwitchClientTokenDTO toDto(TwitchClientToken entity);
+
 }

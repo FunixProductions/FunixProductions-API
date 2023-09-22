@@ -1,4 +1,4 @@
-FROM openjdk:17-alpine
+FROM amazoncorretto:21-alpine
 
 ARG service_name
 ARG service_base_dir
