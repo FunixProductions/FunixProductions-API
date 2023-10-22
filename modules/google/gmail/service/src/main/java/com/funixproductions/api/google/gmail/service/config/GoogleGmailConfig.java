@@ -26,7 +26,7 @@ public class GoogleGmailConfig {
     /**
      * App sender email, must be verified in google console
      */
-    private String appEmail = "contact@funixproductions.com";
+    private String appEmail = "noreply@funixproductions.com";
 
     @Bean
     public GoogleCredentials googleCredentials() throws Exception {
