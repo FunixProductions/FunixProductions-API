@@ -37,7 +37,7 @@
         <!-- Google api client version https://central.sonatype.com/artifact/com.google.api-client/google-api-client -->
         <com.google.api.client.version>2.2.0</com.google.api.client.version>
         <!-- Google gmail client https://central.sonatype.com/artifact/com.google.apis/google-api-services-gmail/ -->
-        <com.google.apis.gmail.version>v1-rev20231023-2.0.0</com.google.apis.gmail.version>
+        <com.google.apis.gmail.version>v1-rev20231106-2.0.0</com.google.apis.gmail.version>
         <!-- https://central.sonatype.com/artifact/com.google.oauth-client/google-oauth-client-jetty -->
         <com.google.oauth.client.jetty.version>1.34.0</com.google.oauth.client.jetty.version>
         <!-- https://central.sonatype.com/artifact/com.google.auth/google-auth-library-oauth2-http -->
