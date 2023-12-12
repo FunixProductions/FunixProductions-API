@@ -45,14 +45,12 @@ import static org.mockito.ArgumentMatchers.anyList;
 @SpringBootTest
 @AutoConfigureMockMvc
 @RunWith(MockitoJUnitRunner.class)
-class TestUserCrudResource {
+class TestUserCrudResource extends UserTestComponent {
 
     @Autowired
     private MockMvc mockMvc;
     @Autowired
     private JsonHelper jsonHelper;
-    @Autowired
-    private UserTestComponent userTestComponent;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -83,8 +81,8 @@ class TestUserCrudResource {
 
     @Test
     void testAccessUser() throws Exception {
-        final User user = userTestComponent.createBasicUser();
-        final UserTokenDTO token = userTestComponent.loginUser(user);
+        final User user = createBasicUser();
+        final UserTokenDTO token = loginUser(user);
 
         mockMvc.perform(MockMvcRequestBuilders.get(route)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.getToken()))
@@ -93,8 +91,8 @@ class TestUserCrudResource {
 
     @Test
     void testAccessModo() throws Exception {
-        final User user = userTestComponent.createModoAccount();
-        final UserTokenDTO token = userTestComponent.loginUser(user);
+        final User user = createModoAccount();
+        final UserTokenDTO token = loginUser(user);
 
         mockMvc.perform(MockMvcRequestBuilders.get(route)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.getToken()))
@@ -103,7 +101,7 @@ class TestUserCrudResource {
 
     @Test
     void testGetAll() throws Exception {
-        final UserTokenDTO tokenDTO = userTestComponent.loginUser(userTestComponent.createAdminAccount());
+        final UserTokenDTO tokenDTO = loginUser(createAdminAccount());
 
         mockMvc.perform(MockMvcRequestBuilders.get(route)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenDTO.getToken()))
@@ -112,7 +110,7 @@ class TestUserCrudResource {
 
     @Test
     void testCreate() throws Exception {
-        final UserTokenDTO tokenDTO = userTestComponent.loginUser(userTestComponent.createAdminAccount());
+        final UserTokenDTO tokenDTO = loginUser(createAdminAccount());
         final UserSecretsDTO userDTO = createUser();
 
         mockMvc.perform(MockMvcRequestBuilders.post(route)
@@ -124,7 +122,7 @@ class TestUserCrudResource {
 
     @Test
     void testPatch() throws Exception {
-        final UserTokenDTO tokenDTO = userTestComponent.loginUser(userTestComponent.createAdminAccount());
+        final UserTokenDTO tokenDTO = loginUser(createAdminAccount());
         final UserSecretsDTO userDTO = createUser();
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(route)
@@ -167,7 +165,7 @@ class TestUserCrudResource {
 
     @Test
     void testFindById() throws Exception {
-        final UserTokenDTO tokenDTO = userTestComponent.loginUser(userTestComponent.createAdminAccount());
+        final UserTokenDTO tokenDTO = loginUser(createAdminAccount());
         final UserSecretsDTO userDTO = createUser();
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(route)
@@ -185,7 +183,7 @@ class TestUserCrudResource {
 
     @Test
     void testRemoveId() throws Exception {
-        final UserTokenDTO tokenDTO = userTestComponent.loginUser(userTestComponent.createAdminAccount());
+        final UserTokenDTO tokenDTO = loginUser(createAdminAccount());
         final UserSecretsDTO userDTO = createUser();
         final String jwtToken = "jshdlqkfjhslkh";
 

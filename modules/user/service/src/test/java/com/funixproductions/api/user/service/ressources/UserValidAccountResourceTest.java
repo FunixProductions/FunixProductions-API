@@ -38,13 +38,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class UserValidAccountResourceTest {
+class UserValidAccountResourceTest extends UserTestComponent {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private UserTestComponent userTestComponent;
 
     @Autowired
     private UserValidAccountTokenRepository userValidAccountTokenRepository;
@@ -75,8 +72,8 @@ class UserValidAccountResourceTest {
 
     @Test
     void testSendRequestValidationEmail() throws Exception {
-        final User user = userTestComponent.createBasicUser();
-        final UserTokenDTO token = userTestComponent.loginUser(user);
+        final User user = createBasicUser();
+        final UserTokenDTO token = loginUser(user);
 
         mockMvc.perform(post("/user/auth/valid-account")
                         .header("Authorization", "Bearer " + token.getToken()))
@@ -103,8 +100,8 @@ class UserValidAccountResourceTest {
 
     @Test
     void testSendRequestOfAccountAlreadyValidated() throws Exception {
-        final User user = userTestComponent.createBasicUser();
-        final UserTokenDTO token = userTestComponent.loginUser(user);
+        final User user = createBasicUser();
+        final UserTokenDTO token = loginUser(user);
 
         mockMvc.perform(post("/user/auth/valid-account")
                         .header("Authorization", "Bearer " + token.getToken()))
