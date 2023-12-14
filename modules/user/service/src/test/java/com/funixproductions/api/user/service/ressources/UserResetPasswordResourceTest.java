@@ -35,6 +35,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -72,14 +73,12 @@ class UserResetPasswordResourceTest {
     private GoogleGmailClient gmailClient;
 
     @MockBean
-    private FunixProductionsEncryptionClient funixProductionsEncryptionClient;
+    private FunixProductionsEncryptionClient encryptionClient;
 
     @BeforeEach
     void setupMocks() {
         doNothing().when(captchaService).verify(any(), any(), any());
         doNothing().when(gmailClient).sendMail(any(), any());
-        when(funixProductionsEncryptionClient.encrypt(any())).thenReturn("encryptedText" + UUID.randomUUID());
-        when(funixProductionsEncryptionClient.decrypt(any())).thenReturn("decryptedText" + UUID.randomUUID());
         Mockito.doNothing().when(gmailClient).sendMail(any(), any());
     }
 
@@ -104,6 +103,9 @@ class UserResetPasswordResourceTest {
         userPasswordResetDTO.setNewPasswordConfirmation("newPassword1234");
         userPasswordResetDTO.setResetToken(token);
 
+        when(encryptionClient.encrypt(eq(userPasswordResetDTO.getNewPassword()))).thenReturn(userPasswordResetDTO.getNewPassword());
+        when(encryptionClient.decrypt(eq(userPasswordResetDTO.getNewPassword()))).thenReturn(userPasswordResetDTO.getNewPassword());
+
         mockMvc.perform(post("/user/auth/resetPassword")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.jsonHelper.toJson(userPasswordResetDTO))
@@ -115,6 +117,9 @@ class UserResetPasswordResourceTest {
         ).andExpect(status().isBadRequest());
 
         userPasswordResetDTO.setNewPassword("newPasssdfsqdfsqdword1234");
+
+        when(encryptionClient.encrypt(eq(userPasswordResetDTO.getNewPassword()))).thenReturn(userPasswordResetDTO.getNewPassword());
+        when(encryptionClient.decrypt(eq(userPasswordResetDTO.getNewPassword()))).thenReturn(userPasswordResetDTO.getNewPassword());
         mockMvc.perform(post("/user/auth/resetPassword")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.jsonHelper.toJson(userPasswordResetDTO))
@@ -178,6 +183,9 @@ class UserResetPasswordResourceTest {
         userSecretsDTO.setRole(UserRole.USER);
         userSecretsDTO.setEmail(email);
         userSecretsDTO.setUsername(username);
+
+        when(encryptionClient.encrypt(eq(userSecretsDTO.getPassword()))).thenReturn(userSecretsDTO.getPassword());
+        when(encryptionClient.decrypt(eq(userSecretsDTO.getPassword()))).thenReturn(userSecretsDTO.getPassword());
         return userCrudService.create(userSecretsDTO);
     }
 
