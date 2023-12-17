@@ -4,7 +4,6 @@ import com.funixproductions.api.encryption.client.clients.EncryptionClient;
 import com.funixproductions.api.google.auth.client.clients.InternalGoogleAuthClient;
 import com.funixproductions.api.google.gmail.client.clients.GoogleGmailClient;
 import com.funixproductions.api.google.recaptcha.client.clients.GoogleRecaptchaInternalClient;
-import com.funixproductions.api.google.recaptcha.client.services.GoogleRecaptchaHandler;
 import com.funixproductions.api.user.client.dtos.UserTokenDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserLoginDTO;
 import com.funixproductions.api.user.client.enums.UserRole;
@@ -44,9 +43,6 @@ public abstract class UserTestComponent {
     protected GoogleRecaptchaInternalClient googleCaptchaService;
 
     @MockBean
-    protected GoogleRecaptchaHandler googleRecaptchaHandler;
-
-    @MockBean
     protected InternalGoogleAuthClient googleAuthClient;
 
     @MockBean
@@ -58,7 +54,6 @@ public abstract class UserTestComponent {
         when(encryptionClient.decrypt(anyString())).thenAnswer(invocation -> invocation.<String>getArgument(0));
 
         doNothing().when(googleCaptchaService).verify(any(), any(), any());
-        doNothing().when(googleRecaptchaHandler).verify(any(), any());
         doNothing().when(googleAuthClient).deleteAllByUserUuidIn(anyList());
         doNothing().when(googleGmailClient).sendMail(any(), any());
     }
