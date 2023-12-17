@@ -1,17 +1,19 @@
 package com.funixproductions.api.user.service.components;
 
-import com.funixproductions.api.encryption.client.clients.FunixProductionsEncryptionClient;
+import com.funixproductions.api.encryption.client.clients.EncryptionClient;
+import com.funixproductions.api.google.auth.client.clients.InternalGoogleAuthClient;
+import com.funixproductions.api.google.gmail.client.clients.GoogleGmailClient;
+import com.funixproductions.api.google.recaptcha.client.clients.GoogleRecaptchaInternalClient;
 import com.funixproductions.api.user.client.dtos.UserTokenDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserLoginDTO;
 import com.funixproductions.api.user.client.enums.UserRole;
 import com.funixproductions.api.user.service.entities.User;
 import com.funixproductions.api.user.service.repositories.UserRepository;
 import com.funixproductions.core.test.beans.JsonHelper;
-import lombok.RequiredArgsConstructor;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -19,14 +21,42 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.UUID;
 
-@Component
-@RequiredArgsConstructor
-public class UserTestComponent {
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 
-    private final MockMvc mockMvc;
-    private final UserRepository userRepository;
-    private final FunixProductionsEncryptionClient encryptionClient;
-    private final JsonHelper jsonHelper;
+public abstract class UserTestComponent {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private JsonHelper jsonHelper;
+
+    @MockBean
+    protected EncryptionClient encryptionClient;
+
+    @MockBean
+    protected GoogleRecaptchaInternalClient googleCaptchaService;
+
+    @MockBean
+    protected InternalGoogleAuthClient googleAuthClient;
+
+    @MockBean
+    protected GoogleGmailClient googleGmailClient;
+
+    @BeforeEach
+    public void setup() {
+        when(encryptionClient.encrypt(anyString())).thenAnswer(invocation -> invocation.<String>getArgument(0));
+        when(encryptionClient.decrypt(anyString())).thenAnswer(invocation -> invocation.<String>getArgument(0));
+
+        doNothing().when(googleCaptchaService).verify(any(), any(), any());
+        doNothing().when(googleAuthClient).deleteAllByUserUuidIn(anyList());
+        doNothing().when(googleGmailClient).sendMail(any(), any());
+    }
 
     public User createAdminAccount() {
         final User user = new User();
@@ -35,11 +65,6 @@ public class UserTestComponent {
         user.setPassword(UUID.randomUUID() + "ousddffdi22AA");
         user.setEmail(UUID.randomUUID() + "@gmail.com");
         user.setRole(UserRole.ADMIN);
-
-        Mockito.when(encryptionClient.encrypt(ArgumentMatchers.anyString())).thenReturn(UUID.randomUUID().toString());
-        Mockito.when(encryptionClient.decrypt(ArgumentMatchers.anyString())).thenReturn(UUID.randomUUID().toString());
-        Mockito.when(encryptionClient.encrypt(user.getPassword())).thenReturn(user.getPassword());
-        Mockito.when(encryptionClient.decrypt(user.getPassword())).thenReturn(user.getPassword());
         return userRepository.save(user);
     }
 
@@ -50,11 +75,6 @@ public class UserTestComponent {
         user.setPassword(UUID.randomUUID() + "ousddffdi22AA");
         user.setEmail(UUID.randomUUID() + "@gmail.com");
         user.setRole(UserRole.MODERATOR);
-
-        Mockito.when(encryptionClient.encrypt(ArgumentMatchers.anyString())).thenReturn(UUID.randomUUID().toString());
-        Mockito.when(encryptionClient.decrypt(ArgumentMatchers.anyString())).thenReturn(UUID.randomUUID().toString());
-        Mockito.when(encryptionClient.encrypt(user.getPassword())).thenReturn(user.getPassword());
-        Mockito.when(encryptionClient.decrypt(user.getPassword())).thenReturn(user.getPassword());
         return userRepository.save(user);
     }
 
@@ -64,20 +84,10 @@ public class UserTestComponent {
         user.setUsername(UUID.randomUUID().toString());
         user.setPassword(UUID.randomUUID() + "ousddffdi22AA");
         user.setEmail(UUID.randomUUID() + "@gmail.com");
-
-        Mockito.when(encryptionClient.encrypt(ArgumentMatchers.anyString())).thenReturn(UUID.randomUUID().toString());
-        Mockito.when(encryptionClient.decrypt(ArgumentMatchers.anyString())).thenReturn(UUID.randomUUID().toString());
-        Mockito.when(encryptionClient.encrypt(user.getPassword())).thenReturn(user.getPassword());
-        Mockito.when(encryptionClient.decrypt(user.getPassword())).thenReturn(user.getPassword());
         return userRepository.save(user);
     }
 
     public UserTokenDTO loginUser(final User user) throws Exception {
-        Mockito.when(encryptionClient.encrypt(ArgumentMatchers.anyString())).thenReturn(UUID.randomUUID().toString());
-        Mockito.when(encryptionClient.decrypt(ArgumentMatchers.anyString())).thenReturn(UUID.randomUUID().toString());
-        Mockito.when(encryptionClient.encrypt(user.getPassword())).thenReturn(user.getPassword());
-        Mockito.when(encryptionClient.decrypt(user.getPassword())).thenReturn(user.getPassword());
-
         final UserLoginDTO userLoginDTO = new UserLoginDTO();
         userLoginDTO.setUsername(user.getUsername());
         userLoginDTO.setPassword(user.getPassword());

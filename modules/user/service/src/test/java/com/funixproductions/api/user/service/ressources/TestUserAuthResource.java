@@ -1,9 +1,5 @@
 package com.funixproductions.api.user.service.ressources;
 
-import com.funixproductions.api.encryption.client.clients.FunixProductionsEncryptionClient;
-import com.funixproductions.api.google.auth.client.clients.InternalGoogleAuthClient;
-import com.funixproductions.api.google.gmail.client.clients.GoogleGmailClient;
-import com.funixproductions.api.google.recaptcha.client.services.GoogleRecaptchaHandler;
 import com.funixproductions.api.user.client.dtos.UserDTO;
 import com.funixproductions.api.user.client.dtos.UserTokenDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserCreationDTO;
@@ -20,16 +16,10 @@ import com.funixproductions.core.exceptions.ApiNotFoundException;
 import com.funixproductions.core.test.beans.JsonHelper;
 import com.google.gson.reflect.TypeToken;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -40,21 +30,15 @@ import java.lang.reflect.Type;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@RunWith(MockitoJUnitRunner.class)
-class TestUserAuthResource {
+class TestUserAuthResource extends UserTestComponent {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private UserTestComponent userTestComponent;
 
     @Autowired
     private JsonHelper jsonHelper;
@@ -67,27 +51,6 @@ class TestUserAuthResource {
 
     @Autowired
     private UserTokenService userTokenService;
-
-    @MockBean
-    private GoogleRecaptchaHandler googleCaptchaService;
-
-    @MockBean
-    private FunixProductionsEncryptionClient funixProductionsEncryptionClient;
-
-    @MockBean
-    private InternalGoogleAuthClient googleAuthClient;
-
-    @MockBean
-    private GoogleGmailClient googleGmailClient;
-
-    @BeforeEach
-    void setupMocks() {
-        Mockito.doNothing().when(googleCaptchaService).verify(ArgumentMatchers.any(), ArgumentMatchers.anyString());
-        Mockito.when(funixProductionsEncryptionClient.encrypt(ArgumentMatchers.anyString())).thenReturn(UUID.randomUUID().toString());
-        Mockito.when(funixProductionsEncryptionClient.decrypt(ArgumentMatchers.anyString())).thenReturn(UUID.randomUUID().toString());
-        Mockito.doNothing().when(googleAuthClient).deleteAllByUserUuidIn(anyList());
-        Mockito.doNothing().when(googleGmailClient).sendMail(any(), any());
-    }
 
     @Test
     void testRegisterSuccess() throws Exception {
@@ -134,12 +97,12 @@ class TestUserAuthResource {
     void testGetActualSessions() throws Exception {
         this.userTokenRepository.deleteAll();
 
-        final User user = userTestComponent.createBasicUser();
-        final UserTokenDTO userTokenDTO = userTestComponent.loginUser(user);
-        final User adminUser = userTestComponent.createAdminAccount();
+        final User user = createBasicUser();
+        final UserTokenDTO userTokenDTO = loginUser(user);
+        final User adminUser = createAdminAccount();
         final Type typeToken = new TypeToken<PageDTO<UserTokenDTO>>() {}.getType();
 
-        userTestComponent.loginUser(adminUser);
+        loginUser(adminUser);
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.get("/user/auth/sessions")
                         .header("Authorization", "Bearer " + userTokenDTO.getToken()))
                 .andExpect(status().isOk())
@@ -149,7 +112,7 @@ class TestUserAuthResource {
         assertEquals(1, userTokenDTOS.getTotalElementsThisPage());
         assertEquals(userTokenDTO, userTokenDTOS.getContent().get(0));
 
-        userTestComponent.loginUser(user);
+        loginUser(user);
 
         mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.get("/user/auth/sessions")
                         .header("Authorization", "Bearer " + userTokenDTO.getToken()))
@@ -162,11 +125,11 @@ class TestUserAuthResource {
     @Test
     void testRemoveSessionToken() throws Exception {
         this.userTokenRepository.deleteAll();
-        final User user = userTestComponent.createBasicUser();
-        final User adminUser = userTestComponent.createAdminAccount();
-        final UserTokenDTO userTokenDTO = userTestComponent.loginUser(user);
-        final UserTokenDTO userTokenDTO2 = userTestComponent.loginUser(user);
-        final UserTokenDTO adminTokenDTO = userTestComponent.loginUser(adminUser);
+        final User user = createBasicUser();
+        final User adminUser = createAdminAccount();
+        final UserTokenDTO userTokenDTO = loginUser(user);
+        final UserTokenDTO userTokenDTO2 = loginUser(user);
+        final UserTokenDTO adminTokenDTO = loginUser(adminUser);
 
         this.mockMvc.perform(MockMvcRequestBuilders.delete("/user/auth/sessions")
                         .header("Authorization", "Bearer " + userTokenDTO.getToken()))
@@ -223,7 +186,7 @@ class TestUserAuthResource {
 
     @Test
     void testLogout() throws Exception {
-        final User account = userTestComponent.createBasicUser();
+        final User account = createBasicUser();
 
         final UserLoginDTO loginDTO = new UserLoginDTO();
         loginDTO.setUsername(account.getUsername());
@@ -418,7 +381,7 @@ class TestUserAuthResource {
 
     @Test
     void testLoginSuccess() throws Exception {
-        final User account = userTestComponent.createBasicUser();
+        final User account = createBasicUser();
 
         final UserLoginDTO loginDTO = new UserLoginDTO();
         loginDTO.setUsername(account.getUsername());
@@ -439,7 +402,7 @@ class TestUserAuthResource {
 
     @Test
     void testLoginSuccessNoExpiration() throws Exception {
-        final User account = userTestComponent.createBasicUser();
+        final User account = createBasicUser();
 
         final UserLoginDTO loginDTO = new UserLoginDTO();
         loginDTO.setUsername(account.getUsername());
@@ -473,7 +436,7 @@ class TestUserAuthResource {
 
     @Test
     void testGetCurrentUser() throws Exception {
-        final User account = userTestComponent.createBasicUser();
+        final User account = createBasicUser();
 
         final UserLoginDTO loginDTO = new UserLoginDTO();
         loginDTO.setUsername(account.getUsername());
@@ -513,8 +476,8 @@ class TestUserAuthResource {
 
     @Test
     void testUpdateSelfAccountSuccess() throws Exception {
-        final User userTest = this.userTestComponent.createBasicUser();
-        final UserTokenDTO tokenDTO = this.userTestComponent.loginUser(userTest);
+        final User userTest = this.createBasicUser();
+        final UserTokenDTO tokenDTO = this.loginUser(userTest);
 
         final UserUpdateRequestDTO userUpdateRequestDTO = new UserUpdateRequestDTO();
         userUpdateRequestDTO.setUsername("new_username");
@@ -534,8 +497,8 @@ class TestUserAuthResource {
 
     @Test
     void testUpdateSelfAccountPasswordSuccess() throws Exception {
-        final User userTest = this.userTestComponent.createBasicUser();
-        final UserTokenDTO tokenDTO = this.userTestComponent.loginUser(userTest);
+        final User userTest = this.createBasicUser();
+        final UserTokenDTO tokenDTO = this.loginUser(userTest);
 
         final String newPassword = "superNewPassword22";
         final UserUpdateRequestDTO userUpdateRequestDTO = new UserUpdateRequestDTO();
@@ -552,8 +515,8 @@ class TestUserAuthResource {
 
     @Test
     void testUpdateSelfAccountPasswordFailNewPasswordMissMatch() throws Exception {
-        final User userTest = this.userTestComponent.createBasicUser();
-        final UserTokenDTO tokenDTO = this.userTestComponent.loginUser(userTest);
+        final User userTest = this.createBasicUser();
+        final UserTokenDTO tokenDTO = this.loginUser(userTest);
 
         final UserUpdateRequestDTO userUpdateRequestDTO = new UserUpdateRequestDTO();
         userUpdateRequestDTO.setNewPassword("newPassword");
@@ -569,8 +532,8 @@ class TestUserAuthResource {
 
     @Test
     void testUpdateSelfAccountPasswordFailOldPasswordNoMatch() throws Exception {
-        final User userTest = this.userTestComponent.createBasicUser();
-        final UserTokenDTO tokenDTO = this.userTestComponent.loginUser(userTest);
+        final User userTest = this.createBasicUser();
+        final UserTokenDTO tokenDTO = this.loginUser(userTest);
 
         final String newPassword = "superNewPassword";
         final UserUpdateRequestDTO userUpdateRequestDTO = new UserUpdateRequestDTO();

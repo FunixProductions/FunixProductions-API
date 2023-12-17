@@ -1,15 +1,13 @@
 package com.funixproductions.api.user.service.ressources;
 
 import com.funixproductions.api.core.enums.FrontOrigins;
-import com.funixproductions.api.encryption.client.clients.FunixProductionsEncryptionClient;
-import com.funixproductions.api.google.gmail.client.clients.GoogleGmailClient;
-import com.funixproductions.api.google.recaptcha.client.clients.GoogleRecaptchaInternalClient;
 import com.funixproductions.api.user.client.dtos.UserDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserPasswordResetDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserPasswordResetRequestDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserSecretsDTO;
 import com.funixproductions.api.user.client.enums.UserRole;
 import com.funixproductions.api.user.service.components.UserPasswordUtils;
+import com.funixproductions.api.user.service.components.UserTestComponent;
 import com.funixproductions.api.user.service.entities.User;
 import com.funixproductions.api.user.service.entities.UserPasswordReset;
 import com.funixproductions.api.user.service.repositories.UserPasswordResetRepository;
@@ -19,13 +17,10 @@ import com.funixproductions.api.user.service.services.UserResetService;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.test.beans.JsonHelper;
 import com.funixproductions.core.tools.network.IPUtils;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -34,15 +29,12 @@ import java.util.Base64;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class UserResetPasswordResourceTest {
+class UserResetPasswordResourceTest extends UserTestComponent {
 
     @Autowired
     private MockMvc mockMvc;
@@ -64,24 +56,6 @@ class UserResetPasswordResourceTest {
 
     @Autowired
     private IPUtils ipUtils;
-
-    @MockBean
-    private GoogleRecaptchaInternalClient captchaService;
-
-    @MockBean
-    private GoogleGmailClient gmailClient;
-
-    @MockBean
-    private FunixProductionsEncryptionClient funixProductionsEncryptionClient;
-
-    @BeforeEach
-    void setupMocks() {
-        doNothing().when(captchaService).verify(any(), any(), any());
-        doNothing().when(gmailClient).sendMail(any(), any());
-        when(funixProductionsEncryptionClient.encrypt(any())).thenReturn("encryptedText" + UUID.randomUUID());
-        when(funixProductionsEncryptionClient.decrypt(any())).thenReturn("decryptedText" + UUID.randomUUID());
-        Mockito.doNothing().when(gmailClient).sendMail(any(), any());
-    }
 
     @Test
     void testUserResetPassword() throws Exception {
@@ -115,6 +89,7 @@ class UserResetPasswordResourceTest {
         ).andExpect(status().isBadRequest());
 
         userPasswordResetDTO.setNewPassword("newPasssdfsqdfsqdword1234");
+
         mockMvc.perform(post("/user/auth/resetPassword")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.jsonHelper.toJson(userPasswordResetDTO))
@@ -137,7 +112,7 @@ class UserResetPasswordResourceTest {
                 userRepository,
                 userPasswordUtils,
                 userPasswordResetRepository,
-                gmailClient,
+                super.googleGmailClient,
                 ipUtils
         ), user, frontOrigin, token, clientIp);
 
@@ -162,7 +137,7 @@ class UserResetPasswordResourceTest {
                 userRepository,
                 userPasswordUtils,
                 userPasswordResetRepository,
-                gmailClient,
+                super.googleGmailClient,
                 ipUtils
         ), user, FrontOrigins.FUNIX_PRODUCTIONS_DASHBOARD, null, clientIp);
 
@@ -178,6 +153,7 @@ class UserResetPasswordResourceTest {
         userSecretsDTO.setRole(UserRole.USER);
         userSecretsDTO.setEmail(email);
         userSecretsDTO.setUsername(username);
+
         return userCrudService.create(userSecretsDTO);
     }
 

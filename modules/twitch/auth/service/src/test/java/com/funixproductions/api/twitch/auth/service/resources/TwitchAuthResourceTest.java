@@ -1,6 +1,6 @@
 package com.funixproductions.api.twitch.auth.service.resources;
 
-import com.funixproductions.api.encryption.client.clients.FunixProductionsEncryptionClient;
+import com.funixproductions.api.encryption.client.clients.EncryptionClient;
 import com.funixproductions.api.twitch.auth.client.enums.TwitchClientTokenType;
 import com.funixproductions.api.twitch.auth.service.clients.TwitchTokenAuthClient;
 import com.funixproductions.api.twitch.auth.service.clients.TwitchValidTokenClient;
@@ -46,7 +46,7 @@ class TwitchAuthResourceTest {
     private TwitchValidTokenClient twitchValidTokenClient;
 
     @MockBean
-    private FunixProductionsEncryptionClient funixProductionsEncryptionClient;
+    private EncryptionClient encryptionClient;
 
     @Autowired
     private MockMvc mockMvc;
@@ -78,8 +78,8 @@ class TwitchAuthResourceTest {
 
         Mockito.when(userAuthClient.current(Mockito.any())).thenReturn(userDTO);
 
-        Mockito.when(this.funixProductionsEncryptionClient.decrypt(anyString())).thenReturn(UUID.randomUUID().toString());
-        Mockito.when(this.funixProductionsEncryptionClient.encrypt(anyString())).thenReturn(UUID.randomUUID().toString());
+        Mockito.when(this.encryptionClient.decrypt(anyString())).thenReturn(UUID.randomUUID().toString());
+        Mockito.when(this.encryptionClient.encrypt(anyString())).thenReturn(UUID.randomUUID().toString());
     }
 
     @Test
