@@ -1,8 +1,5 @@
 package com.funixproductions.api.user.service.ressources;
 
-import com.funixproductions.api.encryption.client.clients.FunixProductionsEncryptionClient;
-import com.funixproductions.api.google.gmail.client.clients.GoogleGmailClient;
-import com.funixproductions.api.google.recaptcha.client.clients.GoogleRecaptchaInternalClient;
 import com.funixproductions.api.user.client.dtos.UserDTO;
 import com.funixproductions.api.user.client.dtos.UserTokenDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserCreationDTO;
@@ -12,13 +9,10 @@ import com.funixproductions.api.user.service.entities.UserValidAccountToken;
 import com.funixproductions.api.user.service.repositories.UserRepository;
 import com.funixproductions.api.user.service.repositories.UserValidAccountTokenRepository;
 import com.funixproductions.core.test.beans.JsonHelper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -29,9 +23,6 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -51,24 +42,6 @@ class UserValidAccountResourceTest extends UserTestComponent {
 
     @Autowired
     private UserRepository userRepository;
-
-    @MockBean
-    private GoogleGmailClient gmailClient;
-
-    @MockBean
-    private GoogleRecaptchaInternalClient googleRecaptchaInternalClient;
-
-    @MockBean
-    private FunixProductionsEncryptionClient funixProductionsEncryptionClient;
-
-    @BeforeEach
-    void setupMocks() {
-        doNothing().when(gmailClient).sendMail(any(), any());
-        when(funixProductionsEncryptionClient.encrypt(any())).thenReturn("encryptedText" + UUID.randomUUID());
-        when(funixProductionsEncryptionClient.decrypt(any())).thenReturn("decryptedText" + UUID.randomUUID());
-        Mockito.doNothing().when(gmailClient).sendMail(any(), any());
-        Mockito.doNothing().when(googleRecaptchaInternalClient).verify(any(), any(), any());
-    }
 
     @Test
     void testSendRequestValidationEmail() throws Exception {
@@ -125,9 +98,6 @@ class UserValidAccountResourceTest extends UserTestComponent {
         creationDTO.setPasswordConfirmation("ousddffdi22AA");
         creationDTO.setAcceptCGU(true);
         creationDTO.setAcceptCGV(true);
-
-        when(funixProductionsEncryptionClient.encrypt(creationDTO.getPassword())).thenReturn(creationDTO.getPassword());
-        when(funixProductionsEncryptionClient.decrypt(creationDTO.getPassword())).thenReturn(creationDTO.getPassword());
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)

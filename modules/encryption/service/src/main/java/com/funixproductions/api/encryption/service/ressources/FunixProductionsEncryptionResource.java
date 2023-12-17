@@ -1,6 +1,6 @@
 package com.funixproductions.api.encryption.service.ressources;
 
-import com.funixproductions.api.encryption.client.clients.FunixProductionsEncryptionClient;
+import com.funixproductions.api.encryption.client.clients.EncryptionClientDefinition;
 import com.funixproductions.api.encryption.service.services.FunixProductionsEncryptionService;
 import com.funixproductions.core.exceptions.ApiException;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/encryption")
 @RequiredArgsConstructor
-public class FunixProductionsEncryptionResource implements FunixProductionsEncryptionClient {
+public class FunixProductionsEncryptionResource implements EncryptionClientDefinition {
 
     private final FunixProductionsEncryptionService encryption;
 

@@ -1,9 +1,5 @@
 package com.funixproductions.api.user.service.ressources;
 
-import com.funixproductions.api.encryption.client.clients.FunixProductionsEncryptionClient;
-import com.funixproductions.api.google.auth.client.clients.InternalGoogleAuthClient;
-import com.funixproductions.api.google.gmail.client.clients.GoogleGmailClient;
-import com.funixproductions.api.google.recaptcha.client.services.GoogleRecaptchaHandler;
 import com.funixproductions.api.user.client.dtos.UserDTO;
 import com.funixproductions.api.user.client.dtos.UserTokenDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserCreationDTO;
@@ -20,15 +16,10 @@ import com.funixproductions.core.exceptions.ApiNotFoundException;
 import com.funixproductions.core.test.beans.JsonHelper;
 import com.google.gson.reflect.TypeToken;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -39,13 +30,11 @@ import java.lang.reflect.Type;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@RunWith(MockitoJUnitRunner.class)
 class TestUserAuthResource extends UserTestComponent {
 
     @Autowired
@@ -62,27 +51,6 @@ class TestUserAuthResource extends UserTestComponent {
 
     @Autowired
     private UserTokenService userTokenService;
-
-    @MockBean
-    private GoogleRecaptchaHandler googleCaptchaService;
-
-    @MockBean
-    private FunixProductionsEncryptionClient funixProductionsEncryptionClient;
-
-    @MockBean
-    private InternalGoogleAuthClient googleAuthClient;
-
-    @MockBean
-    private GoogleGmailClient googleGmailClient;
-
-    @BeforeEach
-    void setupMocks() {
-        doNothing().when(googleCaptchaService).verify(any(), ArgumentMatchers.anyString());
-        when(funixProductionsEncryptionClient.encrypt(anyString())).thenReturn(UUID.randomUUID().toString());
-        when(funixProductionsEncryptionClient.decrypt(anyString())).thenReturn(UUID.randomUUID().toString());
-        doNothing().when(googleAuthClient).deleteAllByUserUuidIn(anyList());
-        doNothing().when(googleGmailClient).sendMail(any(), any());
-    }
 
     @Test
     void testRegisterSuccess() throws Exception {

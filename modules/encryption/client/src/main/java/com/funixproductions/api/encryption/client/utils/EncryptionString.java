@@ -1,6 +1,6 @@
 package com.funixproductions.api.encryption.client.utils;
 
-import com.funixproductions.api.encryption.client.clients.FunixProductionsEncryptionClient;
+import com.funixproductions.api.encryption.client.clients.EncryptionClient;
 import com.funixproductions.core.tools.encryption.ApiConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class EncryptionString implements ApiConverter<String> {
 
-    private final FunixProductionsEncryptionClient encryptionClient;
+    private final EncryptionClient encryptionClient;
 
     /**
      * Encrypts the string
