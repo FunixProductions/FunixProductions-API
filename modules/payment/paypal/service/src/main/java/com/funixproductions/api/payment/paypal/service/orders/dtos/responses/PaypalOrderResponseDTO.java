@@ -2,6 +2,7 @@ package com.funixproductions.api.payment.paypal.service.orders.dtos.responses;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.funixproductions.api.payment.paypal.service.orders.dtos.PurchaseUnitDTO;
+import com.funixproductions.api.payment.paypal.service.orders.dtos.requests.PaypalOrderCreationDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,6 +19,12 @@ public class PaypalOrderResponseDTO {
     private String createTime;
 
     /**
+     * The date and time when the transaction was last updated, in Internet date and time format.
+     */
+    @JsonProperty(value = "update_time")
+    private String updateTime;
+
+    /**
      * The ID of the order.
      */
     private String id;
@@ -26,6 +33,11 @@ public class PaypalOrderResponseDTO {
      * use the 'approve' type link to redirect
      */
     private List<Link> links;
+
+    /**
+     * The payment source used to fund the payment.
+     */
+    private PaypalOrderCreationDTO.PaymentSource paymentSource;
 
     /**
      * An array of purchase units. Each purchase unit establishes a contract between a customer and merchant. Each purchase unit represents either a full or partial order that the customer intends to purchase from the merchant.
@@ -38,17 +50,11 @@ public class PaypalOrderResponseDTO {
      */
     private Status status;
 
-    /**
-     * The date and time when the transaction was last updated, in Internet date and time format.
-     */
-    @JsonProperty(value = "update_time")
-    private String updateTime;
-
     @Getter
     @Setter
     public static class Link {
         /**
-         * The complete target URL. To make the related call, combine the method with this URI Template-formatted link. For pre-processing, include the $, (, and ) characters. The href is the key HATEOAS component that links a completed call with a subsequent call.
+         * The complete target URL. To make the related call, combine the method with this <a href="https://tools.ietf.org/html/rfc6570">URI Template-formatted</a> link. For pre-processing, include the $, (, and ) characters. The href is the key HATEOAS component that links a completed call with a subsequent call.
          */
         private String href;
 
@@ -56,6 +62,8 @@ public class PaypalOrderResponseDTO {
          * The link relation type, which serves as an ID for a link that unambiguously describes the semantics of the link. See Link Relations.
          */
         private String rel;
+
+        private String method;
     }
 
     public enum Status {
