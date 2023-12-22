@@ -8,8 +8,10 @@ import com.funixproductions.core.exceptions.ApiException;
 import feign.FeignException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaypalOrderService implements PaypalOrderClient {
@@ -61,6 +63,7 @@ public class PaypalOrderService implements PaypalOrderClient {
     }
 
     private ApiException handleFeignException(final FeignException e, final String action) {
-        throw new ApiException(String.format("Impossible %s un ordre d'achat avec PayPal. Veuillez recommencer ou envoyer un mail à contact@funixgaming.fr", action), e);
+        log.error("Impossible {} un ordre d'achat avec PayPal", action, e);
+        throw new ApiException(String.format("Impossible %s un ordre d'achat avec PayPal. Veuillez recommencer ou envoyer un mail à contact@funixproductions.com", action), e);
     }
 }
