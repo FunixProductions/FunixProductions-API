@@ -90,6 +90,49 @@ public class PaypalOrderCreationDTO {
             /**
              * The billing address for this card. Supports only the address_line_1, address_line_2, admin_area_1, admin_area_2, postal_code, and country_code properties.
              */
+            @JsonProperty(value = "billing_address")
+            private BillingAddress billingAddress;
+
+            /**
+             * Provides additional details to process a payment using a payment_source that has been stored or is intended to be stored (also referred to as stored_credential or card-on-file).<br>
+             * Parameter compatibility:<br>
+             * - payment_type=ONE_TIME is compatible only with payment_initiator=CUSTOMER.<br>
+             * - usage=FIRST is compatible only with payment_initiator=CUSTOMER.<br>
+             * - previous_transaction_reference or previous_network_transaction_reference is compatible only with payment_initiator=MERCHANT.<br>
+             * - Only one of the parameters - previous_transaction_reference and previous_network_transaction_reference - can be present in the request.
+             */
+            @JsonProperty(value = "stored_credentials")
+            private StoredCredentials storedCredentials;
+
+            /**
+             * A 3rd party network token refers to a network token that the merchant provisions from and vaults with an external TSP (Token Service Provider) other than PayPal.
+             */
+            @JsonProperty(value = "network_token")
+            private NetworkToken networkToken;
+
+            /**
+             * Customizes the payer experience during the 3DS Approval for payment.
+             */
+            @Getter
+            @Setter
+            @NoArgsConstructor
+            @AllArgsConstructor
+            public static class ExperienceContext {
+                /**
+                 * The URL where the customer will be redirected upon successfully completing the 3DS challenge.
+                 */
+                @JsonProperty(value = "return_url")
+                private String returnUrl;
+
+                /**
+                 * The URL where the customer will be redirected upon cancelling the 3DS challenge.
+                 */
+                private String cancelUrl;
+            }
+
+            /**
+             * The billing address for this card. Supports only the address_line_1, address_line_2, admin_area_1, admin_area_2, postal_code, and country_code properties.
+             */
             @Getter
             @Setter
             @NoArgsConstructor
@@ -143,6 +186,100 @@ public class PaypalOrderCreationDTO {
                  */
                 @JsonProperty(value = "country_code")
                 private String countryCode;
+            }
+
+            @Getter
+            @Setter
+            @NoArgsConstructor
+            @AllArgsConstructor
+            public static class StoredCredentials {
+                /**
+                 * <p>The person or party who initiated or triggered the payment.</p>
+                 * <p>CUSTOMER : Payment is initiated with the active engagement of the customer. e.g. a customer checking out on a merchant website.</p>
+                 * <p>MERCHANT : Payment is initiated by merchant on behalf of the customer without the active engagement of customer. e.g. a merchant charging the monthly payment of a subscription to the customer.</p>
+                 */
+                @JsonProperty(value = "payment_initiator")
+                private String paymentInitiator = "CUSTOMER";
+
+                /**
+                 * <p>Indicates the type of the stored payment_source payment.</p>
+                 * <p>ONE_TIME : One Time payment such as online purchase or donation. (e.g. Checkout with one-click).</p>
+                 * <p>RECURRING : Payment which is part of a series of payments with fixed or variable amounts, following a fixed time interval. (e.g. Subscription payments).</p>
+                 * <p>UNSCHEDULED : Payment which is part of a series of payments that occur on a non-fixed schedule and/or have variable amounts. (e.g. Account Topup payments).</p>
+                 */
+                @JsonProperty(value = "payment_type")
+                private String paymentType = "ONE_TIME";
+            }
+
+            /**
+             * A 3rd party network token refers to a network token that the merchant provisions from and vaults with an external TSP (Token Service Provider) other than PayPal.
+             */
+            @Getter
+            @Setter
+            @NoArgsConstructor
+            @AllArgsConstructor
+            public static class NetworkToken {
+                /**
+                 * Third party network token number. required
+                 */
+                private String number;
+
+                /**
+                 * An Encrypted one-time use value that's sent along with Network Token. This field is not required to be present for recurring transactions.
+                 */
+                private String cryptogram;
+
+                /**
+                 * A TRID, or a Token Requestor ID, is an identifier used by merchants to request network tokens from card networks. A TRID is a precursor to obtaining a network token for a credit card primary account number (PAN), and will aid in enabling secure card on file (COF) payments and reducing fraud.
+                 */
+                @JsonProperty(value = "token_requestor_id")
+                private String tokenRequestorId;
+
+                /**
+                 * The card expiration year and month, in Internet date format.
+                 */
+                private String expiry;
+
+                /**
+                 * Electronic Commerce Indicator (ECI). The ECI value is part of the 2 data elements that indicate the transaction was processed electronically. This should be passed on the authorization transaction to the Gateway/Processor.
+                 */
+                @JsonProperty(value = "eci_flag")
+                private EciFlag eciFlag;
+
+                /**
+                 * Electronic Commerce Indicator (ECI). The ECI value is part of the 2 data elements that indicate the transaction was processed electronically. This should be passed on the authorization transaction to the Gateway/Processor.
+                 */
+                public enum EciFlag {
+                    /**
+                     * Mastercard non-3-D Secure transaction.
+                     */
+                    MASTERCARD_NON_3D_SECURE_TRANSACTION,
+
+                    /**
+                     * Mastercard attempted authentication transaction.
+                     */
+                    MASTERCARD_ATTEMPTED_AUTHENTICATION_TRANSACTION,
+
+                    /**
+                     * Mastercard fully authenticated transaction.
+                     */
+                    MASTERCARD_FULLY_AUTHENTICATED_TRANSACTION,
+
+                    /**
+                     * VISA, AMEX, JCB, DINERS CLUB fully authenticated transaction.
+                     */
+                    FULLY_AUTHENTICATED_TRANSACTION,
+
+                    /**
+                     * VISA, AMEX, JCB, DINERS CLUB attempted authentication transaction.
+                     */
+                    ATTEMPTED_AUTHENTICATION_TRANSACTION,
+
+                    /**
+                     * VISA, AMEX, JCB, DINERS CLUB non-3-D Secure transaction.
+                     */
+                    NON_3D_SECURE_TRANSACTION
+                }
             }
         }
 
