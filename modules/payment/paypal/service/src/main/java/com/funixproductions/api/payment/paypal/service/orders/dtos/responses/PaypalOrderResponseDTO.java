@@ -5,6 +5,7 @@ import com.funixproductions.api.payment.paypal.service.orders.dtos.PurchaseUnitD
 import com.funixproductions.api.payment.paypal.service.orders.dtos.requests.PaypalOrderCreationDTO;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 
@@ -50,6 +51,15 @@ public class PaypalOrderResponseDTO {
      */
     private Status status;
 
+    @Nullable
+    public String getApproveLink() {
+        return links.stream()
+                .filter(Link::isApproveLink)
+                .findFirst()
+                .map(Link::getHref)
+                .orElse(null);
+    }
+
     @Getter
     @Setter
     public static class Link {
@@ -64,6 +74,10 @@ public class PaypalOrderResponseDTO {
         private String rel;
 
         private String method;
+
+        public boolean isApproveLink() {
+            return "approve".equals(rel);
+        }
     }
 
     public enum Status {
