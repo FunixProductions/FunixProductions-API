@@ -37,6 +37,7 @@ public interface PaypalOrderClient {
     PaypalOrderResponseDTO getOrder(@PathVariable("id") String orderId);
 
     /**
+     * Use Authorize when you need to hold the funds temporarily, perhaps to confirm inventory or handle other aspects before finalizing the transaction.
      * Authorizes payment for an order. To successfully authorize payment for an order, the buyer must first approve the order or a valid payment_source must be provided in the request. A buyer can approve the order upon being redirected to the rel:approve URL that was returned in the HATEOAS links in the create order response.
      * @param paypalAuthSession An API-caller-provided JSON Web Token (JWT) assertion that identifies the merchant. For details, see PayPal-Auth-Assertion.
      * @param paypalClientMetadataId Verifies that the payment originates from a valid, user-consented device and application. Reduces fraud and decreases declines. Transactions that do not include a client metadata ID are not eligible for PayPal Seller Protection.
@@ -57,7 +58,7 @@ public interface PaypalOrderClient {
     );
 
     /**
-     * After authorize
+     * After authorize, Use Capture when you're ready to process the order immediately and want the funds transferred right away.
      * Captures payment for an order. To successfully capture payment for an order, the buyer must first approve the order or a valid payment_source must be provided in the request. A buyer can approve the order upon being redirected to the rel:approve URL that was returned in the HATEOAS links in the create order response.
      * @param paypalAuthSession An API-caller-provided JSON Web Token (JWT) assertion that identifies the merchant. For details, see PayPal-Auth-Assertion.
      * @param paypalClientMetadataId client metadata
