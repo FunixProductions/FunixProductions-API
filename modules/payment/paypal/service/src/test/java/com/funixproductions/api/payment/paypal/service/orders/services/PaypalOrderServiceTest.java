@@ -46,15 +46,15 @@ class PaypalOrderServiceTest {
     void testValidRoutes() throws ApiException {
         final PaypalOrderResponseDTO responseDTO = new PaypalOrderResponseDTO();
 
-        when(orderClient.createOrder(anyString(), anyString(), any(PaypalOrderCreationDTO.class))).thenReturn(responseDTO);
+        when(orderClient.createOrder(anyString(), any(PaypalOrderCreationDTO.class))).thenReturn(responseDTO);
         when(orderClient.getOrder(anyString())).thenReturn(responseDTO);
-        when(orderClient.captureOrder(anyString(), anyString(), anyString(), anyString())).thenReturn(responseDTO);
-        when(orderClient.authorizeOrder(anyString(), anyString(), anyString(), anyString())).thenReturn(responseDTO);
+        when(orderClient.captureOrder(anyString(), anyString())).thenReturn(responseDTO);
+        when(orderClient.authorizeOrder(anyString(), anyString())).thenReturn(responseDTO);
 
-        assertNotNull(service.createOrder("meta", "id", new PaypalOrderCreationDTO()));
+        assertNotNull(service.createOrder(anyString(), new PaypalOrderCreationDTO()));
         assertNotNull(service.getOrder("orderId"));
-        assertNotNull(service.authorizeOrder("authSession", "metaId", "requestId", "orderId"));
-        assertNotNull(service.captureOrder("authSession", "metaId", "requestid", "orderId"));
+        assertNotNull(service.authorizeOrder("requestId", "orderId"));
+        assertNotNull(service.captureOrder("requestid", "orderId"));
     }
 
     @Test
@@ -75,13 +75,13 @@ class PaypalOrderServiceTest {
                 new HashMap<>()
         );
 
-        doThrow(exception).when(orderClient).createOrder(anyString(), anyString(), any(PaypalOrderCreationDTO.class));
+        doThrow(exception).when(orderClient).createOrder(anyString(), any(PaypalOrderCreationDTO.class));
         doThrow(exception).when(orderClient).getOrder(anyString());
-        doThrow(exception).when(orderClient).captureOrder(anyString(), anyString(), anyString(), anyString());
-        doThrow(exception).when(orderClient).authorizeOrder(anyString(), anyString(), anyString(), anyString());
+        doThrow(exception).when(orderClient).captureOrder(anyString(), anyString());
+        doThrow(exception).when(orderClient).authorizeOrder(anyString(), anyString());
 
         assertThrows(ApiException.class, () -> {
-            service.createOrder("meta", "id", new PaypalOrderCreationDTO());
+            service.createOrder("id", new PaypalOrderCreationDTO());
         });
 
         assertThrows(ApiException.class, () -> {
@@ -89,11 +89,11 @@ class PaypalOrderServiceTest {
         });
 
         assertThrows(ApiException.class, () -> {
-            service.authorizeOrder("authSession", "metaId", "requestId", "orderId");
+            service.authorizeOrder("requestId", "orderId");
         });
 
         assertThrows(ApiException.class, () -> {
-            service.captureOrder("authSession", "metaId", "requestid", "orderId");
+            service.captureOrder("requestid", "orderId");
         });
 
     }

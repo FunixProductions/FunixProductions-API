@@ -80,6 +80,7 @@ public class PaypalOrderCreationDTO {
             /**
              * The three- or four-digit security code of the card. Also known as the CVV, CVC, CVN, CVE, or CID. This parameter cannot be present in the request when payment_initiator=MERCHANT.
              */
+            @JsonProperty(value = "security_code")
             private String securityCode;
 
             /**
@@ -113,6 +114,12 @@ public class PaypalOrderCreationDTO {
             /**
              * Customizes the payer experience during the 3DS Approval for payment.
              */
+            @JsonProperty(value = "experience_context")
+            protected ExperienceContext experienceContext;
+
+            /**
+             * Customizes the payer experience during the 3DS Approval for payment.
+             */
             @Getter
             @Setter
             @NoArgsConstructor
@@ -127,6 +134,7 @@ public class PaypalOrderCreationDTO {
                 /**
                  * The URL where the customer will be redirected upon cancelling the 3DS challenge.
                  */
+                @JsonProperty(value = "cancel_url")
                 private String cancelUrl;
             }
 

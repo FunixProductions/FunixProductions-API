@@ -19,11 +19,10 @@ public class PaypalOrderService implements PaypalOrderClient {
     private final PaypalFeignOrderClient orderClient;
 
     @Override
-    public PaypalOrderResponseDTO createOrder(@NonNull String metadataId,
-                                              @NonNull String requestId,
+    public PaypalOrderResponseDTO createOrder(@NonNull String requestId,
                                               @NonNull PaypalOrderCreationDTO request) {
         try {
-            return this.orderClient.createOrder(metadataId, requestId, request);
+            return this.orderClient.createOrder(requestId, request);
         } catch (FeignException e) {
             throw handleFeignException(e, "de créer");
         }
@@ -39,24 +38,20 @@ public class PaypalOrderService implements PaypalOrderClient {
     }
 
     @Override
-    public PaypalOrderResponseDTO authorizeOrder(@NonNull String paypalAuthSession,
-                                                 @NonNull String paypalClientMetadataId,
-                                                 @NonNull String requestId,
+    public PaypalOrderResponseDTO authorizeOrder(@NonNull String requestId,
                                                  @NonNull String orderId) {
         try {
-            return this.orderClient.authorizeOrder(paypalAuthSession, paypalClientMetadataId, requestId, orderId);
+            return this.orderClient.authorizeOrder(requestId, orderId);
         } catch (FeignException e) {
             throw handleFeignException(e, "d'autoriser");
         }
     }
 
     @Override
-    public PaypalOrderResponseDTO captureOrder(@NonNull String paypalAuthSession,
-                                               @NonNull String paypalClientMetadataId,
-                                               @NonNull String requestId,
+    public PaypalOrderResponseDTO captureOrder(@NonNull String requestId,
                                                @NonNull String orderId) {
         try {
-            return this.orderClient.captureOrder(paypalAuthSession, paypalClientMetadataId, requestId, orderId);
+            return this.orderClient.captureOrder(requestId, orderId);
         } catch (FeignException e) {
             throw handleFeignException(e, "de capturer");
         }
