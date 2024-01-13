@@ -51,7 +51,7 @@ class PaypalOrderServiceTest {
         when(orderClient.captureOrder(anyString(), anyString())).thenReturn(responseDTO);
         when(orderClient.authorizeOrder(anyString(), anyString())).thenReturn(responseDTO);
 
-        assertNotNull(service.createOrder(anyString(), new PaypalOrderCreationDTO()));
+        assertNotNull(service.createOrder("id", new PaypalOrderCreationDTO()));
         assertNotNull(service.getOrder("orderId"));
         assertNotNull(service.authorizeOrder("requestId", "orderId"));
         assertNotNull(service.captureOrder("requestid", "orderId"));
