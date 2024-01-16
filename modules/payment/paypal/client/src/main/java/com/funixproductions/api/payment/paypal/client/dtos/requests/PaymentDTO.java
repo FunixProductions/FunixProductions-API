@@ -27,6 +27,9 @@ public abstract class PaymentDTO {
     @NotNull(message = "Les unités d'achat sont obligatoires")
     private List<PurchaseUnitDTO> purchaseUnits;
 
+    @NotBlank(message = "L'origine de la requête est obligatoire")
+    private String originRequest;
+
     @Getter
     @Setter
     public static class UserPaymentDTO {
