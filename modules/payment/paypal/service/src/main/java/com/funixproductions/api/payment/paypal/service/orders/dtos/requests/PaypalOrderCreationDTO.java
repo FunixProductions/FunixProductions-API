@@ -300,6 +300,11 @@ public class PaypalOrderCreationDTO {
             @JsonProperty(value = "experience_context")
             private ExperienceContext experienceContext;
 
+            /**
+             * The address of the PayPal account holder. Also referred to as the customer (client) billing address.
+             */
+            private Address address;
+
             @Getter
             @Setter
             @NoArgsConstructor
@@ -515,6 +520,61 @@ public class PaypalOrderCreationDTO {
                      */
                     NO_PREFERENCE
                 }
+            }
+
+            @Getter
+            @Setter
+            @NoArgsConstructor
+            @AllArgsConstructor
+            public static class Address {
+
+                /**
+                 * The first line of the address, such as number and street, for example, 173 Drury Lane. Needed for data entry, and Compliance and Risk checks. This field needs to pass the full address.
+                 */
+                @JsonProperty(value = "address_line_1")
+                private String addressLine1;
+
+                /**
+                 * The second line of the address, such as suite or apartment number.
+                 */
+                @JsonProperty(value = "address_line_2")
+                private String addressLine2;
+
+                /**
+                 * A city, town, or village. Smaller than admin_area_level_1.
+                 */
+                @JsonProperty(value = "admin_area_2")
+                private String adminArea2;
+
+                /**
+                 * <div>
+                 *     <p>
+                 *         The highest-level sub-division in a country, which is usually a province, state, or ISO-3166-2 subdivision. This data is formatted for postal delivery, for example, CA and not California. Value, by country, is:
+                 *     </p>
+                 *
+                 *     <p>
+                 *         UK. A county.<br/>
+                 *         US. A state.<br/>
+                 *         Canada. A province.<br/>
+                 *         Japan. A prefecture.<br/>
+                 *         Switzerland. A kanton.<br/>
+                 *     </p>
+                 * </div>
+                 */
+                @JsonProperty(value = "admin_area_1")
+                private String adminArea1;
+
+                /**
+                 * The postal code, which is the ZIP code or equivalent. Typically required for countries with a postal code or an equivalent. <a href="https://en.wikipedia.org/wiki/Postal_code">See postal code.</a>
+                 */
+                @JsonProperty(value = "postal_code")
+                private String postalCode;
+
+                /**
+                 * The two-character <a href="https://developer.paypal.com/api/rest/reference/country-codes/">ISO 3166-1 code</a> that identifies the country or region.
+                 */
+                @JsonProperty(value = "country_code")
+                private String countryCode;
             }
         }
 

@@ -19,4 +19,7 @@ public interface PaypalOrderClient {
 
     @GetMapping("{id}")
     PaypalOrderDTO getOrder(@PathVariable("id") String orderId);
+
+    @PostMapping("{id}/capture")
+    PaypalOrderDTO captureOrder(@PathVariable("id") String orderId);
 }

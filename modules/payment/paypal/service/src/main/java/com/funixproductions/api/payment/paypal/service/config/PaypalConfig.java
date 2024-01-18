@@ -26,4 +26,9 @@ public class PaypalConfig {
      */
     private String paypalDomain;
 
+    /**
+     * Paypal email merchant email
+     */
+    private String paypalOwnerEmail;
+
 }

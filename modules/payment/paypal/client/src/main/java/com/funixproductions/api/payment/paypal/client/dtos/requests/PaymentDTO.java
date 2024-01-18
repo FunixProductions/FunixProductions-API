@@ -1,9 +1,7 @@
 package com.funixproductions.api.payment.paypal.client.dtos.requests;
 
 import com.funixproductions.core.tools.pdf.tools.VATInformation;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.lang.Nullable;
@@ -25,10 +23,33 @@ public abstract class PaymentDTO {
     private UserPaymentDTO user;
 
     @NotNull(message = "Les unités d'achat sont obligatoires")
+    @Size(min = 1, message = "Les unités d'achat sont obligatoires")
     private List<PurchaseUnitDTO> purchaseUnits;
 
     @NotBlank(message = "L'origine de la requête est obligatoire")
     private String originRequest;
+
+    @NotNull(message = "L'adresse de facturation est obligatoire")
+    private BillingAddressDTO billingAddress;
+
+    @Getter
+    @Setter
+    public static class BillingAddressDTO {
+        private String address;
+
+        private String city;
+
+        private String postalCode;
+
+        private String state;
+
+        /**
+         * The 2-character <a href="https://developer.paypal.com/api/rest/reference/country-codes/">ISO 3166-1</a> code that identifies the country or region.
+         */
+        @NotBlank(message = "Le code pays est obligatoire")
+        @Size(min = 2, max = 2, message = "Le code pays est invalide")
+        private String countryCode;
+    }
 
     @Getter
     @Setter
@@ -37,6 +58,7 @@ public abstract class PaymentDTO {
         private UUID userId;
 
         @NotNull(message = "L'email de l'utilisateur est obligatoire")
+        @Email(message = "L'email de l'utilisateur est invalide")
         private String userEmail;
 
         @NotNull(message = "Le nom d'utilisateur est obligatoire")
@@ -76,6 +98,7 @@ public abstract class PaymentDTO {
          * An array of items that the customer purchases from the merchant.
          */
         @NotNull(message = "Les articles de l'achat sont obligatoires")
+        @Size(min = 1, message = "Les articles de l'achat sont obligatoires")
         private List<Item> items;
 
         @Getter
@@ -92,6 +115,7 @@ public abstract class PaymentDTO {
              * The item quantity. Must be a whole number.
              */
             @NotNull(message = "La quantité de l'article est obligatoire")
+            @Min(value = 1, message = "La quantité de l'article doit être supérieure à 0")
             private Integer quantity;
 
             /**
@@ -105,6 +129,7 @@ public abstract class PaymentDTO {
              * The item price or rate per unit. Must be a valid positive number. For example, "12.34" to indicate twelve dollars and thirty-four cents.
              */
             @NotNull(message = "Le prix de l'article est obligatoire")
+            @Min(value = 0, message = "Le prix de l'article doit être supérieur à 0")
             private Double price;
 
             /**
