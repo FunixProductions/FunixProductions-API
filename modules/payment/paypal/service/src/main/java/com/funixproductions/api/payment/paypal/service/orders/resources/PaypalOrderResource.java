@@ -311,7 +311,7 @@ public class PaypalOrderResource implements PaypalOrderClient {
     }
 
     private static String parseDoubleToString(double value) {
-        return String.format("%.10f", value);
+        return String.format("%.2f", value).replace(",", ".");
     }
 
     private static String formatCreditCardExpiry(int year, int month) {

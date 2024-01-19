@@ -25,6 +25,7 @@ public class PaypalAccessTokenService {
         if (tokenAuth == null || !tokenAuth.isUsable()) {
             try {
                 this.tokenAuth = authClient.getToken("client_credentials");
+                log.info("Nouveau token paypal généré.");
             } catch (FeignException e) {
                 log.error("Impossible de générer un nouveau token paypal.", e);
             }

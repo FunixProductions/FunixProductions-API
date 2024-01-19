@@ -1,6 +1,7 @@
 package com.funixproductions.api.payment.paypal.client.dtos.requests;
 
 import com.funixproductions.core.tools.pdf.tools.VATInformation;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,12 +22,14 @@ public abstract class PaymentDTO {
     @NotBlank(message = "L'URL de retour valide est obligatoire")
     private String returnUrl;
 
+    @Valid
     @NotNull(message = "L'utilisateur est obligatoire")
     private UserPaymentDTO user;
 
+    @Valid
     @NotNull(message = "Les unités d'achat sont obligatoires")
     @Size(min = 1, message = "Les unités d'achat sont obligatoires")
-    private List<PurchaseUnitDTO> purchaseUnits;
+    private List<@Valid PurchaseUnitDTO> purchaseUnits;
 
     /**
      * Tax info, null if no tax
@@ -37,8 +40,10 @@ public abstract class PaymentDTO {
     @NotBlank(message = "L'origine de la requête est obligatoire")
     private String originRequest;
 
+    @Valid
     @NotNull(message = "L'adresse de facturation est obligatoire")
     private BillingAddressDTO billingAddress;
+
     @Getter
     @Setter
     @NoArgsConstructor
@@ -67,11 +72,11 @@ public abstract class PaymentDTO {
     public static class UserPaymentDTO {
         private UUID userId;
 
-        @NotNull(message = "L'email de l'utilisateur est obligatoire")
+        @NotBlank(message = "L'email de l'utilisateur est obligatoire")
         @Email(message = "L'email de l'utilisateur est invalide")
         private String userEmail;
 
-        @NotNull(message = "Le nom d'utilisateur est obligatoire")
+        @NotBlank(message = "Le nom d'utilisateur est obligatoire")
         private String username;
     }
 
@@ -103,15 +108,16 @@ public abstract class PaymentDTO {
          * The purchase description. The maximum length of the character is dependent on the type of characters used. The character length is specified assuming a US ASCII character. Depending on type of character; (e.g. accented character, Japanese characters) the number of characters that that can be specified as input might not equal the permissible max length.
          */
         @NotBlank(message = "La description de l'achat est obligatoire")
-        @Max(value = 127, message = "La description de l'achat ne doit pas dépasser 127 caractères")
+        @Size(max = 127, message = "La description de l'achat ne doit pas dépasser 127 caractères")
         private String description;
 
         /**
          * An array of items that the customer purchases from the merchant.
          */
+        @Valid
         @NotNull(message = "Les articles de l'achat sont obligatoires")
         @Size(min = 1, message = "Les articles de l'achat sont obligatoires")
-        private List<Item> items;
+        private List<@Valid Item> items;
 
         @Getter
         @Setter
@@ -122,7 +128,7 @@ public abstract class PaymentDTO {
              * The item name or title. The character length is 127 single-byte alphanumeric characters
              */
             @NotBlank(message = "Le nom de l'article est obligatoire")
-            @Max(value = 127, message = "Le nom de l'article ne doit pas dépasser 127 caractères")
+            @Size(max = 127, message = "Le nom de l'article ne doit pas dépasser 127 caractères")
             private String name;
 
             /**
@@ -136,7 +142,7 @@ public abstract class PaymentDTO {
              * The item description. The character length is 127 single-byte alphanumeric characters
              */
             @NotBlank(message = "La description de l'article est obligatoire")
-            @Max(value = 127, message = "La description de l'article ne doit pas dépasser 127 caractères")
+            @Size(max = 127, message = "La description de l'article ne doit pas dépasser 127 caractères")
             private String description;
 
             /**

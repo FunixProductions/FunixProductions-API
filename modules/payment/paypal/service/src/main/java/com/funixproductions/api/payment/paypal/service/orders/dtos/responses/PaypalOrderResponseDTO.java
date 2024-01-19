@@ -41,6 +41,7 @@ public class PaypalOrderResponseDTO {
     /**
      * The payment source used to fund the payment.
      */
+    @JsonProperty(value = "payment_source")
     private PaypalOrderCreationDTO.PaymentSource paymentSource;
 
     /**
