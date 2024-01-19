@@ -5,6 +5,7 @@ import com.funixproductions.api.payment.paypal.client.dtos.requests.PaymentDTO;
 import com.funixproductions.api.payment.paypal.client.dtos.requests.card.CreditCardPaymentDTO;
 import com.funixproductions.api.payment.paypal.client.dtos.requests.paypal.PaypalPaymentDTO;
 import com.funixproductions.api.payment.paypal.client.dtos.responses.PaypalOrderDTO;
+import com.funixproductions.api.payment.paypal.client.enums.OrderStatus;
 import com.funixproductions.api.payment.paypal.service.config.PaypalConfig;
 import com.funixproductions.api.payment.paypal.service.orders.dtos.PurchaseUnitDTO;
 import com.funixproductions.api.payment.paypal.service.orders.dtos.requests.PaypalOrderCreationDTO;
@@ -91,7 +92,7 @@ public class PaypalOrderResource implements PaypalOrderClient {
             OrderDTO orderDTO = this.paypalOrderCrudService.findByOrderId(orderId);
             final PaypalOrderResponseDTO response = paypalOrderService.captureOrder(orderDTO.getId().toString(), orderId);
 
-            if (response.getStatus() == PaypalOrderResponseDTO.OrderStatus.COMPLETED) {
+            if (response.getStatus() == OrderStatus.COMPLETED) {
                 orderDTO.setPaid(true);
                 orderDTO = this.paypalOrderCrudService.update(orderDTO);
             }
@@ -152,7 +153,7 @@ public class PaypalOrderResource implements PaypalOrderClient {
                 responseDTO.getCreateTime(),
                 responseDTO.getUpdateTime(),
                 responseDTO.getPaymentSource().getCard() != null,
-                PaypalOrderResponseDTO.OrderStatus.COMPLETED == responseDTO.getStatus(),
+                responseDTO.getStatus(),
                 purchaseUnitDTOS,
                 orderDTO.getVatInformation()
         );

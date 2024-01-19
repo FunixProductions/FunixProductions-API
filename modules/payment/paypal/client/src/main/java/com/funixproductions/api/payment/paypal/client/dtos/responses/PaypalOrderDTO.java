@@ -1,6 +1,7 @@
 package com.funixproductions.api.payment.paypal.client.dtos.responses;
 
 import com.funixproductions.api.payment.paypal.client.dtos.requests.PaymentDTO;
+import com.funixproductions.api.payment.paypal.client.enums.OrderStatus;
 import com.funixproductions.core.tools.pdf.tools.VATInformation;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,7 +33,7 @@ public class PaypalOrderDTO {
 
     private Boolean creditCardPayment;
 
-    private Boolean paid;
+    private OrderStatus status;
 
     private List<PaymentDTO.PurchaseUnitDTO> purchaseUnitDTOS;
 
