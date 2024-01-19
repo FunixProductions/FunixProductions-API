@@ -19,7 +19,7 @@ public abstract class PaymentDTO {
     @NotBlank(message = "L'URL de retour valide est obligatoire")
     private String returnUrl;
 
-    @Nullable
+    @NotNull(message = "L'utilisateur est obligatoire")
     private UserPaymentDTO user;
 
     @NotNull(message = "Les unités d'achat sont obligatoires")
@@ -60,7 +60,6 @@ public abstract class PaymentDTO {
     @Getter
     @Setter
     public static class UserPaymentDTO {
-        @NotNull(message = "L'ID de l'utilisateur est obligatoire")
         private UUID userId;
 
         @NotNull(message = "L'email de l'utilisateur est obligatoire")

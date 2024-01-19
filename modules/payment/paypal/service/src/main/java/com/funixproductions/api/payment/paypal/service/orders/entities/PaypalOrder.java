@@ -12,10 +12,10 @@ import lombok.Setter;
 @Entity(name = "paypal_orders")
 public class PaypalOrder extends ApiEntity {
 
-    @Column(name = "order_id")
+    @Column(name = "order_id", unique = true)
     private String orderId;
 
-    @Column(nullable = false, updatable = false, name = "user_id")
+    @Column(updatable = false, name = "user_id")
     private String userId;
 
     @Column(nullable = false, updatable = false, name = "user_email")
