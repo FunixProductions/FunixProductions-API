@@ -2,7 +2,9 @@ package com.funixproductions.api.payment.paypal.client.dtos.requests;
 
 import com.funixproductions.core.tools.pdf.tools.VATInformation;
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.lang.Nullable;
 
@@ -37,9 +39,10 @@ public abstract class PaymentDTO {
 
     @NotNull(message = "L'adresse de facturation est obligatoire")
     private BillingAddressDTO billingAddress;
-
     @Getter
     @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class BillingAddressDTO {
         private String address;
 
@@ -59,6 +62,8 @@ public abstract class PaymentDTO {
 
     @Getter
     @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class UserPaymentDTO {
         private UUID userId;
 
@@ -72,6 +77,8 @@ public abstract class PaymentDTO {
 
     @Getter
     @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class PurchaseUnitDTO {
         /**
          * The API caller-provided external ID for the purchase unit. Required for multiple purchase units when you must update the order through PATCH. If you omit this value and the order contains only one purchase unit, PayPal sets this value to default.
@@ -108,6 +115,8 @@ public abstract class PaymentDTO {
 
         @Getter
         @Setter
+        @NoArgsConstructor
+        @AllArgsConstructor
         public static class Item {
             /**
              * The item name or title. The character length is 127 single-byte alphanumeric characters

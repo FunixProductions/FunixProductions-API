@@ -155,7 +155,8 @@ public class PaypalOrderResource implements PaypalOrderClient {
                 responseDTO.getPaymentSource().getCard() != null,
                 responseDTO.getStatus(),
                 purchaseUnitDTOS,
-                orderDTO.getVatInformation()
+                orderDTO.getVatInformation(),
+                responseDTO.getApproveLink()
         );
     }
 

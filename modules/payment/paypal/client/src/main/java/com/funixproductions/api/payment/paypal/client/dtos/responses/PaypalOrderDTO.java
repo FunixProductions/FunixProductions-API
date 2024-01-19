@@ -39,4 +39,6 @@ public class PaypalOrderDTO {
 
     private VATInformation vatInformation;
 
+    private String urlClientRedirection;
+
 }
