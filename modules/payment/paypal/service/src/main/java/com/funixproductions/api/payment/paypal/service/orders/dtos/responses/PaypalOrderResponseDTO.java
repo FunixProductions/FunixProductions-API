@@ -49,7 +49,7 @@ public class PaypalOrderResponseDTO {
     /**
      * The order status.
      */
-    private Status status;
+    private OrderStatus status;
 
     @Nullable
     public String getApproveLink() {
@@ -60,27 +60,7 @@ public class PaypalOrderResponseDTO {
                 .orElse(null);
     }
 
-    @Getter
-    @Setter
-    public static class Link {
-        /**
-         * The complete target URL. To make the related call, combine the method with this <a href="https://tools.ietf.org/html/rfc6570">URI Template-formatted</a> link. For pre-processing, include the $, (, and ) characters. The href is the key HATEOAS component that links a completed call with a subsequent call.
-         */
-        private String href;
-
-        /**
-         * The link relation type, which serves as an ID for a link that unambiguously describes the semantics of the link. See Link Relations.
-         */
-        private String rel;
-
-        private String method;
-
-        public boolean isApproveLink() {
-            return "approve".equals(rel);
-        }
-    }
-
-    public enum Status {
+    public enum OrderStatus {
         /**
          * The order was created with the specified context.
          */
@@ -105,6 +85,26 @@ public class PaypalOrderResponseDTO {
          * The order requires an action from the payer (e.g. 3DS authentication). Redirect the payer to the "rel":"payer-action" HATEOAS link returned as part of the response prior to authorizing or capturing the order.
          */
         PAYER_ACTION_REQUIRED
+    }
+
+    @Getter
+    @Setter
+    public static class Link {
+        /**
+         * The complete target URL. To make the related call, combine the method with this <a href="https://tools.ietf.org/html/rfc6570">URI Template-formatted</a> link. For pre-processing, include the $, (, and ) characters. The href is the key HATEOAS component that links a completed call with a subsequent call.
+         */
+        private String href;
+
+        /**
+         * The link relation type, which serves as an ID for a link that unambiguously describes the semantics of the link. See Link Relations.
+         */
+        private String rel;
+
+        private String method;
+
+        public boolean isApproveLink() {
+            return "approve".equals(rel);
+        }
     }
 
 }

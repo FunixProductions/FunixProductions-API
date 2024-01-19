@@ -1,6 +1,7 @@
 package com.funixproductions.api.payment.paypal.service.orders.entities;
 
 import com.funixproductions.core.crud.dtos.ApiDTO;
+import com.funixproductions.core.tools.pdf.tools.VATInformation;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,5 +22,7 @@ public class OrderDTO extends ApiDTO {
     private Boolean cardPayment;
 
     private Boolean paid;
+
+    private VATInformation vatInformation;
 
 }

@@ -26,6 +26,12 @@ public abstract class PaymentDTO {
     @Size(min = 1, message = "Les unités d'achat sont obligatoires")
     private List<PurchaseUnitDTO> purchaseUnits;
 
+    /**
+     * Tax info, null if no tax
+     */
+    @Nullable
+    private VATInformation vatInformation;
+
     @NotBlank(message = "L'origine de la requête est obligatoire")
     private String originRequest;
 
@@ -132,11 +138,7 @@ public abstract class PaymentDTO {
             @Min(value = 0, message = "Le prix de l'article doit être supérieur à 0")
             private Double price;
 
-            /**
-             * Tax info, null if no tax
-             */
-            @Nullable
-            private VATInformation vatInformation;
+            private Double tax;
         }
 
     }

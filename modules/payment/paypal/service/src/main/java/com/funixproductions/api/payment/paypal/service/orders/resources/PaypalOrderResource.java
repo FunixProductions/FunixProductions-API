@@ -12,7 +12,11 @@ import com.funixproductions.api.payment.paypal.service.orders.dtos.responses.Pay
 import com.funixproductions.api.payment.paypal.service.orders.entities.OrderDTO;
 import com.funixproductions.api.payment.paypal.service.orders.services.PaypalOrderCrudService;
 import com.funixproductions.api.payment.paypal.service.orders.services.PaypalOrderService;
+import com.funixproductions.core.exceptions.ApiException;
+import com.funixproductions.core.tools.pdf.tools.VATInformation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,6 +25,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/paypal/orders")
 @RequiredArgsConstructor
@@ -32,33 +37,71 @@ public class PaypalOrderResource implements PaypalOrderClient {
 
     @Override
     public PaypalOrderDTO createCardOrder(CreditCardPaymentDTO creditCardPaymentDTO) {
-        final OrderDTO orderDTO = createOrderFromRequest(creditCardPaymentDTO);
-        final PaypalOrderResponseDTO response = paypalOrderService.createOrder(orderDTO.getId().toString(), createCardOrderDTO(creditCardPaymentDTO));
+        try {
+            OrderDTO orderDTO = createOrderFromRequest(creditCardPaymentDTO);
+            final PaypalOrderResponseDTO response = paypalOrderService.createOrder(orderDTO.getId().toString(), createCardOrderDTO(creditCardPaymentDTO));
 
-        orderDTO.setOrderId(response.getId());
-        this.paypalOrderCrudService.update(orderDTO);
+            orderDTO.setOrderId(response.getId());
+            orderDTO = this.paypalOrderCrudService.update(orderDTO);
+            return mapPaypalResponse(response, orderDTO);
+        } catch (ApiException apiException) {
+            throw apiException;
+        } catch (Exception e) {
+            log.error("Erreur interne lors de la création du paiement par carte.", e);
+            throw new ApiException("Erreur interne lors de la création du paiement par carte.", e);
+        }
     }
 
     @Override
     public PaypalOrderDTO createPaypalOrder(PaypalPaymentDTO paypalPaymentDTO) {
-        final OrderDTO orderDTO = createOrderFromRequest(paypalPaymentDTO);
-        final PaypalOrderResponseDTO response = paypalOrderService.createOrder(orderDTO.getId().toString(), createPaypalOrderDTO(paypalPaymentDTO));
+        try {
+            OrderDTO orderDTO = createOrderFromRequest(paypalPaymentDTO);
+            final PaypalOrderResponseDTO response = paypalOrderService.createOrder(orderDTO.getId().toString(), createPaypalOrderDTO(paypalPaymentDTO));
 
-        orderDTO.setOrderId(response.getId());
-        this.paypalOrderCrudService.update(orderDTO);
+            orderDTO.setOrderId(response.getId());
+            orderDTO = this.paypalOrderCrudService.update(orderDTO);
+
+            return mapPaypalResponse(response, orderDTO);
+        } catch (ApiException apiException) {
+            throw apiException;
+        } catch (Exception e) {
+            log.error("Erreur interne lors de la création du paiement via paypal.", e);
+            throw new ApiException("Erreur interne lors de la création du paiement via paypal.", e);
+        }
     }
 
     @Override
     public PaypalOrderDTO getOrder(String orderId) {
-        final OrderDTO orderDTO = this.paypalOrderCrudService.findByOrderId(orderId);
-        final PaypalOrderResponseDTO response = paypalOrderService.getOrder(orderId);
+        try {
+            final OrderDTO orderDTO = this.paypalOrderCrudService.findByOrderId(orderId);
+            final PaypalOrderResponseDTO response = paypalOrderService.getOrder(orderId);
+
+            return mapPaypalResponse(response, orderDTO);
+        } catch (ApiException apiException) {
+            throw apiException;
+        } catch (Exception e) {
+            log.error("Erreur interne lors de la récupération du paiement.", e);
+            throw new ApiException("Erreur interne lors de la récupération du paiement.", e);
+        }
     }
 
     @Override
     public PaypalOrderDTO captureOrder(String orderId) {
-        final OrderDTO orderDTO = this.paypalOrderCrudService.findByOrderId(orderId);
-        final PaypalOrderResponseDTO response = paypalOrderService.captureOrder(orderDTO.getId().toString(), orderId);
+        try {
+            OrderDTO orderDTO = this.paypalOrderCrudService.findByOrderId(orderId);
+            final PaypalOrderResponseDTO response = paypalOrderService.captureOrder(orderDTO.getId().toString(), orderId);
 
+            if (response.getStatus() == PaypalOrderResponseDTO.OrderStatus.COMPLETED) {
+                orderDTO.setPaid(true);
+                orderDTO = this.paypalOrderCrudService.update(orderDTO);
+            }
+            return mapPaypalResponse(response, orderDTO);
+        } catch (ApiException apiException) {
+            throw apiException;
+        } catch (Exception e) {
+            log.error("Erreur interne lors de la capture du paiement.", e);
+            throw new ApiException("Erreur interne lors de la capture du paiement.", e);
+        }
     }
 
     private OrderDTO createOrderFromRequest(PaymentDTO paymentDTO) {
@@ -71,6 +114,7 @@ public class PaypalOrderResource implements PaypalOrderClient {
             orderDTO.setUserEmail(userPaymentDTO.getUserEmail());
             orderDTO.setUsername(userPaymentDTO.getUsername());
         }
+        orderDTO.setVatInformation(paymentDTO.getVatInformation());
         orderDTO.setOriginRequest(paymentDTO.getOriginRequest());
         orderDTO.setPaid(false);
         orderDTO.setCardPayment(paymentDTO instanceof CreditCardPaymentDTO);
@@ -78,9 +122,45 @@ public class PaypalOrderResource implements PaypalOrderClient {
         return this.paypalOrderCrudService.create(orderDTO);
     }
 
+    private PaypalOrderDTO mapPaypalResponse(final PaypalOrderResponseDTO responseDTO, final OrderDTO orderDTO) {
+        final List<PaymentDTO.PurchaseUnitDTO> purchaseUnitDTOS = new ArrayList<>();
+
+        for (final PurchaseUnitDTO purchaseUnitDTO : responseDTO.getPurchaseUnits()) {
+            final PaymentDTO.PurchaseUnitDTO toAdd = new PaymentDTO.PurchaseUnitDTO();
+
+            toAdd.setCustomId(purchaseUnitDTO.getCustomId());
+            toAdd.setDescription(purchaseUnitDTO.getDescription());
+            toAdd.setReferenceId(purchaseUnitDTO.getReferenceId());
+            toAdd.setSoftDescriptor(purchaseUnitDTO.getSoftDescriptor());
+            toAdd.setItems(new ArrayList<>());
+
+            for (final PurchaseUnitDTO.Item item : purchaseUnitDTO.getItems()) {
+                final PaymentDTO.PurchaseUnitDTO.Item itemToAdd = new PaymentDTO.PurchaseUnitDTO.Item();
+
+                itemToAdd.setName(item.getName());
+                itemToAdd.setQuantity(Integer.parseInt(item.getQuantity()));
+                itemToAdd.setDescription(item.getDescription());
+                itemToAdd.setPrice(Double.parseDouble(item.getUnitAmount().getValue()));
+                itemToAdd.setTax(item.getTax() == null ? 0 : Double.parseDouble(item.getTax().getValue()));
+
+                toAdd.getItems().add(itemToAdd);
+            }
+        }
+
+        return new PaypalOrderDTO(
+                responseDTO.getId(),
+                responseDTO.getCreateTime(),
+                responseDTO.getUpdateTime(),
+                responseDTO.getPaymentSource().getCard() != null,
+                PaypalOrderResponseDTO.OrderStatus.COMPLETED == responseDTO.getStatus(),
+                purchaseUnitDTOS,
+                orderDTO.getVatInformation()
+        );
+    }
+
     private PaypalOrderCreationDTO createPaypalOrderDTO(final PaypalPaymentDTO paymentDTO) {
         final PaymentDTO.BillingAddressDTO billingAddressDTO = paymentDTO.getBillingAddress();
-        final PaypalOrderCreationDTO orderDTO = createBaseOrderDTO(paymentDTO.getPurchaseUnits());
+        final PaypalOrderCreationDTO orderDTO = createBaseOrderDTO(paymentDTO.getPurchaseUnits(), paymentDTO.getVatInformation());
         final PaypalOrderCreationDTO.PaymentSource paymentSource = new PaypalOrderCreationDTO.PaymentSource();
 
         final PaypalOrderCreationDTO.PaymentSource.Paypal paymentSourcePaypal = new PaypalOrderCreationDTO.PaymentSource.Paypal(
@@ -119,7 +199,7 @@ public class PaypalOrderResource implements PaypalOrderClient {
 
     private PaypalOrderCreationDTO createCardOrderDTO(final CreditCardPaymentDTO paymentDTO) {
         final PaymentDTO.BillingAddressDTO billingAddressDTO = paymentDTO.getBillingAddress();
-        final PaypalOrderCreationDTO orderDTO = createBaseOrderDTO(paymentDTO.getPurchaseUnits());
+        final PaypalOrderCreationDTO orderDTO = createBaseOrderDTO(paymentDTO.getPurchaseUnits(), paymentDTO.getVatInformation());
         final PaypalOrderCreationDTO.PaymentSource paymentSource = new PaypalOrderCreationDTO.PaymentSource();
 
         final PaypalOrderCreationDTO.PaymentSource.Card paymentSourceCard = new PaypalOrderCreationDTO.PaymentSource.Card(
@@ -148,23 +228,23 @@ public class PaypalOrderResource implements PaypalOrderClient {
         return orderDTO;
     }
 
-    private PaypalOrderCreationDTO createBaseOrderDTO(final List<PaymentDTO.PurchaseUnitDTO> purchaseUnits) {
+    private PaypalOrderCreationDTO createBaseOrderDTO(final List<PaymentDTO.PurchaseUnitDTO> purchaseUnits, @Nullable VATInformation vatInformation) {
         final PaypalOrderCreationDTO orderDTO = new PaypalOrderCreationDTO();
 
         orderDTO.setIntent(PaypalOrderCreationDTO.PaypalIntent.CAPTURE);
-        orderDTO.setPurchaseUnits(createPurchaseList(purchaseUnits));
+        orderDTO.setPurchaseUnits(createPurchaseList(purchaseUnits, vatInformation));
         return orderDTO;
     }
 
-    private List<PurchaseUnitDTO> createPurchaseList(final List<PaymentDTO.PurchaseUnitDTO> purchaseUnits) {
+    private List<PurchaseUnitDTO> createPurchaseList(final List<PaymentDTO.PurchaseUnitDTO> purchaseUnits, @Nullable VATInformation vatInformation) {
         final List<PurchaseUnitDTO> toSend = new ArrayList<>();
 
         for (final PaymentDTO.PurchaseUnitDTO purchase : purchaseUnits) {
             toSend.add(new PurchaseUnitDTO(
-                    initPurchaseAmount(purchase),
+                    initPurchaseAmount(purchase, vatInformation),
                     purchase.getCustomId(),
                     purchase.getDescription(),
-                    generateItems(purchase.getItems()),
+                    generateItems(purchase.getItems(), vatInformation),
                     new PurchaseUnitDTO.Payee(
                             this.paypalConfig.getPaypalOwnerEmail(),
                             null
@@ -177,7 +257,7 @@ public class PaypalOrderResource implements PaypalOrderClient {
         return toSend;
     }
 
-    private List<PurchaseUnitDTO.Item> generateItems(final List<PaymentDTO.PurchaseUnitDTO.Item> items) {
+    private List<PurchaseUnitDTO.Item> generateItems(final List<PaymentDTO.PurchaseUnitDTO.Item> items, @Nullable VATInformation vatInformation) {
         final List<PurchaseUnitDTO.Item> toSend = new ArrayList<>();
 
         for (final PaymentDTO.PurchaseUnitDTO.Item item : items) {
@@ -189,9 +269,9 @@ public class PaypalOrderResource implements PaypalOrderClient {
                             "EUR",
                             parseDoubleToString(item.getPrice())
                     ),
-                    item.getVatInformation() == null ? null : new PurchaseUnitDTO.Money(
+                    vatInformation == null ? null : new PurchaseUnitDTO.Money(
                             "EUR",
-                            parseDoubleToString(item.getPrice() * (item.getVatInformation().getVatRate() / 100))
+                            parseDoubleToString(item.getPrice() * (vatInformation.getVatRate() / 100))
                     ),
                     PurchaseUnitDTO.Category.DIGITAL_GOODS
             ));
@@ -199,7 +279,7 @@ public class PaypalOrderResource implements PaypalOrderClient {
         return toSend;
     }
 
-    private PurchaseUnitDTO.Amount initPurchaseAmount(final PaymentDTO.PurchaseUnitDTO purchaseUnitDTO) {
+    private PurchaseUnitDTO.Amount initPurchaseAmount(final PaymentDTO.PurchaseUnitDTO purchaseUnitDTO, @Nullable VATInformation vatInformation) {
         final PurchaseUnitDTO.Amount amount = new PurchaseUnitDTO.Amount();
         double totalHt = 0;
         double totalTaxes = 0;
@@ -207,8 +287,8 @@ public class PaypalOrderResource implements PaypalOrderClient {
         for (final PaymentDTO.PurchaseUnitDTO.Item item : purchaseUnitDTO.getItems()) {
             totalHt += item.getPrice() * item.getQuantity();
 
-            if (item.getVatInformation() != null) {
-                totalTaxes += (item.getPrice() * (item.getVatInformation().getVatRate() / 100)) * item.getQuantity();
+            if (vatInformation != null) {
+                totalTaxes += (item.getPrice() * (vatInformation.getVatRate() / 100)) * item.getQuantity();
             }
         }
 
