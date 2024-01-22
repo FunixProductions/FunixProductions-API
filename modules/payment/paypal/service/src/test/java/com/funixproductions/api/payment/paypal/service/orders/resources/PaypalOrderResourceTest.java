@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -105,7 +106,7 @@ class PaypalOrderResourceTest {
                 new PaypalOrderResponseDTO.PaymentSource.Card(
                         UUID.randomUUID().toString(),
                         UUID.randomUUID().toString(),
-                        UUID.randomUUID().toString(),
+                        new ArrayList<>(),
                         UUID.randomUUID().toString(),
                         UUID.randomUUID().toString(),
                         new PaypalOrderResponseDTO.PaymentSource.Card.AuthenticationResult(
