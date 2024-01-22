@@ -2,8 +2,6 @@ package com.funixproductions.api.payment.paypal.service.orders.clients;
 
 import com.funixproductions.api.payment.paypal.service.orders.dtos.requests.PaypalOrderCreationDTO;
 import com.funixproductions.api.payment.paypal.service.orders.dtos.responses.PaypalOrderResponseDTO;
-import feign.Headers;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,10 +14,6 @@ public interface PaypalOrderClient {
      * @return PaypalOrderResponseDTO response 201 created
      */
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Headers({
-            HttpHeaders.CONTENT_TYPE + ": " + MediaType.APPLICATION_JSON_VALUE,
-            "Prefer: return=representation"
-    })
     PaypalOrderResponseDTO createOrder(
             @RequestHeader(name = "PayPal-Request-Id") String requestId,
             @RequestBody PaypalOrderCreationDTO request
@@ -31,7 +25,6 @@ public interface PaypalOrderClient {
      * @return PaypalOrderResponseDTO response 200
      */
     @GetMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Headers(HttpHeaders.CONTENT_TYPE + ": " + MediaType.APPLICATION_JSON_VALUE)
     PaypalOrderResponseDTO getOrder(@PathVariable("id") String orderId);
 
     /**
@@ -41,11 +34,7 @@ public interface PaypalOrderClient {
      * @param orderId order id
      * @return data on order
      */
-    @PostMapping(value = "{id}/authorize", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Headers({
-            HttpHeaders.CONTENT_TYPE + ": " + MediaType.APPLICATION_JSON_VALUE,
-            "Prefer: return=representation"
-    })
+    @PostMapping(value = "{id}/authorize", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     PaypalOrderResponseDTO authorizeOrder(@RequestHeader(name = "PayPal-Request-Id") String requestId,
                                           @PathVariable("id") String orderId
     );
@@ -57,11 +46,7 @@ public interface PaypalOrderClient {
      * @param orderId order id
      * @return data on order
      */
-    @PostMapping(value = "{id}/capture", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Headers({
-            HttpHeaders.CONTENT_TYPE + ": " + MediaType.APPLICATION_JSON_VALUE,
-            "Prefer: return=representation"
-    })
+    @PostMapping(value = "{id}/capture", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     PaypalOrderResponseDTO captureOrder(@RequestHeader(name = "PayPal-Request-Id") String requestId,
                                         @PathVariable("id") String orderId
     );

@@ -64,6 +64,15 @@ public class PaypalOrderResponseDTO {
                 .orElse(null);
     }
 
+    @Nullable
+    public String getPayerActionLink() {
+        return links.stream()
+                .filter(Link::isPayerActionLink)
+                .findFirst()
+                .map(Link::getHref)
+                .orElse(null);
+    }
+
     @Getter
     @Setter
     @NoArgsConstructor
@@ -83,6 +92,10 @@ public class PaypalOrderResponseDTO {
 
         public boolean isApproveLink() {
             return "approve".equals(rel);
+        }
+
+        public boolean isPayerActionLink() {
+            return "payer-action".equals(rel);
         }
     }
 
