@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class UserJwtTokenFilter extends OncePerRequestFilter {
 
-    private final Cache<String, UserDTO> sessionsCache = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.MINUTES).build();
+    private final Cache<String, UserSession> sessionsCache = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.MINUTES).build();
     private final UserAuthClient userAuthClient;
     private final IPUtils ipUtils;
 
@@ -47,12 +47,11 @@ public class UserJwtTokenFilter extends OncePerRequestFilter {
         }
 
         try {
-            final UserDTO user = fetchActualUser(bearerTokenHeader);
-            final UserSession userSession = new UserSession(user, ipUtils.getClientIp(request), request);
+            final UserSession userSession = fetchActualUser(bearerTokenHeader, request);
             final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     userSession,
                     null,
-                    getAuthorities(user)
+                    getAuthorities(userSession.getUserDTO())
             );
 
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -72,13 +71,18 @@ public class UserJwtTokenFilter extends OncePerRequestFilter {
         return authorities;
     }
 
-    private UserDTO fetchActualUser(final String headerAuth) throws FeignException {
-        UserDTO userDTO = this.sessionsCache.getIfPresent(headerAuth);
+    private UserSession fetchActualUser(final String headerAuth,
+                                        final HttpServletRequest request) throws FeignException {
+        UserSession userSession = this.sessionsCache.getIfPresent(headerAuth);
 
-        if (userDTO == null) {
-            userDTO = this.userAuthClient.current(headerAuth);
-            this.sessionsCache.put(headerAuth, userDTO);
+        if (userSession == null) {
+            userSession = new UserSession(
+                    this.userAuthClient.current(headerAuth),
+                    ipUtils.getClientIp(request),
+                    request
+            );
+            this.sessionsCache.put(headerAuth, userSession);
         }
-        return userDTO;
+        return userSession;
     }
 }

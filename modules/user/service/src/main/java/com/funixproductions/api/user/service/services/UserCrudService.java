@@ -9,16 +9,19 @@ import com.funixproductions.api.user.service.mappers.UserMapper;
 import com.funixproductions.api.user.service.repositories.UserRepository;
 import com.funixproductions.core.crud.services.ApiService;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
+import com.funixproductions.core.exceptions.ApiNotFoundException;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -27,6 +30,8 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
     private final UserPasswordUtils passwordUtils;
     private final UserValidationAccountService validationAccountService;
     private final InternalGoogleAuthClient googleAuthClient;
+
+    private final Cache<Long, String> emailMapperCheck = CacheBuilder.newBuilder().expireAfterWrite(2, TimeUnit.MINUTES).build();
 
     public UserCrudService(UserMapper mapper,
                            UserRepository repository,
@@ -42,6 +47,7 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
     @Override
     public void beforeMappingToEntity(@NonNull Iterable<UserDTO> requestList) {
         final List<String> ids = new ArrayList<>();
+
         for (final UserDTO request : requestList) {
             if (request.getId() != null) {
                 ids.add(request.getId().toString());
@@ -56,9 +62,31 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
     }
 
     @Override
+    public void beforeSavingEntity(@NonNull Iterable<User> users) {
+        for (final User user : users) {
+            if (user.getId() != null && user.getEmail() != null) {
+                final String email = user.getEmail();
+                final Long id = user.getId();
+
+                this.emailMapperCheck.put(id, email);
+            }
+        }
+    }
+
+    @Override
     public void afterSavingEntity(@NonNull Iterable<User> entity) {
         for (final User user : entity) {
             if (Boolean.FALSE.equals(user.getValid())) {
+                this.emailMapperCheck.invalidate(user.getId());
+                this.validationAccountService.sendMailValidationRequest(user);
+                continue;
+            }
+
+            final String emailCache = this.emailMapperCheck.getIfPresent(user.getId());
+            if (emailCache != null && !emailCache.equals(user.getEmail())) {
+                this.emailMapperCheck.invalidate(user.getId());
+                user.setValid(false);
+                super.getRepository().save(user);
                 this.validationAccountService.sendMailValidationRequest(user);
             }
         }
@@ -73,11 +101,11 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
     }
 
     @Override
-    public User loadUserByUsername(String username) throws UsernameNotFoundException {
+    public User loadUserByUsername(String username) throws ApiNotFoundException {
         return super.getRepository()
                 .findByUsername(username)
                 .orElseThrow(
-                        () -> new UsernameNotFoundException(String.format("Utilisateur %s non trouvé", username))
+                        () -> new ApiNotFoundException(String.format("Utilisateur %s non trouvé", username))
                 );
     }
 

@@ -55,7 +55,7 @@ class PaypalOrderResourceTest {
         dto.setReturnUrl("http://localhost:8080/return");
         dto.setUser(new CreditCardPaymentDTO.UserPaymentDTO(
                 UUID.randomUUID(),
-                UUID.randomUUID().toString(),
+                UUID.randomUUID() + "@gmail.com",
                 UUID.randomUUID().toString()
         ));
         dto.setVatInformation(VATInformation.FRANCE);
@@ -214,7 +214,7 @@ class PaypalOrderResourceTest {
         dto.setReturnUrl("http://localhost:8080/return");
         dto.setUser(new PaypalPaymentDTO.UserPaymentDTO(
                 UUID.randomUUID(),
-                UUID.randomUUID().toString(),
+                UUID.randomUUID() + "@gmail.com",
                 UUID.randomUUID().toString()
         ));
         dto.setVatInformation(VATInformation.FRANCE);

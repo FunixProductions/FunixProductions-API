@@ -29,8 +29,8 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 public class UserAuthService {
-    private static final int MAX_ATTEMPT = 8;
-    private static final int COOLDOWN_REQUEST_SPAM = 15;
+    private static final int MAX_ATTEMPT = 15;
+    private static final int COOLDOWN_REQUEST_SPAM = 2;
 
     private final AuthenticationManager authenticationManager;
     private final IPUtils ipUtils;
@@ -68,7 +68,7 @@ public class UserAuthService {
     @Transactional
     public UserTokenDTO login(UserLoginDTO request, HttpServletRequest servletRequest) {
         if (isBlocked(servletRequest)) {
-            throw new ApiForbiddenException("Vous avez fait trop d'essais pour vous connecter. Votre accès est temporairement bloqué.");
+            throw new ApiForbiddenException("Vous avez fait trop d'essais pour vous connecter. Votre accès est temporairement bloqué. (2 minutes d'attente)");
         }
 
         try {

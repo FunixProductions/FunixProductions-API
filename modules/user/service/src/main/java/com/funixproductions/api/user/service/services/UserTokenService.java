@@ -6,6 +6,7 @@ import com.funixproductions.api.user.service.configs.UserConfiguration;
 import com.funixproductions.api.user.service.entities.User;
 import com.funixproductions.api.user.service.entities.UserSession;
 import com.funixproductions.api.user.service.entities.UserToken;
+import com.funixproductions.api.user.service.mappers.UserMapper;
 import com.funixproductions.api.user.service.mappers.UserTokenMapper;
 import com.funixproductions.api.user.service.repositories.UserRepository;
 import com.funixproductions.api.user.service.repositories.UserTokenRepository;
@@ -19,6 +20,7 @@ import com.funixproductions.core.tools.time.TimeUtils;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
+import io.jsonwebtoken.security.InvalidKeyException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
 import jakarta.transaction.Transactional;
@@ -46,17 +48,22 @@ public class UserTokenService extends ApiService<UserTokenDTO, UserToken, UserTo
     private final UserTokenRepository tokenRepository;
     private final UserTokenMapper tokenMapper;
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     private final SecretKey jwtSecretKey;
 
     public UserTokenService(UserTokenRepository tokenRepository,
                             UserTokenMapper tokenMapper,
                             UserRepository userRepository,
+                            UserMapper userMapper,
                             UserConfiguration userConfiguration) {
         super(tokenRepository, tokenMapper);
+
         this.tokenRepository = tokenRepository;
         this.tokenMapper = tokenMapper;
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
+
         this.jwtSecretKey = getJwtCryptKey(userConfiguration);
     }
 
@@ -89,16 +96,27 @@ public class UserTokenService extends ApiService<UserTokenDTO, UserToken, UserTo
         userToken.setUser(user);
         userToken.setUuid(UUID.randomUUID());
         userToken.setExpirationDate(expirationDate);
-        userToken.setToken(Jwts.builder()
-                .subject(userToken.getUuid().toString())
-                .issuer(ISSUER)
-                .issuedAt(new Date())
-                .expiration(expirationDate)
-                .signWith(jwtSecretKey)
-                .audience().add(user.getRole().getRole()).and()
-                .compact());
 
-        return tokenMapper.toDto(tokenRepository.save(userToken));
+        try {
+            userToken.setToken(Jwts.builder()
+                    .subject(userToken.getUuid().toString())
+                    .issuer(ISSUER)
+                    .issuedAt(new Date())
+                    .expiration(expirationDate)
+                    .audience()
+                    .add(user.getRole().getRole())
+                    .and()
+                    .claims()
+                    .add("user", this.userMapper.toDto(user))
+                    .and()
+                    .signWith(jwtSecretKey)
+                    .compact()
+            );
+
+            return tokenMapper.toDto(tokenRepository.save(userToken));
+        } catch (InvalidKeyException invalidKeyException) {
+            throw new ApiException("Erreur lors de la génération du token jwt.", invalidKeyException);
+        }
     }
 
     /**
@@ -118,13 +136,19 @@ public class UserTokenService extends ApiService<UserTokenDTO, UserToken, UserTo
      */
     @Nullable
     public User isTokenValid(final String token) {
-        try {
-            Jwts.parser()
-                    .decryptWith(jwtSecretKey)
-                            .build()
-                                    .parse(token);
+        if (Strings.isEmpty(token)) {
+            return null;
+        }
 
-            final UserToken userToken = getToken(token);
+        try {
+            final JwtParser jwtParser = Jwts.parser()
+                    .keyLocator(header -> jwtSecretKey)
+                    .requireIssuer(ISSUER)
+                    .build();
+
+            jwtParser.parse(token);
+
+            final UserToken userToken = getToken(token, jwtParser);
             if (userToken != null) {
                 return userToken.getUser();
             } else {
@@ -148,10 +172,8 @@ public class UserTokenService extends ApiService<UserTokenDTO, UserToken, UserTo
     }
 
     @Nullable
-    private UserToken getToken(final String token) {
-        final Claims claims = Jwts.parser()
-                .decryptWith(jwtSecretKey)
-                .build()
+    private UserToken getToken(final String token, final JwtParser jwtParser) {
+        final Claims claims = jwtParser
                 .parseSignedClaims(token)
                 .getPayload();
 
