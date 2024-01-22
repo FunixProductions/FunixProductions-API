@@ -18,9 +18,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -31,7 +29,7 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
     private final UserValidationAccountService validationAccountService;
     private final InternalGoogleAuthClient googleAuthClient;
 
-    private final Cache<Long, String> emailMapperCheck = CacheBuilder.newBuilder().expireAfterWrite(2, TimeUnit.MINUTES).build();
+    private final Cache<UUID, String> emailMapperCheck = CacheBuilder.newBuilder().expireAfterWrite(2, TimeUnit.MINUTES).build();
 
     public UserCrudService(UserMapper mapper,
                            UserRepository repository,
@@ -56,20 +54,13 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
         final Iterable<User> users = this.getRepository().findAllByUuidIn(ids);
 
         this.validAccountCheckerFilter(requestList, users);
+
+        for (final Map.Entry<UUID, String> entry : this.getEmailFromUserList(requestList).entrySet()) {
+            this.emailMapperCheck.put(entry.getKey(), entry.getValue());
+        }
+
         for (final UserDTO request : requestList) {
             this.checkUsernameFilter(request);
-        }
-    }
-
-    @Override
-    public void beforeSavingEntity(@NonNull Iterable<User> users) {
-        for (final User user : users) {
-            if (user.getId() != null && user.getEmail() != null) {
-                final String email = user.getEmail();
-                final Long id = user.getId();
-
-                this.emailMapperCheck.put(id, email);
-            }
         }
     }
 
@@ -77,17 +68,17 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
     public void afterSavingEntity(@NonNull Iterable<User> entity) {
         for (final User user : entity) {
             if (Boolean.FALSE.equals(user.getValid())) {
-                this.emailMapperCheck.invalidate(user.getId());
+                this.emailMapperCheck.invalidate(user.getUuid());
                 this.validationAccountService.sendMailValidationRequest(user);
-                continue;
-            }
+            } else {
+                final String emailCache = this.emailMapperCheck.getIfPresent(user.getUuid());
 
-            final String emailCache = this.emailMapperCheck.getIfPresent(user.getId());
-            if (emailCache != null && !emailCache.equals(user.getEmail())) {
-                this.emailMapperCheck.invalidate(user.getId());
-                user.setValid(false);
-                super.getRepository().save(user);
-                this.validationAccountService.sendMailValidationRequest(user);
+                if (emailCache != null && !emailCache.equals(user.getEmail())) {
+                    this.emailMapperCheck.invalidate(user.getUuid());
+                    user.setValid(false);
+                    super.getRepository().save(user);
+                    this.validationAccountService.sendMailValidationRequest(user);
+                }
             }
         }
     }
@@ -117,6 +108,23 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
             uuidsToRemove.add(user.getUuid().toString());
         }
         this.googleAuthClient.deleteAllByUserUuidIn(uuidsToRemove);
+    }
+
+    private Map<UUID, String> getEmailFromUserList(final Iterable<UserDTO> users) {
+        final List<String> ids = new ArrayList<>();
+        for (final UserDTO user : users) {
+            if (user.getId() != null) {
+                ids.add(user.getId().toString());
+            }
+        }
+
+        final Iterable<User> usersDatabase = super.getRepository().findAllByUuidIn(ids);
+        final Map<UUID, String> emailMapper = new HashMap<>();
+
+        for (final User user : usersDatabase) {
+            emailMapper.put(user.getUuid(), user.getEmail());
+        }
+        return emailMapper;
     }
 
     private void validAccountCheckerFilter(final Iterable<UserDTO> requestList, final Iterable<User> users) {
