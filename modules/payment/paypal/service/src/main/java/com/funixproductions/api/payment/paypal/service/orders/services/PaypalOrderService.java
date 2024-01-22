@@ -58,7 +58,11 @@ public class PaypalOrderService implements PaypalOrderClient {
     }
 
     private ApiException handleFeignException(final FeignException e, final String action) {
-        log.error("Impossible {} un ordre d'achat avec PayPal", action, e);
+        final int errorCode = e.status();
+
+        log.error("Impossible {} un ordre d'achat avec PayPal. Message Erreur {}", action, e.getMessage(), e);
+
+        if (errorCode)
         throw new ApiException(String.format("Impossible %s un ordre d'achat avec PayPal. Veuillez recommencer ou envoyer un mail à contact@funixproductions.com", action), e);
     }
 }

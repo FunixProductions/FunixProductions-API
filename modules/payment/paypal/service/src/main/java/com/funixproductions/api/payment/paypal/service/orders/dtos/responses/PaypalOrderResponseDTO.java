@@ -47,7 +47,7 @@ public class PaypalOrderResponseDTO {
      * An array of purchase units. Each purchase unit establishes a contract between a customer and merchant. Each purchase unit represents either a full or partial order that the customer intends to purchase from the merchant.
      */
     @JsonProperty(value = "purchase_units")
-    private List<PurchaseUnitDTO> purchaseUnits;
+    private List<PurchaseUnitResponse> purchaseUnits;
 
     /**
      * The order status.
@@ -70,6 +70,72 @@ public class PaypalOrderResponseDTO {
                 .findFirst()
                 .map(Link::getHref)
                 .orElse(null);
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class PurchaseUnitResponse extends PurchaseUnitDTO {
+
+        private Payments payments;
+
+        @Getter
+        @Setter
+        @NoArgsConstructor
+        @AllArgsConstructor
+        public static class Payments {
+
+            /**
+             * An array of authorized payments for a purchase unit. A purchase unit can have zero or more authorized payments.
+             */
+            private List<Authorization> authorizations;
+
+            @Getter
+            @Setter
+            @NoArgsConstructor
+            @AllArgsConstructor
+            public static class Authorization {
+
+                /**
+                 * The PayPal-generated ID for the authorized payment.
+                 */
+                private String id;
+
+                /**
+                 * The status for the authorized payment.
+                 */
+                private Status status;
+
+                public enum Status {
+                    /**
+                     * The authorized payment is created. No captured payments have been made for this authorized payment.
+                     */
+                    CREATED,
+                    /**
+                     * The authorized payment has one or more captures against it. The sum of these captured payments is greater than the amount of the original authorized payment.
+                     */
+                    CAPTURED,
+                    /**
+                     * PayPal cannot authorize funds for this authorized payment.
+                     */
+                    DENIED,
+                    /**
+                     * A captured payment was made for the authorized payment for an amount that is less than the amount of the original authorized payment.
+                     */
+                    PARTIALLY_CAPTURED,
+                    /**
+                     * The authorized payment was voided. No more captured payments can be made against this authorized payment.
+                     */
+                    VOIDED,
+                    /**
+                     * The created authorization is in pending state. For more information, see status.details.
+                     */
+                    PENDING
+                }
+            }
+
+        }
+
     }
 
     @Getter
