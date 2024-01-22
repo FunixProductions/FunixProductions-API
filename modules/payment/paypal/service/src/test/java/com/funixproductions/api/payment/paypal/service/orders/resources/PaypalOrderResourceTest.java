@@ -6,7 +6,6 @@ import com.funixproductions.api.payment.paypal.client.dtos.requests.paypal.Paypa
 import com.funixproductions.api.payment.paypal.client.dtos.responses.PaypalOrderDTO;
 import com.funixproductions.api.payment.paypal.client.enums.OrderStatus;
 import com.funixproductions.api.payment.paypal.service.orders.dtos.PurchaseUnitDTO;
-import com.funixproductions.api.payment.paypal.service.orders.dtos.requests.PaypalOrderCreationDTO;
 import com.funixproductions.api.payment.paypal.service.orders.dtos.responses.PaypalOrderResponseDTO;
 import com.funixproductions.api.payment.paypal.service.orders.services.PaypalOrderService;
 import com.funixproductions.core.test.beans.JsonHelper;
@@ -102,63 +101,71 @@ class PaypalOrderResourceTest {
                         "GET"
                 )
         ));
-        responseDTO.setPaymentSource(new PaypalOrderCreationDTO.PaymentSource(
-                null,
-                new PaypalOrderCreationDTO.PaymentSource.Card(
+        responseDTO.setPaymentSource(new PaypalOrderResponseDTO.PaymentSource(
+                new PaypalOrderResponseDTO.PaymentSource.Card(
                         UUID.randomUUID().toString(),
                         UUID.randomUUID().toString(),
                         UUID.randomUUID().toString(),
                         UUID.randomUUID().toString(),
-                        null,
-                        null,
-                        null,
+                        UUID.randomUUID().toString(),
+                        new PaypalOrderResponseDTO.PaymentSource.Card.AuthenticationResult(
+                                PaypalOrderResponseDTO.PaymentSource.Card.AuthenticationResult.LiabilityShift.NO,
+                                new PaypalOrderResponseDTO.PaymentSource.Card.AuthenticationResult.ThreeDSecure(
+                                        PaypalOrderResponseDTO.PaymentSource.Card.AuthenticationResult.ThreeDSecure.AuthenticationStatus.A,
+                                        PaypalOrderResponseDTO.PaymentSource.Card.AuthenticationResult.ThreeDSecure.EnrollmentStatus.B
+                                )
+                        ),
+                        new PaypalOrderResponseDTO.PaymentSource.Card.BinDetails(
+                                UUID.randomUUID().toString(),
+                                UUID.randomUUID().toString(),
+                                UUID.randomUUID().toString()
+                        )
+                ),
+                null
+        ));
+        responseDTO.setStatus(OrderStatus.CREATED);
+
+        final PaypalOrderResponseDTO.PurchaseUnitResponse purchaseUnitResponse = new PaypalOrderResponseDTO.PurchaseUnitResponse();
+        purchaseUnitResponse.setAmount(new PurchaseUnitDTO.Amount(
+                "EUR",
+                "100.0",
+                new PurchaseUnitDTO.Amount.Breakdown(
+                        new PurchaseUnitDTO.Money(
+                                "EUR",
+                                "100.0"
+                        ),
+                        new PurchaseUnitDTO.Money(
+                                "EUR",
+                                "0.0"
+                        ),
                         null
                 )
         ));
-        responseDTO.setStatus(OrderStatus.CREATED);
-        responseDTO.setPurchaseUnits(List.of(
-                new PurchaseUnitDTO(
-                        new PurchaseUnitDTO.Amount(
+        purchaseUnitResponse.setCustomId(UUID.randomUUID().toString());
+        purchaseUnitResponse.setDescription(UUID.randomUUID().toString());
+        purchaseUnitResponse.setItems(List.of(
+                new PurchaseUnitDTO.Item(
+                        UUID.randomUUID().toString(),
+                        "10",
+                        UUID.randomUUID().toString(),
+                        new PurchaseUnitDTO.Money(
                                 "EUR",
-                                "100.0",
-                                new PurchaseUnitDTO.Amount.Breakdown(
-                                        new PurchaseUnitDTO.Money(
-                                                "EUR",
-                                                "100.0"
-                                        ),
-                                        new PurchaseUnitDTO.Money(
-                                                "EUR",
-                                                "0.0"
-                                        ),
-                                        null
-                                )
+                                "10.0"
                         ),
-                        UUID.randomUUID().toString(),
-                        UUID.randomUUID().toString(),
-                        List.of(
-                                new PurchaseUnitDTO.Item(
-                                        UUID.randomUUID().toString(),
-                                        "10",
-                                        UUID.randomUUID().toString(),
-                                        new PurchaseUnitDTO.Money(
-                                                "EUR",
-                                                "10.0"
-                                        ),
-                                        new PurchaseUnitDTO.Money(
-                                                "EUR",
-                                                "0.0"
-                                        ),
-                                        PurchaseUnitDTO.Category.DIGITAL_GOODS
-                                )
+                        new PurchaseUnitDTO.Money(
+                                "EUR",
+                                "0.0"
                         ),
-                        new PurchaseUnitDTO.Payee(
-                                UUID.randomUUID().toString(),
-                                null
-                        ),
-                        UUID.randomUUID().toString(),
-                        UUID.randomUUID().toString()
+                        PurchaseUnitDTO.Category.DIGITAL_GOODS
                 )
         ));
+        purchaseUnitResponse.setPayee(new PurchaseUnitDTO.Payee(
+                UUID.randomUUID().toString(),
+                null
+        ));
+        purchaseUnitResponse.setReferenceId(UUID.randomUUID().toString());
+        purchaseUnitResponse.setSoftDescriptor(UUID.randomUUID().toString());
+        responseDTO.setPurchaseUnits(List.of(purchaseUnitResponse));
 
         when(this.service.createOrder(any(), any())).thenReturn(responseDTO);
         MvcResult mvcResult = mockMvc.perform(post("/paypal/orders/card")
@@ -253,81 +260,62 @@ class PaypalOrderResourceTest {
                         "GET"
                 )
         ));
-        responseDTO.setPaymentSource(new PaypalOrderCreationDTO.PaymentSource(
-                new PaypalOrderCreationDTO.PaymentSource.Paypal(
-                        new PaypalOrderCreationDTO.PaymentSource.Paypal.ExperienceContext(
-                                UUID.randomUUID().toString(),
-                                UUID.randomUUID().toString(),
-                                UUID.randomUUID().toString(),
-                                PaypalOrderCreationDTO.PaymentSource.Paypal.ExperienceContext.LandingPage.LOGIN,
-                                "FR",
-                                new PaypalOrderCreationDTO.PaymentSource.Paypal.ExperienceContext.PaymentMethod(
-                                        PaypalOrderCreationDTO.PaymentSource.Paypal.ExperienceContext.PaymentMethod.PayeePreferred.IMMEDIATE_PAYMENT_REQUIRED,
-                                        PaypalOrderCreationDTO.PaymentSource.Paypal.ExperienceContext.PaymentMethod.StandardEntryClassCode.WEB
-                                ),
-                                PaypalOrderCreationDTO.PaymentSource.Paypal.ExperienceContext.ShippingPreference.NO_SHIPPING,
-                                new PaypalOrderCreationDTO.PaymentSource.Paypal.ExperienceContext.StoredPaymentSource(
-                                        PaypalOrderCreationDTO.PaymentSource.Paypal.ExperienceContext.StoredPaymentSource.PaymentInitiator.CUSTOMER,
-                                        PaypalOrderCreationDTO.PaymentSource.Paypal.ExperienceContext.StoredPaymentSource.PaymentType.ONE_TIME,
-                                        PaypalOrderCreationDTO.PaymentSource.Paypal.ExperienceContext.StoredPaymentSource.Usage.FIRST
-                                ),
-                                PaypalOrderCreationDTO.PaymentSource.Paypal.ExperienceContext.UserAction.PAY_NOW
-                        ),
-                        new PaypalOrderCreationDTO.PaymentSource.Paypal.Address(
-                                UUID.randomUUID().toString(),
-                                UUID.randomUUID().toString(),
-                                UUID.randomUUID().toString(),
-                                UUID.randomUUID().toString(),
-                                UUID.randomUUID().toString(),
-                                "FR"
-                        )
-                ),
-                null
-        ));
-        responseDTO.setStatus(OrderStatus.CREATED);
-        responseDTO.setPurchaseUnits(List.of(
-                new PurchaseUnitDTO(
-                        new PurchaseUnitDTO.Amount(
-                                "EUR",
-                                "100.0",
-                                new PurchaseUnitDTO.Amount.Breakdown(
-                                        new PurchaseUnitDTO.Money(
-                                                "EUR",
-                                                "100.0"
-                                        ),
-                                        new PurchaseUnitDTO.Money(
-                                                "EUR",
-                                                "0.0"
-                                        ),
-                                        null
-                                )
-                        ),
+        responseDTO.setPaymentSource(new PaypalOrderResponseDTO.PaymentSource(
+                null,
+                new PaypalOrderResponseDTO.PaymentSource.PayPal(
+                        PaypalOrderResponseDTO.PaymentSource.PayPal.AccountStatus.VERIFIED,
                         UUID.randomUUID().toString(),
                         UUID.randomUUID().toString(),
-                        List.of(
-                                new PurchaseUnitDTO.Item(
-                                        UUID.randomUUID().toString(),
-                                        "10",
-                                        UUID.randomUUID().toString(),
-                                        new PurchaseUnitDTO.Money(
-                                                "EUR",
-                                                "10.0"
-                                        ),
-                                        new PurchaseUnitDTO.Money(
-                                                "EUR",
-                                                "0.0"
-                                        ),
-                                        PurchaseUnitDTO.Category.DIGITAL_GOODS
-                                )
-                        ),
-                        new PurchaseUnitDTO.Payee(
+                        new PaypalOrderResponseDTO.PaymentSource.PayPal.Name(
                                 UUID.randomUUID().toString(),
-                                null
+                                UUID.randomUUID().toString()
                         ),
-                        UUID.randomUUID().toString(),
                         UUID.randomUUID().toString()
                 )
         ));
+        responseDTO.setStatus(OrderStatus.CREATED);
+
+        final PaypalOrderResponseDTO.PurchaseUnitResponse purchaseUnitResponse = new PaypalOrderResponseDTO.PurchaseUnitResponse();
+        purchaseUnitResponse.setAmount(new PurchaseUnitDTO.Amount(
+                "EUR",
+                "100.0",
+                new PurchaseUnitDTO.Amount.Breakdown(
+                        new PurchaseUnitDTO.Money(
+                                "EUR",
+                                "100.0"
+                        ),
+                        new PurchaseUnitDTO.Money(
+                                "EUR",
+                                "0.0"
+                        ),
+                        null
+                )
+        ));
+        purchaseUnitResponse.setCustomId(UUID.randomUUID().toString());
+        purchaseUnitResponse.setDescription(UUID.randomUUID().toString());
+        purchaseUnitResponse.setItems(List.of(
+                new PurchaseUnitDTO.Item(
+                        UUID.randomUUID().toString(),
+                        "10",
+                        UUID.randomUUID().toString(),
+                        new PurchaseUnitDTO.Money(
+                                "EUR",
+                                "10.0"
+                        ),
+                        new PurchaseUnitDTO.Money(
+                                "EUR",
+                                "0.0"
+                        ),
+                        PurchaseUnitDTO.Category.DIGITAL_GOODS
+                )
+        ));
+        purchaseUnitResponse.setPayee(new PurchaseUnitDTO.Payee(
+                UUID.randomUUID().toString(),
+                null
+        ));
+        purchaseUnitResponse.setReferenceId(UUID.randomUUID().toString());
+        purchaseUnitResponse.setSoftDescriptor(UUID.randomUUID().toString());
+        responseDTO.setPurchaseUnits(List.of(purchaseUnitResponse));
 
         when(this.service.createOrder(any(), any())).thenReturn(responseDTO);
         MvcResult mvcResult = mockMvc.perform(post("/paypal/orders/paypal")
