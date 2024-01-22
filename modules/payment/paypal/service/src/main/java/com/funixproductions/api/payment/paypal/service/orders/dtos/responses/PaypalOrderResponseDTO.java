@@ -13,6 +13,8 @@ import java.util.List;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class PaypalOrderResponseDTO {
 
     /**
@@ -194,7 +196,7 @@ public class PaypalOrderResponseDTO {
              * Array of brands or networks associated with the card.
              */
             @JsonProperty(value = "available_networks")
-            private String availableNetworks;
+            private List<String> availableNetworks;
 
             /**
              * The card type. Valid values: `visa`, `mastercard`, `discover`, `amex`, `jcb`, `maestro`.

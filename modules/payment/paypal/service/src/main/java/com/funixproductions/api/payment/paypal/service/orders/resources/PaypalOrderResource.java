@@ -45,6 +45,7 @@ public class PaypalOrderResource implements PaypalOrderClient {
             orderDTO.setOrderId(response.getId());
             orderDTO = this.paypalOrderCrudService.update(orderDTO);
 
+            log.info("Order credit card created: from: {} user: {} order id: {}", creditCardPaymentDTO.getOriginRequest(), creditCardPaymentDTO.getUser().toString(), response.getId());
             return mapPaypalResponse(response, orderDTO);
         } catch (ApiException apiException) {
             throw apiException;
@@ -63,6 +64,7 @@ public class PaypalOrderResource implements PaypalOrderClient {
             orderDTO.setOrderId(response.getId());
             orderDTO = this.paypalOrderCrudService.update(orderDTO);
 
+            log.info("Order paypal created: from: {} user: {} order id: {}", paypalPaymentDTO.getOriginRequest(), paypalPaymentDTO.getUser().toString(), response.getId());
             return mapPaypalResponse(response, orderDTO);
         } catch (ApiException apiException) {
             throw apiException;
@@ -97,6 +99,8 @@ public class PaypalOrderResource implements PaypalOrderClient {
                 orderDTO.setPaid(true);
                 orderDTO = this.paypalOrderCrudService.update(orderDTO);
             }
+
+            log.info("Order capture sended: order id: {} status: {}", response.getId(), response.getStatus());
             return mapPaypalResponse(response, orderDTO);
         } catch (ApiException apiException) {
             throw apiException;

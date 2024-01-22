@@ -75,7 +75,7 @@ public class PaypalOrderService implements PaypalOrderClient {
                 return new ApiBadRequestException(finalMessage, e);
             }
         } catch (Exception ex) {
-            log.error("ERREUR GESTION : Impossible {} un ordre d'achat avec PayPal. Message Erreur {}", action, e.getMessage(), e);
+            log.error("ERREUR GESTION : Impossible {} un ordre d'achat avec PayPal. Message Erreur {} ContentUTF: {}", action, e.getMessage(), e.contentUTF8(), e);
             throw new ApiException(String.format("Impossible %s un ordre d'achat avec PayPal. Veuillez recommencer ou envoyer un mail à contact@funixproductions.com", action), e);
         }
     }

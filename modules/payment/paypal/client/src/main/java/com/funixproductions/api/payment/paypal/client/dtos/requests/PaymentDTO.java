@@ -78,6 +78,15 @@ public abstract class PaymentDTO {
 
         @NotBlank(message = "Le nom d'utilisateur est obligatoire")
         private String username;
+
+        @Override
+        public String toString() {
+            return "UserPaymentDTO{" +
+                    "userId=" + userId +
+                    ", userEmail='" + userEmail + '\'' +
+                    ", username='" + username + '\'' +
+                    '}';
+        }
     }
 
     @Getter
