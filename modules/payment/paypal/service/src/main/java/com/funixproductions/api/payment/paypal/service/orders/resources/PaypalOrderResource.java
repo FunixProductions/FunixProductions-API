@@ -44,6 +44,7 @@ public class PaypalOrderResource implements PaypalOrderClient {
 
             orderDTO.setOrderId(response.getId());
             orderDTO = this.paypalOrderCrudService.update(orderDTO);
+
             return mapPaypalResponse(response, orderDTO);
         } catch (ApiException apiException) {
             throw apiException;
@@ -135,6 +136,9 @@ public class PaypalOrderResource implements PaypalOrderClient {
             toAdd.setSoftDescriptor(purchaseUnitDTO.getSoftDescriptor());
             toAdd.setItems(new ArrayList<>());
 
+            if (purchaseUnitDTO.getItems() == null) {
+                continue;
+            }
             for (final PurchaseUnitDTO.Item item : purchaseUnitDTO.getItems()) {
                 final PaymentDTO.PurchaseUnitDTO.Item itemToAdd = new PaymentDTO.PurchaseUnitDTO.Item();
 
@@ -154,7 +158,7 @@ public class PaypalOrderResource implements PaypalOrderClient {
                 responseDTO.getId(),
                 responseDTO.getCreateTime(),
                 responseDTO.getUpdateTime(),
-                responseDTO.getPaymentSource().getCard() != null,
+                responseDTO.getPaymentSource() == null || responseDTO.getPaymentSource().getCard() != null,
                 responseDTO.getStatus(),
                 purchaseUnitDTOS,
                 orderDTO.getVatInformation(),
