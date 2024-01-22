@@ -61,7 +61,7 @@ class UserValidAccountResourceTest extends UserTestComponent {
         mockMvc.perform(get("/user/auth/valid-account?token=" + userValidAccountToken.getValidationToken())).andExpect(status().isOk());
 
         final UserDTO userDTO = jsonHelper.fromJson(mockMvc.perform(get("/user/auth/current")
-                        .header("Authorization", "Bearer " + token.getToken()))
+                        .header("Authorization", "Bearer " + loginUser(user).getToken()))
                         .andExpect(status().isOk())
                         .andReturn().getResponse().getContentAsString(), UserDTO.class);
 
