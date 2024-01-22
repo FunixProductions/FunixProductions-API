@@ -146,6 +146,8 @@ public class PaypalOrderResource implements PaypalOrderClient {
 
                 toAdd.getItems().add(itemToAdd);
             }
+
+            purchaseUnitDTOS.add(toAdd);
         }
 
         return new PaypalOrderDTO(
