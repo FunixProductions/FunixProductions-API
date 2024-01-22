@@ -64,31 +64,11 @@ public class PaypalOrderService implements PaypalOrderClient {
     private ApiException handleFeignException(final FeignException e, final String action) {
         try {
             final PaypalOrderErrorResponse error = gson.fromJson(e.contentUTF8(), PaypalOrderErrorResponse.class);
-            final StringBuilder message = new StringBuilder("Erreur avec paypal : ");
+            final String errorMessage = buildErrorMessage(error);
 
-            if (error != null) {
-
-                if (error.getName())
-                message.append(error.getName().getFrMessage());
-
-                if (error.getDetails() != null) {
-                    message.append(" : ");
-                    for (PaypalOrderErrorResponse.Details detail : error.getDetails()) {
-                        if (detail.getIssue() == null) {
-                            message.append(detail.getDescription()).append(" ");
-                        } else {
-                            message.append(detail.getIssue().getFrMessage()).append(" ");
-                        }
-                    }
-                }
-            } else {
-                message.append("Impossible de récupérer le message d'erreur.");
-            }
-
-            final String errorMessage = message.toString();
             log.error("Impossible {} un ordre d'achat avec PayPal. Message Erreur {}. MessageBuilder: {}", action, e.getMessage(), errorMessage, e);
 
-            final String finalMessage = String.format("%sEnvoyez un email à contact@funixproductions.com en cas de besoin.", errorMessage);
+            final String finalMessage = String.format("%s Envoyez un email à contact@funixproductions.com en cas de besoin.", errorMessage);
             if (error == null || error.getName() == null || !error.getName().equals(PaypalOrderErrorResponse.ErrorCode.UNPROCESSABLE_ENTITY)) {
                 throw new ApiException(finalMessage, e);
             } else {
@@ -97,6 +77,35 @@ public class PaypalOrderService implements PaypalOrderClient {
         } catch (Exception ex) {
             log.error("ERREUR GESTION : Impossible {} un ordre d'achat avec PayPal. Message Erreur {}", action, e.getMessage(), e);
             throw new ApiException(String.format("Impossible %s un ordre d'achat avec PayPal. Veuillez recommencer ou envoyer un mail à contact@funixproductions.com", action), e);
-    }
         }
+    }
+
+    private String buildErrorMessage(final PaypalOrderErrorResponse error) {
+        final StringBuilder message = new StringBuilder("Erreur avec paypal : ");
+
+        if (error != null) {
+            if (error.getName().equals(PaypalOrderErrorResponse.ErrorCode.UNPROCESSABLE_ENTITY)) {
+                message.append("Erreur de validation : ");
+            } else {
+                message.append("Erreur : ");
+            }
+
+            if (error.getDetails() != null) {
+                message.append(" : ");
+                for (PaypalOrderErrorResponse.Details detail : error.getDetails()) {
+                    if (detail.getIssue() == null) {
+                        message.append(detail.getDescription()).append(" ");
+                    } else {
+                        message.append(detail.getIssue().getFrMessage()).append(" ");
+                    }
+                }
+            } else {
+                message.append(error.getName().getFrMessage());
+            }
+        } else {
+            message.append("Impossible de récupérer le message d'erreur.");
+        }
+
+        return message.toString();
+    }
 }

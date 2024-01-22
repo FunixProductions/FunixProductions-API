@@ -13,13 +13,14 @@ import com.funixproductions.core.crud.services.ApiService;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
 import com.funixproductions.core.exceptions.ApiNotFoundException;
+import com.funixproductions.core.exceptions.ApiUnauthorizedException;
+import com.funixproductions.core.tools.string.PasswordGenerator;
 import com.funixproductions.core.tools.time.TimeUtils;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SecurityException;
 import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.Instant;
 import java.util.Date;
@@ -44,7 +47,7 @@ public class UserTokenService extends ApiService<UserTokenDTO, UserToken, UserTo
     private final UserTokenMapper tokenMapper;
     private final UserRepository userRepository;
 
-    private final Key jwtSecretKey;
+    private final SecretKey jwtSecretKey;
 
     public UserTokenService(UserTokenRepository tokenRepository,
                             UserTokenMapper tokenMapper,
@@ -62,6 +65,7 @@ public class UserTokenService extends ApiService<UserTokenDTO, UserToken, UserTo
      * @param userDTO userdto
      * @return token
      */
+    @Transactional
     public UserTokenDTO generateAccessToken(final UserDTO userDTO) {
         if (userDTO.getId() == null) {
             throw new ApiBadRequestException("L'utilisateur demandé ne possède pas d'id.");
@@ -86,12 +90,12 @@ public class UserTokenService extends ApiService<UserTokenDTO, UserToken, UserTo
         userToken.setUuid(UUID.randomUUID());
         userToken.setExpirationDate(expirationDate);
         userToken.setToken(Jwts.builder()
-                .setSubject(userToken.getUuid().toString())
-                .setAudience(user.getRole().getRole())
-                .setIssuer(ISSUER)
-                .setIssuedAt(new Date())
-                .setExpiration(expirationDate)
+                .subject(userToken.getUuid().toString())
+                .issuer(ISSUER)
+                .issuedAt(new Date())
+                .expiration(expirationDate)
                 .signWith(jwtSecretKey)
+                .audience().add(user.getRole().getRole()).and()
                 .compact());
 
         return tokenMapper.toDto(tokenRepository.save(userToken));
@@ -115,30 +119,41 @@ public class UserTokenService extends ApiService<UserTokenDTO, UserToken, UserTo
     @Nullable
     public User isTokenValid(final String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(jwtSecretKey)
-                    .build()
-                    .parseClaimsJws(token);
+            Jwts.parser()
+                    .decryptWith(jwtSecretKey)
+                            .build()
+                                    .parse(token);
 
             final UserToken userToken = getToken(token);
-
             if (userToken != null) {
                 return userToken.getUser();
             } else {
                 return null;
             }
+        } catch (ExpiredJwtException expiredJwtException) {
+            throw new ApiUnauthorizedException("Le token JWT utilisateur est expiré.", expiredJwtException);
+        } catch (MalformedJwtException malformedJwtException) {
+            throw new ApiUnauthorizedException("Le token JWT utilisateur est malformé.", malformedJwtException);
+        } catch (UnsupportedJwtException unsupportedJwtException) {
+            throw new ApiUnauthorizedException("Le token JWT utilisateur n'est pas supporté.", unsupportedJwtException);
+        } catch (IllegalArgumentException illegalArgumentException) {
+            throw new ApiUnauthorizedException("Le token JWT utilisateur est invalide.", illegalArgumentException);
+        } catch (io.jsonwebtoken.security.SignatureException signatureException) {
+            throw new ApiUnauthorizedException("Le token JWT utilisateur n'est pas signé correctement.", signatureException);
+        } catch (SecurityException securityException) {
+            throw new ApiUnauthorizedException("Le token JWT utilisateur n'est pas sécurisé.", securityException);
         } catch (Exception e) {
-            return null;
+            throw new ApiException("Erreur lors de la validation du token.", e);
         }
     }
 
     @Nullable
     private UserToken getToken(final String token) {
-        final Claims claims = Jwts.parserBuilder()
-                .setSigningKey(jwtSecretKey)
+        final Claims claims = Jwts.parser()
+                .decryptWith(jwtSecretKey)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
 
         final String tokenUuid = claims.getSubject();
         final Optional<UserToken> search = tokenRepository.findByUuid(tokenUuid);
@@ -146,7 +161,7 @@ public class UserTokenService extends ApiService<UserTokenDTO, UserToken, UserTo
         return search.orElse(null);
     }
 
-    private static Key getJwtCryptKey(final UserConfiguration userConfiguration) {
+    private static SecretKey getJwtCryptKey(final UserConfiguration userConfiguration) {
         if (Strings.isEmpty(userConfiguration.getJwtSecret())) {
             throw new ApiException("JWT secret key is not defined in UserConfiguration.");
         }
@@ -159,7 +174,13 @@ public class UserTokenService extends ApiService<UserTokenDTO, UserToken, UserTo
      * @return base64 encoded jwt secret key
      */
     public static String generateJwtSecretKey() {
-        final Key jwtSecretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+        final PasswordGenerator passwordGenerator = new PasswordGenerator();
+        passwordGenerator.setAlphaDown(150);
+        passwordGenerator.setAlphaUpper(150);
+        passwordGenerator.setNumbersAmount(150);
+        passwordGenerator.setSpecialCharsAmount(150);
+
+        final Key jwtSecretKey = Keys.hmacShaKeyFor(passwordGenerator.generateRandomPassword().getBytes(StandardCharsets.UTF_8));
         return Encoders.BASE64.encode(jwtSecretKey.getEncoded());
     }
 
