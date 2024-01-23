@@ -4,20 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.funixproductions.api</groupId>
-        <artifactId>funixproductions-api</artifactId>
+        <groupId>com.funixproductions.api.payment.billing</groupId>
+        <artifactId>funixproductions-payment-billing</artifactId>
         <version>1.2.2.5</version>
-        <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <groupId>com.funixproductions.api.payment</groupId>
-    <artifactId>funixproductions-payment</artifactId>
-    <packaging>pom</packaging>
-
-    <modules>
-        <module>paypal</module>
-        <module>billing</module>
-    </modules>
+    <groupId>com.funixproductions.api.payment.billing.client</groupId>
+    <artifactId>funixproductions-payment-billing-client</artifactId>
 
     <properties>
         <maven.compiler.source>${java.version}</maven.compiler.source>
