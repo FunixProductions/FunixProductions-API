@@ -7,5 +7,5 @@ import org.springframework.cloud.openfeign.FeignClient;
         url = "http://payment-billing",
         path = "/kubeinternal/billing"
 )
-public interface BillingFeignInternalClient extends BillingClient {
+public interface BillingFeignInternalClient extends BillingInternalClient {
 }
