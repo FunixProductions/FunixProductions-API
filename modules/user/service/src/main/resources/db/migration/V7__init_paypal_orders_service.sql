@@ -11,5 +11,5 @@ CREATE TABLE paypal_orders (
                                origin_request VARCHAR(255) NOT NULL,
                                card_payment BOOLEAN NOT NULL,
                                paid BOOLEAN NOT NULL,
-                               vat_information VARCHAR(255),
+                               vat_information VARCHAR(255)
 );
