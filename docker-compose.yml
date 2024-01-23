@@ -55,6 +55,15 @@ services:
         service_name: payment-paypal
         service_base_dir: payment/paypal
 
+  #Payment - Billing service
+  build-production-payment-billing-service:
+    image: ghcr.io/funixproductions/funixproductions-api-payment-billing:${IMAGE_TAG}
+    build:
+      context: .
+      args:
+        service_name: payment-billing
+        service_base_dir: payment/billing
+
   #Twitch - Auth service
   build-production-twitch-auth-service:
     image: ghcr.io/funixproductions/funixproductions-api-twitch-auth:${IMAGE_TAG}
