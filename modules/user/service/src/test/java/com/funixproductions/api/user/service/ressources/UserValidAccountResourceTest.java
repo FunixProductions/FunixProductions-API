@@ -21,8 +21,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -59,7 +61,7 @@ class UserValidAccountResourceTest extends UserTestComponent {
         mockMvc.perform(get("/user/auth/valid-account?token=" + userValidAccountToken.getValidationToken())).andExpect(status().isOk());
 
         final UserDTO userDTO = jsonHelper.fromJson(mockMvc.perform(get("/user/auth/current")
-                        .header("Authorization", "Bearer " + token.getToken()))
+                        .header("Authorization", "Bearer " + loginUser(user).getToken()))
                         .andExpect(status().isOk())
                         .andReturn().getResponse().getContentAsString(), UserDTO.class);
 
@@ -117,6 +119,92 @@ class UserValidAccountResourceTest extends UserTestComponent {
 
         final User userAfter = userRepository.findByUuid(userDTO.getId().toString()).get();
         assertTrue(userAfter.getValid());
+    }
+
+    @Test
+    void testRegisterAndSendValidEmailAndChangeEmail() throws Exception {
+        final UserCreationDTO creationDTO = new UserCreationDTO();
+        creationDTO.setEmail(UUID.randomUUID() + "@gmail.com");
+        creationDTO.setUsername(UUID.randomUUID().toString());
+        creationDTO.setPassword("ousddffdi22AA");
+        creationDTO.setPasswordConfirmation("ousddffdi22AA");
+        creationDTO.setAcceptCGU(true);
+        creationDTO.setAcceptCGV(true);
+
+        MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonHelper.toJson(creationDTO)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        final UserDTO userDTO = jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), UserDTO.class);
+        assertFalse(userDTO.getValid());
+        assertTrue(userRepository.findByUuid(userDTO.getId().toString()).isPresent());
+        final User user = userRepository.findByUuid(userDTO.getId().toString()).get();
+
+        assertTrue(userValidAccountTokenRepository.findByUser(user).isPresent());
+        final UserValidAccountToken userValidAccountToken = userValidAccountTokenRepository.findByUser(user).get();
+
+        mockMvc.perform(get("/user/auth/valid-account?token=" + userValidAccountToken.getValidationToken())).andExpect(status().isOk());
+
+        final User userAfter = userRepository.findByUuid(userDTO.getId().toString()).get();
+        assertTrue(userAfter.getValid());
+
+        userDTO.setEmail(UUID.randomUUID() + "@gmail.com");
+        mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.patch("/user/auth")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + loginUser(user).getToken())
+                        .content(jsonHelper.toJson(userDTO)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        final UserDTO userDTOAfterPatch = jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), UserDTO.class);
+        verify(this.googleGmailClient, times(2)).sendMail(any(), any());
+        assertNotEquals(creationDTO.getEmail(), userDTOAfterPatch.getEmail());
+        assertFalse(userDTOAfterPatch.getValid());
+    }
+
+    @Test
+    void testRegisterAndSendValidEmailAndChangeOtherThanEmail() throws Exception {
+        final UserCreationDTO creationDTO = new UserCreationDTO();
+        creationDTO.setEmail(UUID.randomUUID() + "@gmail.com");
+        creationDTO.setUsername(UUID.randomUUID().toString());
+        creationDTO.setPassword("ousddffdi22AA");
+        creationDTO.setPasswordConfirmation("ousddffdi22AA");
+        creationDTO.setAcceptCGU(true);
+        creationDTO.setAcceptCGV(true);
+
+        MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonHelper.toJson(creationDTO)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        final UserDTO userDTO = jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), UserDTO.class);
+        assertFalse(userDTO.getValid());
+        assertTrue(userRepository.findByUuid(userDTO.getId().toString()).isPresent());
+        final User user = userRepository.findByUuid(userDTO.getId().toString()).get();
+
+        assertTrue(userValidAccountTokenRepository.findByUser(user).isPresent());
+        final UserValidAccountToken userValidAccountToken = userValidAccountTokenRepository.findByUser(user).get();
+
+        mockMvc.perform(get("/user/auth/valid-account?token=" + userValidAccountToken.getValidationToken())).andExpect(status().isOk());
+
+        final User userAfter = userRepository.findByUuid(userDTO.getId().toString()).get();
+        assertTrue(userAfter.getValid());
+
+        userDTO.setUsername(UUID.randomUUID().toString());
+        mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.patch("/user/auth")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + loginUser(user).getToken())
+                        .content(jsonHelper.toJson(userDTO)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        final UserDTO userDTOAfterPatch = jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), UserDTO.class);
+        verify(this.googleGmailClient, times(1)).sendMail(any(), any());
+        assertEquals(creationDTO.getEmail(), userDTOAfterPatch.getEmail());
+        assertTrue(userDTOAfterPatch.getValid());
     }
 
 }

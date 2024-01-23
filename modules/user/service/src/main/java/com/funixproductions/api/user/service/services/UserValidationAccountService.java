@@ -58,6 +58,7 @@ public class UserValidationAccountService {
         }
     }
 
+    @Transactional
     public void sendMailValidationRequest(final UUID userUuid) {
         final Optional<User> search = this.userRepository.findByUuid(userUuid.toString());
 
@@ -79,6 +80,7 @@ public class UserValidationAccountService {
             user.setValid(true);
             this.userRepository.save(user);
             this.userValidAccountTokenRepository.delete(userValidAccountToken);
+            this.triesCache.invalidate(user.getId());
         } else {
             throw new ApiBadRequestException("Token invalide. Veuillez en demander un nouveau.");
         }

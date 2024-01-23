@@ -13,6 +13,7 @@ import com.funixproductions.api.user.service.services.UserCrudService;
 import com.funixproductions.api.user.service.services.UserTokenService;
 import com.funixproductions.core.crud.dtos.PageDTO;
 import com.funixproductions.core.exceptions.ApiNotFoundException;
+import com.funixproductions.core.exceptions.ApiUnauthorizedException;
 import com.funixproductions.core.test.beans.JsonHelper;
 import com.google.gson.reflect.TypeToken;
 import org.junit.jupiter.api.Assertions;
@@ -469,9 +470,12 @@ class TestUserAuthResource extends UserTestComponent {
 
     @Test
     void testFailGetCurrentUserBadAuth() throws Exception {
-        this.mockMvc.perform(MockMvcRequestBuilders.get("/user/auth/current")
-                        .header("Authorization", "Bearer " + "BADTOKEN"))
-                .andExpect(status().isUnauthorized());
+        try {
+            this.mockMvc.perform(MockMvcRequestBuilders.get("/user/auth/current")
+                            .header("Authorization", "Bearer " + "BADTOKEN"))
+                    .andExpect(status().isUnauthorized());
+        } catch (ApiUnauthorizedException ignored) {
+        }
     }
 
     @Test

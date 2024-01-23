@@ -9,16 +9,17 @@ import com.funixproductions.api.user.service.mappers.UserMapper;
 import com.funixproductions.api.user.service.repositories.UserRepository;
 import com.funixproductions.core.crud.services.ApiService;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
+import com.funixproductions.core.exceptions.ApiNotFoundException;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -27,6 +28,8 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
     private final UserPasswordUtils passwordUtils;
     private final UserValidationAccountService validationAccountService;
     private final InternalGoogleAuthClient googleAuthClient;
+
+    private final Cache<UUID, String> emailMapperCheck = CacheBuilder.newBuilder().expireAfterWrite(2, TimeUnit.MINUTES).build();
 
     public UserCrudService(UserMapper mapper,
                            UserRepository repository,
@@ -42,6 +45,7 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
     @Override
     public void beforeMappingToEntity(@NonNull Iterable<UserDTO> requestList) {
         final List<String> ids = new ArrayList<>();
+
         for (final UserDTO request : requestList) {
             if (request.getId() != null) {
                 ids.add(request.getId().toString());
@@ -50,6 +54,11 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
         final Iterable<User> users = this.getRepository().findAllByUuidIn(ids);
 
         this.validAccountCheckerFilter(requestList, users);
+
+        for (final Map.Entry<UUID, String> entry : this.getEmailFromUserList(requestList).entrySet()) {
+            this.emailMapperCheck.put(entry.getKey(), entry.getValue());
+        }
+
         for (final UserDTO request : requestList) {
             this.checkUsernameFilter(request);
         }
@@ -59,7 +68,17 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
     public void afterSavingEntity(@NonNull Iterable<User> entity) {
         for (final User user : entity) {
             if (Boolean.FALSE.equals(user.getValid())) {
+                this.emailMapperCheck.invalidate(user.getUuid());
                 this.validationAccountService.sendMailValidationRequest(user);
+            } else {
+                final String emailCache = this.emailMapperCheck.getIfPresent(user.getUuid());
+
+                if (emailCache != null && !emailCache.equals(user.getEmail())) {
+                    this.emailMapperCheck.invalidate(user.getUuid());
+                    user.setValid(false);
+                    super.getRepository().save(user);
+                    this.validationAccountService.sendMailValidationRequest(user);
+                }
             }
         }
     }
@@ -73,11 +92,11 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
     }
 
     @Override
-    public User loadUserByUsername(String username) throws UsernameNotFoundException {
+    public User loadUserByUsername(String username) throws ApiNotFoundException {
         return super.getRepository()
                 .findByUsername(username)
                 .orElseThrow(
-                        () -> new UsernameNotFoundException(String.format("Utilisateur %s non trouvé", username))
+                        () -> new ApiNotFoundException(String.format("Utilisateur %s non trouvé", username))
                 );
     }
 
@@ -89,6 +108,23 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
             uuidsToRemove.add(user.getUuid().toString());
         }
         this.googleAuthClient.deleteAllByUserUuidIn(uuidsToRemove);
+    }
+
+    private Map<UUID, String> getEmailFromUserList(final Iterable<UserDTO> users) {
+        final List<String> ids = new ArrayList<>();
+        for (final UserDTO user : users) {
+            if (user.getId() != null) {
+                ids.add(user.getId().toString());
+            }
+        }
+
+        final Iterable<User> usersDatabase = super.getRepository().findAllByUuidIn(ids);
+        final Map<UUID, String> emailMapper = new HashMap<>();
+
+        for (final User user : usersDatabase) {
+            emailMapper.put(user.getUuid(), user.getEmail());
+        }
+        return emailMapper;
     }
 
     private void validAccountCheckerFilter(final Iterable<UserDTO> requestList, final Iterable<User> users) {

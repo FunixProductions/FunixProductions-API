@@ -13,6 +13,7 @@ public class PaypalFeignInterceptor implements RequestInterceptor {
 
     @Override
     public void apply(RequestTemplate requestTemplate) {
+        requestTemplate.header("Prefer", "return=representation");
         requestTemplate.header(HttpHeaders.AUTHORIZATION, "Bearer " + service.getAccessToken());
     }
 }

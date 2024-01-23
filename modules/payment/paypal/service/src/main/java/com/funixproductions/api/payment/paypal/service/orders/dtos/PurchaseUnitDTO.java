@@ -1,17 +1,14 @@
 package com.funixproductions.api.payment.paypal.service.orders.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@RequiredArgsConstructor
 public class PurchaseUnitDTO {
 
     /**
@@ -82,8 +79,23 @@ public class PurchaseUnitDTO {
         @NoArgsConstructor
         @AllArgsConstructor
         public static class Breakdown {
+
+            /**
+             * The subtotal for all items. Required if the request includes purchase_units[].items[].unit_amount. Must equal the sum of (items[].unit_amount * items[].quantity) for all items. item_total.value can not be a negative number.
+             */
             @JsonProperty(value = "item_total")
             private Money itemTotal;
+
+            /**
+             * The total tax for all items. Required if the request includes purchase_units.items.tax. Must equal the sum of (items[].tax * items[].quantity) for all items. tax_total.value can not be a negative number.
+             */
+            @JsonProperty(value = "tax_total")
+            private Money taxTotal;
+
+            /**
+             * The discount for all items within a given purchase_unit. discount.value can not be a negative number.
+             */
+            private Money discount;
         }
     }
 
@@ -99,15 +111,20 @@ public class PurchaseUnitDTO {
 
         private String quantity;
 
+        private String description;
+
         /**
          * The item price or rate per unit. If you specify unit_amount, purchase_units[].amount.breakdown.item_total is required. Must equal unit_amount * quantity for all items. unit_amount.value can not be a negative number.
          */
         @JsonProperty(value = "unit_amount")
         private Money unitAmount;
 
-        private Category category;
+        /**
+         * The item tax for each unit. If tax is specified, purchase_units[].amount.breakdown.tax_total is required. Must equal tax * quantity for all items. tax.value can not be a negative number.
+         */
+        private Money tax;
 
-        private String description;
+        private Category category;
     }
 
     @Getter
@@ -115,6 +132,11 @@ public class PurchaseUnitDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Money {
+
+        /**
+         * <a href="https://developer.paypal.com/api/rest/reference/currency-codes/">Codes</a>
+         * The three-character ISO-4217 currency code that identifies the currency.
+         */
         @JsonProperty(value = "currency_code")
         private String currencyCode;
 

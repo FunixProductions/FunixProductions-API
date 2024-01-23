@@ -1,0 +1,125 @@
+{
+	"info": {
+		"_postman_id": "d3458de9-8aaf-4778-9122-d12ef500899e",
+		"name": "Paypal test funixproductions api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31481608"
+	},
+	"item": [
+		{
+			"name": "Create new paypal ORDER",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"brandName\": \"test\",\n    \"cancelUrl\": \"https://pacifista.fr/cgv\",\n    \"returnUrl\": \"https://pacifista.fr\",\n    \"user\": {\n        \"userEmail\": \"contact@funixproductions.com\",\n        \"username\": \"funixgaming-test\"\n    },\n    \"vatInformation\": \"FRANCE\",\n    \"originRequest\": \"postman\",\n    \"billingAddress\": {\n        \"countryCode\": \"FR\"\n    },\n    \"purchaseUnits\": [\n        {\n            \"referenceId\": \"test-postman-01\",\n            \"customId\": \"test-postman\",\n            \"softDescriptor\": \"test-postman\",\n            \"description\": \"Achat sur la boutique de postman\",\n            \"items\": [\n                {\n                    \"name\": \"grade postman\",\n                    \"quantity\": 10,\n                    \"description\": \"un grade super stylé\",\n                    \"price\": 5.0\n                }\n            ]\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9090/paypal/orders/paypal",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"paypal",
+						"orders",
+						"paypal"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create new credit card ORDER",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"cardHolderName\": \"Test user Jhon\",\n    \"cardNumber\": \"371449635398431\",\n    \"securityCode\": \"2141\",\n    \"expirationMonth\": 6,\n    \"expirationYear\": 2027,\n    \"cancelUrl\": \"https://pacifista.fr/cgv\",\n    \"returnUrl\": \"https://pacifista.fr\",\n    \"user\": {\n        \"userEmail\": \"contact@funixproductions.com\",\n        \"username\": \"funixgaming-test\"\n    },\n    \"vatInformation\": \"FRANCE\",\n    \"originRequest\": \"postman\",\n    \"billingAddress\": {\n        \"countryCode\": \"FR\"\n    },\n    \"purchaseUnits\": [\n        {\n            \"referenceId\": \"test-postman-01\",\n            \"customId\": \"test-postman\",\n            \"softDescriptor\": \"test-postman\",\n            \"description\": \"Achat sur la boutique de postman\",\n            \"items\": [\n                {\n                    \"name\": \"grade postman\",\n                    \"quantity\": 10,\n                    \"description\": \"un grade super stylé\",\n                    \"price\": 5.0\n                }\n            ]\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9090/paypal/orders/card",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"paypal",
+						"orders",
+						"card"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get order",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9090/paypal/orders/5N759822JH385204C",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"paypal",
+						"orders",
+						"5N759822JH385204C"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Capture request",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9090/paypal/orders/5N759822JH385204C/capture",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"paypal",
+						"orders",
+						"5N759822JH385204C",
+						"capture"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

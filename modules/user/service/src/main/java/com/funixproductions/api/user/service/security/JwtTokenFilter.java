@@ -4,6 +4,8 @@ import com.funixproductions.api.user.service.entities.User;
 import com.funixproductions.api.user.service.entities.UserSession;
 import com.funixproductions.api.user.service.services.UserTokenService;
 import com.funixproductions.core.tools.network.IPUtils;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,12 +21,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
 public class JwtTokenFilter extends OncePerRequestFilter {
     private final UserTokenService tokenService;
     private final IPUtils ipUtils;
+
+    private final Cache<String, UserSession> sessionsCache = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.MINUTES).build();
 
     @Override
     protected void doFilterInternal(@NonNull final HttpServletRequest request,
@@ -42,23 +47,31 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
         if (user == null) {
             chain.doFilter(request, response);
-        } else {
-            final UserSession userSession = new UserSession(
+            return;
+        }
+
+        final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                getUserSession(token, user, request),
+                null,
+                user.getAuthorities()
+        );
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        chain.doFilter(request, response);
+    }
+
+    private UserSession getUserSession(@NonNull final String token, final User user, final HttpServletRequest request) {
+        UserSession userSession = sessionsCache.getIfPresent(token);
+        if (userSession == null) {
+            userSession = new UserSession(
                     user,
                     token,
                     ipUtils.getClientIp(request)
             );
-
-            final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    userSession,
-                    null,
-                    user.getAuthorities()
-            );
-
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            chain.doFilter(request, response);
+            sessionsCache.put(token, userSession);
         }
+
+        return userSession;
     }
 
 }
