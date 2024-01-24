@@ -7,8 +7,13 @@ import com.funixproductions.api.payment.billing.client.enums.PaymentOrigin;
 import com.funixproductions.api.payment.billing.client.enums.PaymentType;
 import com.funixproductions.api.payment.billing.service.entities.Billing;
 import com.funixproductions.api.payment.billing.service.repositories.BillingRepository;
+import com.funixproductions.api.user.client.dtos.UserDTO;
+import com.funixproductions.api.user.client.dtos.UserSession;
+import com.funixproductions.api.user.client.enums.UserRole;
 import com.funixproductions.api.user.client.security.CurrentSession;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
+import com.funixproductions.core.exceptions.ApiForbiddenException;
+import com.funixproductions.core.exceptions.ApiNotFoundException;
 import com.funixproductions.core.tools.pdf.tools.VATInformation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,11 +22,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.io.File;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 class BillingCrudServiceTest {
@@ -59,7 +67,7 @@ class BillingCrudServiceTest {
                 "TestWebsite",
                 "TestSiret",
                 "TestTvaCode",
-                "TestFunixProdId"
+                UUID.randomUUID().toString()
         ));
         billingDTO.setPaymentOrigin(PaymentOrigin.PACIFISTA);
         billingDTO.setAmountTotal(new BillingDTO.Price(
@@ -127,7 +135,107 @@ class BillingCrudServiceTest {
 
     @Test
     void testDownloadInvoiceFromAdmin() {
+        assertDoesNotThrow(() -> {
+            final BillingDTO billingDTO = generateDto();
 
+            final BillingDTO res = billingCrudService.create(billingDTO);
+            billingDTO.getBilledEntity().setUserFunixProdId(UUID.randomUUID().toString());
+            final BillingDTO res2 = billingCrudService.create(billingDTO);
+
+            final UserDTO userDTO = new UserDTO();
+            userDTO.setUsername("test");
+            userDTO.setEmail("test@gmail.com");
+            userDTO.setRole(UserRole.ADMIN);
+            userDTO.setValid(true);
+            userDTO.setId(UUID.fromString(res.getBilledEntity().getUserFunixProdId()));
+            userDTO.setCreatedAt(new Date());
+
+            when(currentSession.getUserSession()).thenReturn(new UserSession(
+                    userDTO,
+                    "test",
+                    null
+            ));
+
+            this.billingCrudService.getInvoiceFile(res.getId().toString());
+            this.billingCrudService.getInvoiceFile(res2.getId().toString());
+        });
+    }
+
+    @Test
+    void testGetBillingByUnknownId() {
+        assertThrowsExactly(ApiNotFoundException.class, () -> this.billingCrudService.getInvoiceFile(UUID.randomUUID().toString()));
+    }
+
+    @Test
+    void testDownloadBillingWithNoAccessUser() {
+        assertDoesNotThrow(() -> {
+            final BillingDTO billingDTO = generateDto();
+
+            final BillingDTO res = billingCrudService.create(billingDTO);
+            billingDTO.getBilledEntity().setUserFunixProdId(UUID.randomUUID().toString());
+            final BillingDTO res2 = billingCrudService.create(billingDTO);
+
+            final UserDTO userDTO = new UserDTO();
+            userDTO.setUsername("test");
+            userDTO.setEmail("test@gmail.com");
+            userDTO.setRole(UserRole.USER);
+            userDTO.setValid(true);
+            userDTO.setId(UUID.fromString(res.getBilledEntity().getUserFunixProdId()));
+            userDTO.setCreatedAt(new Date());
+
+            when(currentSession.getUserSession()).thenReturn(new UserSession(
+                    userDTO,
+                    "test",
+                    null
+            ));
+
+            this.billingCrudService.getInvoiceFile(res.getId().toString());
+
+            assertThrowsExactly(ApiForbiddenException.class, () -> this.billingCrudService.getInvoiceFile(res2.getId().toString()));
+        });
+    }
+
+    private BillingDTO generateDto() {
+        final BillingDTO billingDTO = new BillingDTO();
+
+        billingDTO.setBillingDescription("Test");
+        billingDTO.setPaymentType(PaymentType.CREDIT_CARD);
+        billingDTO.setBilledEntity(new BillingDTO.BilledEntity(
+                "TestName",
+                "TestAddress",
+                "TestZipCode",
+                "TestCity",
+                "TestPhone",
+                "TestEmail",
+                "TestWebsite",
+                "TestSiret",
+                "TestTvaCode",
+                UUID.randomUUID().toString()
+        ));
+        billingDTO.setPaymentOrigin(PaymentOrigin.PACIFISTA);
+        billingDTO.setAmountTotal(new BillingDTO.Price(
+                40.0,
+                40 * 0.2,
+                40 + (40 * 0.2),
+                null
+        ));
+        billingDTO.setVatInformation(VATInformation.FRANCE);
+        billingDTO.setBillingObjects(List.of(
+                new BillingObjectDTO(
+                        "TestObject",
+                        "TestDescription",
+                        2,
+                        5.0
+                ),
+                new BillingObjectDTO(
+                        "TestObject2",
+                        "TestDescription2",
+                        3,
+                        10.0
+                )
+        ));
+
+        return billingDTO;
     }
 
 }
