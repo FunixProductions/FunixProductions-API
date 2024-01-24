@@ -13,11 +13,13 @@ import com.funixproductions.api.user.client.dtos.UserSession;
 import com.funixproductions.api.user.client.enums.UserRole;
 import com.funixproductions.api.user.client.security.CurrentSession;
 import com.funixproductions.core.crud.services.ApiService;
+import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
 import com.funixproductions.core.exceptions.ApiForbiddenException;
 import com.funixproductions.core.exceptions.ApiNotFoundException;
 import com.funixproductions.core.tools.classpath.ImageReaderClasspath;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
@@ -27,6 +29,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -154,5 +157,35 @@ public class BillingCrudService extends ApiService<BillingDTO, Billing, BillingM
             log.info("L'utilisateur id {} nom {} et email {} a essayé de télécharger la facture id {} sans permission.", user.getId(), user.getUsername(), user.getEmail(), billing.getId());
             return false;
         }
+    }
+
+    @Override
+    public @NonNull BillingDTO update(BillingDTO request) throws ApiNotFoundException, ApiBadRequestException {
+        throw new ApiBadRequestException("Impossible de mettre à jour une facture");
+    }
+
+    @Override
+    public List<BillingDTO> update(List<BillingDTO> request) {
+        throw new ApiBadRequestException("Impossible de mettre à jour plusieurs factures à la fois");
+    }
+
+    @Override
+    public BillingDTO updatePut(BillingDTO request) {
+        throw new ApiBadRequestException("Impossible de mettre à jour une facture");
+    }
+
+    @Override
+    public List<BillingDTO> updatePut(List<@Valid BillingDTO> request) {
+        throw new ApiBadRequestException("Impossible de mettre à jour plusieurs factures à la fois");
+    }
+
+    @Override
+    public void delete(String id) {
+        throw new ApiBadRequestException("Impossible de supprimer une facture");
+    }
+
+    @Override
+    public void delete(String... ids) {
+        throw new ApiBadRequestException("Impossible de supprimer plusieurs factures à la fois");
     }
 }
