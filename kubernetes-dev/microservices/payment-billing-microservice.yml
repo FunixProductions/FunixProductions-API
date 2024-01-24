@@ -1,14 +1,15 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 
 metadata:
-  name: payment-billing-microservice-deployment
+  name: payment-billing-microservice-statefulset
   namespace: 'funixproductions-dev'
   labels:
     app: springboot
     service: payment-billing
 
 spec:
+  serviceName: payment-billing
   replicas: 1
   selector:
     matchLabels:
@@ -26,6 +27,9 @@ spec:
       containers:
         - name: springboot-payment-billing
           image: ghcr.io/funixproductions/funixproductions-api-payment-billing:dev
+          volumeMounts:
+            - mountPath: /container/app/
+              name: pdf-storage
           ports:
             - containerPort: 80
           resources:
@@ -68,6 +72,15 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: postgres-password
+  volumeClaimTemplates:
+    - metadata:
+        name: pdf-storage
+      spec:
+        accessModes: [ "ReadWriteMany" ]
+        storageClassName: nfs
+        resources:
+          requests:
+            storage: 10Gi
 
 ---
 
