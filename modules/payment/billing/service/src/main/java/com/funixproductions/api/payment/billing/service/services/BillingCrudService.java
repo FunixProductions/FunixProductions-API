@@ -1,5 +1,8 @@
 package com.funixproductions.api.payment.billing.service.services;
 
+import com.funixproductions.api.google.gmail.client.clients.GoogleGmailClient;
+import com.funixproductions.api.google.gmail.client.dto.MailDTO;
+import com.funixproductions.api.google.gmail.client.dto.MailFileDTO;
 import com.funixproductions.api.payment.billing.client.dtos.BillingDTO;
 import com.funixproductions.api.payment.billing.service.entities.Billing;
 import com.funixproductions.api.payment.billing.service.entities.FunixProductionsCompanyData;
@@ -29,17 +32,21 @@ import java.nio.file.Path;
 @Service
 public class BillingCrudService extends ApiService<BillingDTO, Billing, BillingMapper, BillingRepository> {
 
+    private static final String THANKS_FOR_YOUR_PURCHASE = "Merci pour votre achat ! Vous trouverez ci-joint votre facture. Si vous avez des questions, n'hésitez pas à nous contacter à l'adresse contact@funixproductions.com.";
     private final FunixProductionsCompanyData funixProductionsCompanyData = new FunixProductionsCompanyData();
     private final File pdfDirectory = new File("invoices");
     private final byte[] funixProdLogo;
 
     private final CurrentSession currentSession;
+    private final GoogleGmailClient googleGmailClient;
 
     public BillingCrudService(BillingRepository repository,
                               BillingMapper mapper,
-                              CurrentSession currentSession) {
+                              CurrentSession currentSession,
+                              GoogleGmailClient googleGmailClient) {
         super(repository, mapper);
         this.currentSession = currentSession;
+        this.googleGmailClient = googleGmailClient;
 
         if (!pdfDirectory.exists() && !pdfDirectory.mkdir()) {
             throw new ApiException("Impossible de créer le dossier des factures");
@@ -111,7 +118,17 @@ public class BillingCrudService extends ApiService<BillingDTO, Billing, BillingM
 
     private void sendInvoiceByMail(final Billing billing, final File invoiceFile) {
         try {
-            // TODO
+            final MailDTO mailDTO = new MailDTO();
+
+            mailDTO.setBodyText(THANKS_FOR_YOUR_PURCHASE);
+            mailDTO.setSubject(String.format(
+                    "[FunixProductions] Facture N°%d d'achat%s.",
+                    billing.getId(),
+                    billing.getPaymentOrigin() == null ? "" : " sur " + billing.getPaymentOrigin().getName()
+            ));
+            mailDTO.setFileAttachment(new MailFileDTO(invoiceFile));
+
+            this.googleGmailClient.sendMail(mailDTO, new String[]{billing.getBilledEntityEmail()});
         } catch (ApiException apiException) {
             throw apiException;
         } catch (Exception e) {

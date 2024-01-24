@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableFeignClients(basePackages = {
         "com.funixproductions.api.user",
+        "com.funixproductions.api.google"
 })
 @SpringBootApplication(scanBasePackages = "com.funixproductions")
 public class FunixProductionsPaymentBillingApp {

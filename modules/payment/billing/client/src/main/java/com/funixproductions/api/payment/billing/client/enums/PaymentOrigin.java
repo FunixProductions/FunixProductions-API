@@ -6,9 +6,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum PaymentOrigin {
-    PACIFISTA("https://pacifista.fr/cgv"),
-    FUNIXGAMING("https://funixgaming.fr/cgv"),
-    OTHER("https://funixproductions.com/cgv");
+    PACIFISTA("Pacifista", "https://pacifista.fr/cgv"),
+    FUNIXGAMING("FunixGaming", "https://funixgaming.fr/cgv"),
+    OTHER("", "https://funixproductions.com/cgv");
 
+    private final String name;
     private final String cgv;
 }
