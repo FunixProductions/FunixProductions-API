@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Service
 public class UserTokenService extends ApiService<UserTokenDTO, UserToken, UserTokenMapper, UserTokenRepository> {
-    private static final String ISSUER = "FunixProductionsApi - api.funixproductons.com";
+    private static final String ISSUER = "FunixProductionsApi - api.funixproductions.com";
 
     private final UserTokenRepository tokenRepository;
     private final UserTokenMapper tokenMapper;
@@ -143,7 +143,6 @@ public class UserTokenService extends ApiService<UserTokenDTO, UserToken, UserTo
         try {
             final JwtParser jwtParser = Jwts.parser()
                     .keyLocator(header -> jwtSecretKey)
-                    .requireIssuer(ISSUER)
                     .build();
 
             jwtParser.parse(token);
