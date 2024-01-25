@@ -11,6 +11,7 @@ import com.funixproductions.api.payment.paypal.service.orders.dtos.PurchaseUnitD
 import com.funixproductions.api.payment.paypal.service.orders.dtos.requests.PaypalOrderCreationDTO;
 import com.funixproductions.api.payment.paypal.service.orders.dtos.responses.PaypalOrderResponseDTO;
 import com.funixproductions.api.payment.paypal.service.orders.entities.OrderDTO;
+import com.funixproductions.api.payment.paypal.service.orders.services.InvoiceSenderService;
 import com.funixproductions.api.payment.paypal.service.orders.services.PaypalOrderCrudService;
 import com.funixproductions.api.payment.paypal.service.orders.services.PaypalOrderService;
 import com.funixproductions.core.exceptions.ApiException;
@@ -36,6 +37,8 @@ public class PaypalOrderResource implements PaypalOrderClient {
     private final PaypalOrderCrudService paypalOrderCrudService;
     private final PaypalConfig paypalConfig;
 
+    private final InvoiceSenderService invoiceSenderService;
+
     @Override
     public PaypalOrderDTO createCardOrder(CreditCardPaymentDTO creditCardPaymentDTO) {
         try {
@@ -43,8 +46,15 @@ public class PaypalOrderResource implements PaypalOrderClient {
             final PaypalOrderResponseDTO response = paypalOrderService.createOrder(orderDTO.getId().toString(), createCardOrderDTO(creditCardPaymentDTO));
 
             orderDTO.setOrderId(response.getId());
+            if (response.getStatus() == OrderStatus.COMPLETED) {
+                orderDTO.setPaid(true);
+            }
+
             orderDTO = this.paypalOrderCrudService.update(orderDTO);
 
+            if (orderDTO.getPaid()) {
+                this.invoiceSenderService.sendInvoice(response, orderDTO, creditCardPaymentDTO);
+            }
             log.info("Order credit card created: from: {} user: {} order id: {}", creditCardPaymentDTO.getOriginRequest(), creditCardPaymentDTO.getUser().toString(), response.getId());
             return mapPaypalResponse(response, orderDTO);
         } catch (ApiException apiException) {
@@ -98,6 +108,7 @@ public class PaypalOrderResource implements PaypalOrderClient {
             if (response.getStatus() == OrderStatus.COMPLETED) {
                 orderDTO.setPaid(true);
                 orderDTO = this.paypalOrderCrudService.update(orderDTO);
+                this.invoiceSenderService.sendInvoice(response, orderDTO, null);
             }
 
             log.info("Order capture sended: order id: {} status: {}", response.getId(), response.getStatus());

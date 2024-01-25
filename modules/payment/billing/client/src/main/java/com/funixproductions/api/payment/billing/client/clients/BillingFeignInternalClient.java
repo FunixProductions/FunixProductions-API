@@ -4,7 +4,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 
 @FeignClient(
         name = "FunixProductionsBillingClient",
-        url = "http://payment-billing",
+        url = "${funixproductions.api.payment.billing.app-domain-url}",
         path = "/kubeinternal/billing"
 )
 public interface BillingFeignInternalClient extends BillingInternalClient {

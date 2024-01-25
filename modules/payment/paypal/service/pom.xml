@@ -31,6 +31,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.funixproductions.api.payment.billing.client</groupId>
+            <artifactId>funixproductions-payment-billing-client</artifactId>
+            <version>${com.funixproductions.api.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${org.postgresql.version}</version>

@@ -1,5 +1,7 @@
 package com.funixproductions.api.payment.paypal.service.orders.resources;
 
+import com.funixproductions.api.payment.billing.client.clients.BillingFeignInternalClient;
+import com.funixproductions.api.payment.billing.client.dtos.BillingDTO;
 import com.funixproductions.api.payment.paypal.client.dtos.requests.PaymentDTO;
 import com.funixproductions.api.payment.paypal.client.dtos.requests.card.CreditCardPaymentDTO;
 import com.funixproductions.api.payment.paypal.client.dtos.requests.paypal.PaypalPaymentDTO;
@@ -10,6 +12,7 @@ import com.funixproductions.api.payment.paypal.service.orders.dtos.responses.Pay
 import com.funixproductions.api.payment.paypal.service.orders.services.PaypalOrderService;
 import com.funixproductions.core.test.beans.JsonHelper;
 import com.funixproductions.core.tools.pdf.tools.VATInformation;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -25,6 +28,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -42,6 +46,14 @@ class PaypalOrderResourceTest {
 
     @Autowired
     private JsonHelper jsonHelper;
+
+    @MockBean
+    private BillingFeignInternalClient billingClient;
+
+    @BeforeEach
+    void setupMock() {
+        doNothing().when(this.billingClient).create(any(BillingDTO.class));
+    }
 
     @Test
     void testCreditCardPayment() throws Exception {
