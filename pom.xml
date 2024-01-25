@@ -25,6 +25,7 @@
         <module>modules/google</module>
         <module>modules/twitch</module>
         <module>modules/payment</module>
+        <module>modules/accounting</module>
     </modules>
 
     <properties>
