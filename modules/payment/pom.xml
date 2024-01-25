@@ -16,6 +16,7 @@
 
     <modules>
         <module>paypal</module>
+        <module>billing</module>
     </modules>
 
     <properties>

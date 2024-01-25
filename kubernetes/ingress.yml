@@ -12,6 +12,7 @@ spec:
     - host: api.funixproductions.com
       http:
         paths:
+
           - path: /user
             pathType: Prefix
             backend:
@@ -19,6 +20,15 @@ spec:
                 name: user
                 port:
                   number: 80
+
+          - path: /billing
+            pathType: Prefix
+            backend:
+              service:
+                name: payment-billing
+                port:
+                  number: 80
+
           - path: /twitch/auth
             pathType: Prefix
             backend:
@@ -26,6 +36,7 @@ spec:
                 name: twitch-auth
                 port:
                   number: 80
+
           - path: /twitch/eventsub
             pathType: Prefix
             backend:
@@ -33,6 +44,7 @@ spec:
                 name: twitch-eventsub
                 port:
                   number: 80
+
           - path: /google/auth
             pathType: Prefix
             backend:

@@ -4,7 +4,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 
 @FeignClient(
         name = "FunixProductionsPaypalOrderClient",
-        url = "${funixproductions.api.payment.paypal.app-domain-url}",
+        url = "http://payment-paypal",
         path = "/paypal/orders"
 )
 public interface PaypalOrderFeignClient extends PaypalOrderClient {

@@ -9,7 +9,7 @@ metadata:
     service: google-gmail
 
 spec:
-  replicas: 2
+  replicas: 4
   selector:
     matchLabels:
       app: springboot

@@ -9,7 +9,7 @@ metadata:
     service: payment-paypal
 
 spec:
-  replicas: 3
+  replicas: 4
   selector:
     matchLabels:
       app: springboot
@@ -41,6 +41,31 @@ spec:
           env:
             - name: APP_PORT
               value: '80'
+            - name: DB_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  key: postgres-url
+                  name: postgres-config
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: postgres-port
+            - name: DB_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: postgres-db
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-password
             - name: PAYPAL_CLIENT_ID
               valueFrom:
                 secretKeyRef:

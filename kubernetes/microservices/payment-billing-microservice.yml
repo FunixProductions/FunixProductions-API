@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: payment-billing-microservice-deployment
+  namespace: 'funixproductions'
+  labels:
+    app: springboot
+    service: payment-billing
+
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: springboot
+      service: payment-billing
+  template:
+    metadata:
+      namespace: 'funixproductions'
+      annotations:
+        build-time: "TIME-UPDATE-BUILD-FNG"
+      labels:
+        app: springboot
+        service: payment-billing
+    spec:
+      containers:
+        - name: springboot-payment-billing
+          image: ghcr.io/funixproductions/funixproductions-api-payment-billing:latest
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+                memory: "800Mi"
+          imagePullPolicy: Always
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          env:
+            - name: APP_PORT
+              value: '80'
+            - name: DB_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  key: postgres-url
+                  name: postgres-config
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: postgres-port
+            - name: DB_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: postgres-db
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-password
+
+---
+
+apiVersion: v1
+kind: Service
+
+metadata:
+  namespace: 'funixproductions'
+  name: payment-billing
+
+spec:
+  type: ClusterIP
+  selector:
+    app: springboot
+    service: payment-billing
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
