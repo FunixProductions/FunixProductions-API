@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 
 metadata:
   name: payment-billing-microservice-statefulset
@@ -9,8 +9,7 @@ metadata:
     service: payment-billing
 
 spec:
-  serviceName: payment-billing
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: springboot
@@ -70,15 +69,10 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: postgres-password
-  volumeClaimTemplates:
-    - metadata:
-        name: pdf-storage
-      spec:
-        accessModes: [ "ReadWriteMany" ]
-        storageClassName: nfs
-        resources:
-          requests:
-            storage: 10Gi
+      volumes:
+        - name: pdf-storage
+          hostPath:
+            path: /vagrant/nfs-storage/funixproductions-dev/
 
 ---
 
