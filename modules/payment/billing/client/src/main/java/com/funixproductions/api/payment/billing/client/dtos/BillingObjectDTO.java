@@ -3,6 +3,7 @@ package com.funixproductions.api.payment.billing.client.dtos;
 import com.funixproductions.core.tools.pdf.entities.InvoiceItem;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -20,11 +21,11 @@ public class BillingObjectDTO implements InvoiceItem {
     @Size(max = 300, message = "La description de l'objet facturé ne doit pas dépasser 300 caractères")
     private String description;
 
-    @NotBlank(message = "La quantité de l'objet facturé est obligatoire")
+    @NotNull(message = "La quantité de l'objet facturé est obligatoire")
     @Min(value = 1, message = "La quantité de l'objet facturé doit être supérieure à 0")
     private Integer quantity;
 
-    @NotBlank(message = "Le prix de l'objet facturé est obligatoire")
+    @NotNull(message = "Le prix de l'objet facturé est obligatoire")
     @Min(value = 0, message = "Le prix de l'objet facturé doit être supérieur ou égal à 0")
     private Double price;
 

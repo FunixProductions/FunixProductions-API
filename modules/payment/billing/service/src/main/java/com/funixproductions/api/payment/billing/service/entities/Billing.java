@@ -58,6 +58,7 @@ public class Billing extends ApiEntity {
     @Column(name = "percentage_discount")
     private Double percentageDiscount;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "vat_information")
     private VATInformation vatInformation;
 
