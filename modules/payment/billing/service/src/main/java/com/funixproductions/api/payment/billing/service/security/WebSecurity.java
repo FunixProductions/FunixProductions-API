@@ -16,6 +16,8 @@ public class WebSecurity extends ApiWebSecurity {
     @Override
     public Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> getUrlsMatchers() {
         return ex -> ex
+                .requestMatchers("/actuator/**").permitAll()
+
                 .requestMatchers("/kubeinternal/billing/**").permitAll()
                 .requestMatchers("/billing/admin/**").hasAuthority(UserRole.ADMIN.getRole())
                 .requestMatchers("/billing/user/**").authenticated()
