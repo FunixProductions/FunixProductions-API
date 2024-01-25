@@ -28,7 +28,6 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -52,7 +51,7 @@ class PaypalOrderResourceTest {
 
     @BeforeEach
     void setupMock() {
-        doNothing().when(this.billingClient).create(any(BillingDTO.class));
+        when(this.billingClient.create(any(BillingDTO.class))).thenReturn(new BillingDTO());
     }
 
     @Test
