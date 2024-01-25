@@ -100,6 +100,13 @@ class UserValidAccountResourceTest extends UserTestComponent {
         creationDTO.setPasswordConfirmation("ousddffdi22AA");
         creationDTO.setAcceptCGU(true);
         creationDTO.setAcceptCGV(true);
+        creationDTO.setCountry(new UserDTO.Country(
+                "France",
+                250,
+                "FR",
+                "FRA"
+        ));
+
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -130,6 +137,13 @@ class UserValidAccountResourceTest extends UserTestComponent {
         creationDTO.setPasswordConfirmation("ousddffdi22AA");
         creationDTO.setAcceptCGU(true);
         creationDTO.setAcceptCGV(true);
+        creationDTO.setCountry(new UserDTO.Country(
+                "France",
+                250,
+                "FR",
+                "FRA"
+        ));
+
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -173,6 +187,13 @@ class UserValidAccountResourceTest extends UserTestComponent {
         creationDTO.setPasswordConfirmation("ousddffdi22AA");
         creationDTO.setAcceptCGU(true);
         creationDTO.setAcceptCGV(true);
+        creationDTO.setCountry(new UserDTO.Country(
+                "France",
+                250,
+                "FR",
+                "FRA"
+        ));
+
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
