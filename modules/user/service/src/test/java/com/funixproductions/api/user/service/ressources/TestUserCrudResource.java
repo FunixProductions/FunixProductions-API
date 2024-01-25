@@ -185,6 +185,12 @@ class TestUserCrudResource extends UserTestComponent {
         userDTO.setRole(UserRole.USER);
         userDTO.setEmail("oui@ggmail.com");
         userDTO.setPassword("passwsdfdsfdford11ZZ");
+        userDTO.setCountry(new UserDTO.Country(
+                "France",
+                250,
+                "FR",
+                "FRA"
+        ));
         return userDTO;
     }
 }

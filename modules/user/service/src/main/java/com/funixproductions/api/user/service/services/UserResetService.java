@@ -5,7 +5,6 @@ import com.funixproductions.api.google.gmail.client.clients.GoogleGmailClient;
 import com.funixproductions.api.google.gmail.client.dto.MailDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserPasswordResetDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserPasswordResetRequestDTO;
-import com.funixproductions.api.user.service.components.UserPasswordUtils;
 import com.funixproductions.api.user.service.entities.User;
 import com.funixproductions.api.user.service.entities.UserPasswordReset;
 import com.funixproductions.api.user.service.repositories.UserPasswordResetRepository;
@@ -45,7 +44,6 @@ public class UserResetService {
     private final String resetMailDoneTemplate;
 
     private final UserRepository userRepository;
-    private final UserPasswordUtils userPasswordUtils;
     private final UserPasswordResetRepository userPasswordResetRepository;
     private final GoogleGmailClient googleGmailClient;
     private final IPUtils ipUtils;
@@ -53,12 +51,10 @@ public class UserResetService {
     private final Cache<Long, Integer> triesCache = CacheBuilder.newBuilder().expireAfterWrite(COOLDOWN_REQUEST_SPAM, TimeUnit.MINUTES).build();
 
     public UserResetService(final UserRepository userRepository,
-                            final UserPasswordUtils userPasswordUtils,
                             final UserPasswordResetRepository userPasswordResetRepository,
                             final GoogleGmailClient googleGmailClient,
                             final IPUtils ipUtils) {
         this.userRepository = userRepository;
-        this.userPasswordUtils = userPasswordUtils;
         this.userPasswordResetRepository = userPasswordResetRepository;
         this.googleGmailClient = googleGmailClient;
         this.ipUtils = ipUtils;
@@ -92,7 +88,6 @@ public class UserResetService {
         final String ipClient = this.ipUtils.getClientIp(servletRequest);
 
         try {
-            userPasswordUtils.checkPassword(request.getNewPassword());
             if (!request.getNewPassword().equals(request.getNewPasswordConfirmation())) {
                 throw new ApiBadRequestException("Les mots de passe ne correspondent pas.");
             }

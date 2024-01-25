@@ -62,6 +62,12 @@ class TestUserAuthResource extends UserTestComponent {
         creationDTO.setPasswordConfirmation("ousddffdi22AA");
         creationDTO.setAcceptCGU(true);
         creationDTO.setAcceptCGV(true);
+        creationDTO.setCountry(new UserDTO.Country(
+                "France",
+                250,
+                "FR",
+                "FRA"
+        ));
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -157,6 +163,12 @@ class TestUserAuthResource extends UserTestComponent {
         creationDTO.setPasswordConfirmation("ousddffdi22AA");
         creationDTO.setAcceptCGU(true);
         creationDTO.setAcceptCGV(true);
+        creationDTO.setCountry(new UserDTO.Country(
+                "France",
+                250,
+                "FR",
+                "FRA"
+        ));
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -178,6 +190,12 @@ class TestUserAuthResource extends UserTestComponent {
         creationDTO.setPasswordConfirmation("ousddffdi22AA");
         creationDTO.setAcceptCGU(true);
         creationDTO.setAcceptCGV(true);
+        creationDTO.setCountry(new UserDTO.Country(
+                "France",
+                250,
+                "FR",
+                "FRA"
+        ));
 
         this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -239,6 +257,12 @@ class TestUserAuthResource extends UserTestComponent {
         creationDTO.setPasswordConfirmation(password);
         creationDTO.setAcceptCGU(true);
         creationDTO.setAcceptCGV(true);
+        creationDTO.setCountry(new UserDTO.Country(
+                "France",
+                250,
+                "FR",
+                "FRA"
+        ));
 
         this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -255,6 +279,12 @@ class TestUserAuthResource extends UserTestComponent {
         creationDTO.setPasswordConfirmation("ousddffdi22AA");
         creationDTO.setAcceptCGU(true);
         creationDTO.setAcceptCGV(true);
+        creationDTO.setCountry(new UserDTO.Country(
+                "France",
+                250,
+                "FR",
+                "FRA"
+        ));
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -282,6 +312,12 @@ class TestUserAuthResource extends UserTestComponent {
         creationDTO.setPasswordConfirmation("ousddffdi22AAsssdd");
         creationDTO.setAcceptCGU(true);
         creationDTO.setAcceptCGV(true);
+        creationDTO.setCountry(new UserDTO.Country(
+                "France",
+                250,
+                "FR",
+                "FRA"
+        ));
 
         this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -298,6 +334,12 @@ class TestUserAuthResource extends UserTestComponent {
         creationDTO.setPasswordConfirmation("ousddffdi22AA");
         creationDTO.setAcceptCGU(true);
         creationDTO.setAcceptCGV(true);
+        creationDTO.setCountry(new UserDTO.Country(
+                "France",
+                250,
+                "FR",
+                "FRA"
+        ));
 
         this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -319,6 +361,12 @@ class TestUserAuthResource extends UserTestComponent {
         creationDTO.setPasswordConfirmation("ousddffdi22AA");
         creationDTO.setAcceptCGU(true);
         creationDTO.setAcceptCGV(true);
+        creationDTO.setCountry(new UserDTO.Country(
+                "France",
+                250,
+                "FR",
+                "FRA"
+        ));
 
         this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -341,6 +389,12 @@ class TestUserAuthResource extends UserTestComponent {
         creationDTO.setPasswordConfirmation("ousddffdi22AA");
         creationDTO.setAcceptCGU(true);
         creationDTO.setAcceptCGV(false);
+        creationDTO.setCountry(new UserDTO.Country(
+                "France",
+                250,
+                "FR",
+                "FRA"
+        ));
 
         this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -357,6 +411,12 @@ class TestUserAuthResource extends UserTestComponent {
         creationDTO.setPasswordConfirmation("ousddffdi22AA");
         creationDTO.setAcceptCGU(false);
         creationDTO.setAcceptCGV(true);
+        creationDTO.setCountry(new UserDTO.Country(
+                "France",
+                250,
+                "FR",
+                "FRA"
+        ));
 
         this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -373,6 +433,12 @@ class TestUserAuthResource extends UserTestComponent {
         creationDTO.setPasswordConfirmation("ousddffdi22AA");
         creationDTO.setAcceptCGU(false);
         creationDTO.setAcceptCGV(false);
+        creationDTO.setCountry(new UserDTO.Country(
+                "France",
+                250,
+                "FR",
+                "FRA"
+        ));
 
         this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)

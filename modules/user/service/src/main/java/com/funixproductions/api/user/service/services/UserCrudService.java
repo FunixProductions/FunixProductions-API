@@ -3,7 +3,6 @@ package com.funixproductions.api.user.service.services;
 import com.funixproductions.api.google.auth.client.clients.InternalGoogleAuthClient;
 import com.funixproductions.api.user.client.dtos.UserDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserSecretsDTO;
-import com.funixproductions.api.user.service.components.UserPasswordUtils;
 import com.funixproductions.api.user.service.entities.User;
 import com.funixproductions.api.user.service.mappers.UserMapper;
 import com.funixproductions.api.user.service.repositories.UserRepository;
@@ -25,7 +24,6 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserRepository> implements UserDetailsService {
 
-    private final UserPasswordUtils passwordUtils;
     private final UserValidationAccountService validationAccountService;
     private final InternalGoogleAuthClient googleAuthClient;
 
@@ -33,11 +31,9 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
 
     public UserCrudService(UserMapper mapper,
                            UserRepository repository,
-                           UserPasswordUtils passwordUtils,
                            UserValidationAccountService validationAccountService,
                            InternalGoogleAuthClient googleAuthClient) {
         super(repository, mapper);
-        this.passwordUtils = passwordUtils;
         this.validationAccountService = validationAccountService;
         this.googleAuthClient = googleAuthClient;
     }
@@ -86,7 +82,6 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
     @Override
     public void afterMapperCall(@NonNull UserDTO dto, @NonNull User entity) {
         if (dto instanceof final UserSecretsDTO secretsDTO && Strings.isNotBlank(secretsDTO.getPassword())) {
-            passwordUtils.checkPassword(secretsDTO.getPassword());
             entity.setPassword(secretsDTO.getPassword());
         }
     }
@@ -138,24 +133,11 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
     }
 
     private void checkUsernameFilter(@NonNull final UserDTO request) {
-        if (request.getUsername() != null && !checkUsernameHasValidCharacters(request.getUsername())) {
-            throw new ApiBadRequestException("Le nom d'utilisateur ne peut contenir que des lettres, des chiffres, des underscores et des tirets. Sans espaces.");
-        }
-
         if (request.getId() == null) {
             final Optional<User> search = this.getRepository().findByUsernameIgnoreCase(request.getUsername());
             if (search.isPresent()) {
                 throw new ApiBadRequestException(String.format("L'utilisateur %s existe déjà.", request.getUsername()));
             }
         }
-    }
-
-    /**
-     * Valid majs, mins, - and _
-     * @param username
-     * @return
-     */
-    private boolean checkUsernameHasValidCharacters(@NonNull String username) {
-        return Strings.isNotBlank(username) && username.matches("^[a-zA-Z0-9._-]{3,}$");
     }
 }
