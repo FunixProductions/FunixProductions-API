@@ -65,6 +65,10 @@ public abstract class UserTestComponent {
         user.setPassword(UUID.randomUUID() + "ousddffdi22AA");
         user.setEmail(UUID.randomUUID() + "@gmail.com");
         user.setRole(UserRole.ADMIN);
+        user.setCountryName("France");
+        user.setCountryCode(250);
+        user.setCountryCode2Chars("FR");
+        user.setCountryCode3Chars("FRA");
         return userRepository.save(user);
     }
 
@@ -75,6 +79,10 @@ public abstract class UserTestComponent {
         user.setPassword(UUID.randomUUID() + "ousddffdi22AA");
         user.setEmail(UUID.randomUUID() + "@gmail.com");
         user.setRole(UserRole.MODERATOR);
+        user.setCountryName("France");
+        user.setCountryCode(250);
+        user.setCountryCode2Chars("FR");
+        user.setCountryCode3Chars("FRA");
         return userRepository.save(user);
     }
 
@@ -84,6 +92,10 @@ public abstract class UserTestComponent {
         user.setUsername(UUID.randomUUID().toString());
         user.setPassword(UUID.randomUUID() + "ousddffdi22AA");
         user.setEmail(UUID.randomUUID() + "@gmail.com");
+        user.setCountryName("France");
+        user.setCountryCode(250);
+        user.setCountryCode2Chars("FR");
+        user.setCountryCode3Chars("FRA");
         return userRepository.save(user);
     }
 

@@ -19,7 +19,19 @@ public interface UserMapper extends ApiMapper<User, UserDTO> {
     @Mapping(target = "validTokens", ignore = true)
     @Mapping(target = "tokens", ignore = true)
     @Mapping(target = "authorities", ignore = true)
+    @Mapping(target = "countryName", source = "country.name")
+    @Mapping(target = "countryCode", source = "country.code")
+    @Mapping(target = "countryCode2Chars", source = "country.countryCode2Chars")
+    @Mapping(target = "countryCode3Chars", source = "country.countryCode3Chars")
     User toEntity(UserDTO dto);
+
+    @Override
+    @Mapping(target = "id", source = "uuid")
+    @Mapping(target = "country.name", source = "countryName")
+    @Mapping(target = "country.code", source = "countryCode")
+    @Mapping(target = "country.countryCode2Chars", source = "countryCode2Chars")
+    @Mapping(target = "country.countryCode3Chars", source = "countryCode3Chars")
+    UserDTO toDto(User entity);
 
     @Override
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

@@ -48,6 +48,18 @@ public class User extends ApiEntity implements UserDetails {
     @Column(columnDefinition = "boolean default false")
     private Boolean valid = false;
 
+    @Column(nullable = false, name = "country_name", columnDefinition = "VARCHAR(255) DEFAULT 'France'")
+    private String countryName;
+
+    @Column(nullable = false, name = "country_code", columnDefinition = "INT DEFAULT 250")
+    private Integer countryCode;
+
+    @Column(nullable = false, name = "country_code_2_chars", columnDefinition = "VARCHAR(2) DEFAULT 'FR'")
+    private String countryCode2Chars;
+
+    @Column(nullable = false, name = "country_code_3_chars", columnDefinition = "VARCHAR(3) DEFAULT 'FRA'")
+    private String countryCode3Chars;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserToken> tokens;
 

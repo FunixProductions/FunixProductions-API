@@ -6,7 +6,6 @@ import com.funixproductions.api.user.client.dtos.requests.UserPasswordResetDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserPasswordResetRequestDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserSecretsDTO;
 import com.funixproductions.api.user.client.enums.UserRole;
-import com.funixproductions.api.user.service.components.UserPasswordUtils;
 import com.funixproductions.api.user.service.components.UserTestComponent;
 import com.funixproductions.api.user.service.entities.User;
 import com.funixproductions.api.user.service.entities.UserPasswordReset;
@@ -50,9 +49,6 @@ class UserResetPasswordResourceTest extends UserTestComponent {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private UserPasswordUtils userPasswordUtils;
 
     @Autowired
     private IPUtils ipUtils;
@@ -110,7 +106,6 @@ class UserResetPasswordResourceTest extends UserTestComponent {
         method.setAccessible(true);
         final String mailBody = (String) method.invoke(new UserResetService(
                 userRepository,
-                userPasswordUtils,
                 userPasswordResetRepository,
                 super.googleGmailClient,
                 ipUtils
@@ -135,7 +130,6 @@ class UserResetPasswordResourceTest extends UserTestComponent {
         method.setAccessible(true);
         final String mailBody = (String) method.invoke(new UserResetService(
                 userRepository,
-                userPasswordUtils,
                 userPasswordResetRepository,
                 super.googleGmailClient,
                 ipUtils
@@ -153,6 +147,12 @@ class UserResetPasswordResourceTest extends UserTestComponent {
         userSecretsDTO.setRole(UserRole.USER);
         userSecretsDTO.setEmail(email);
         userSecretsDTO.setUsername(username);
+        userSecretsDTO.setCountry(new UserDTO.Country(
+                "France",
+                250,
+                "FR",
+                "FRA"
+        ));
 
         return userCrudService.create(userSecretsDTO);
     }

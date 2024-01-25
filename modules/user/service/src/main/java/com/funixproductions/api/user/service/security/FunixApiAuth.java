@@ -2,13 +2,12 @@ package com.funixproductions.api.user.service.security;
 
 import com.funixproductions.api.user.service.entities.User;
 import com.funixproductions.api.user.service.services.UserCrudService;
+import com.funixproductions.core.exceptions.ApiBadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 @RequiredArgsConstructor
 public class FunixApiAuth implements AuthenticationManager {
@@ -24,10 +23,10 @@ public class FunixApiAuth implements AuthenticationManager {
             if (user.getPassword().equals(password)) {
                 return new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
             } else {
-                throw new BadCredentialsException("Bad credentials");
+                throw new ApiBadRequestException("Mauvais identifiants.");
             }
-        } catch (UsernameNotFoundException e) {
-            throw new BadCredentialsException("Bad credentials");
+        } catch (Exception e) {
+            throw new ApiBadRequestException("Mauvais identifiants.");
         }
     }
 }
