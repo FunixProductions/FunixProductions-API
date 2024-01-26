@@ -29,12 +29,17 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
 @Service
 public class BillingCrudService extends ApiService<BillingDTO, Billing, BillingMapper, BillingRepository> {
 
+    private static final ZoneId ZONE_ID = ZoneId.of("Europe/Paris");
     private static final String THANKS_FOR_YOUR_PURCHASE = "Merci pour votre achat ! Vous trouverez ci-joint votre facture. Si vous avez des questions, n'hésitez pas à nous contacter à l'adresse contact@funixproductions.com.";
     private final FunixProductionsCompanyData funixProductionsCompanyData = new FunixProductionsCompanyData();
     private final File pdfDirectory = new File("invoices");
@@ -57,6 +62,16 @@ public class BillingCrudService extends ApiService<BillingDTO, Billing, BillingM
 
         final ImageReaderClasspath imageReaderClasspath = new ImageReaderClasspath(BillingCrudService.class, "logos/funixproductions-logo.png", "png");
         this.funixProdLogo = imageReaderClasspath.getBytes();
+    }
+
+    public List<BillingDTO> getMonthlyReport(final @NonNull LocalDate date) {
+        final Instant[] dateRange = getDateRange(date);
+        final List<Billing> billings = super.getRepository().findAllByCreatedAtBetween(Date.from(dateRange[0]), Date.from(dateRange[1]));
+
+        return billings
+                .stream()
+                .map(super.getMapper()::toDto)
+                .toList();
     }
 
     @Override
@@ -157,6 +172,16 @@ public class BillingCrudService extends ApiService<BillingDTO, Billing, BillingM
             log.info("L'utilisateur id {} nom {} et email {} a essayé de télécharger la facture id {} sans permission.", user.getId(), user.getUsername(), user.getEmail(), billing.getId());
             return false;
         }
+    }
+
+    private Instant[] getDateRange(final LocalDate date) {
+        final LocalDate firstDayOfMonth = date.withDayOfMonth(1);
+        final LocalDate lastDayOfMonth = date.withDayOfMonth(date.lengthOfMonth());
+
+        return new Instant[] {
+                firstDayOfMonth.atStartOfDay(ZONE_ID).toInstant(),
+                lastDayOfMonth.atStartOfDay(ZONE_ID).plusDays(1).toInstant()
+        };
     }
 
     @Override

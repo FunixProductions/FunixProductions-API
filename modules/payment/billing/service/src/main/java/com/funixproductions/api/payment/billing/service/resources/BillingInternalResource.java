@@ -5,10 +5,12 @@ import com.funixproductions.api.payment.billing.client.dtos.BillingDTO;
 import com.funixproductions.api.payment.billing.service.services.BillingCrudService;
 import com.funixproductions.core.crud.resources.ApiResource;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
+import com.funixproductions.core.exceptions.ApiException;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -16,6 +18,17 @@ import java.util.List;
 public class BillingInternalResource extends ApiResource<BillingDTO, BillingCrudService> implements BillingInternalClient {
     public BillingInternalResource(BillingCrudService service) {
         super(service);
+    }
+
+    @Override
+    public List<BillingDTO> getMonthlyReport(LocalDate date) {
+        try {
+            return super.getService().getMonthlyReport(date);
+        } catch (ApiException apiException) {
+            throw apiException;
+        } catch (Exception e) {
+            throw new ApiException("Error while getting monthly report", e);
+        }
     }
 
     @Override
