@@ -11,7 +11,7 @@ import lombok.Setter;
 public class UserCreationDTO {
     @NotBlank(message = "Le nom d'utilisateur ne peut pas être vide")
     @Size(min = 3, max = 40, message = "Le nom d'utilisateur doit contenir entre 3 et 40 caractères")
-    @Pattern(regexp = "^[a-zA-Z0-9._-]{3,}$", message = "Le nom d'utilisateur ne peut contenir que des lettres, des chiffres et les caractères _ -")
+    @Pattern(regexp = UserDTO.REGEX_USERNAME, message = "Le nom d'utilisateur ne peut contenir que des lettres, des chiffres et les caractères _ -")
     private String username;
 
     @NotBlank(message = "L'adresse email ne peut pas être vide")
