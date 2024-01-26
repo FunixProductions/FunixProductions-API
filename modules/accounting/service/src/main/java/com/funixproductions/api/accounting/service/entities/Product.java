@@ -20,6 +20,12 @@ public class Product extends ApiEntity {
     @Column(nullable = false, name = "monthly")
     private Boolean monthly;
 
+    @Column(nullable = false, name = "is_eu")
+    private Boolean isEu;
+
+    @Column(nullable = false, name = "is_physical")
+    private Boolean isPhysical;
+
     @Column(nullable = false, name = "amount_ht")
     private Double amountHT;
 

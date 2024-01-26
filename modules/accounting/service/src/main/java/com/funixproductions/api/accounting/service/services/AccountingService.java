@@ -1,17 +1,23 @@
 package com.funixproductions.api.accounting.service.services;
 
 import com.funixproductions.api.accounting.service.entities.AccountingReport;
+import com.funixproductions.api.accounting.service.entities.Income;
 import com.funixproductions.api.accounting.service.entities.Product;
+import com.funixproductions.api.accounting.service.repositories.IncomeRepository;
 import com.funixproductions.api.accounting.service.repositories.ProductRepository;
 import com.funixproductions.api.google.gmail.client.clients.GoogleGmailClient;
+import com.funixproductions.api.google.gmail.client.dto.MailDTO;
+import com.funixproductions.api.google.gmail.client.dto.MailFileDTO;
 import com.funixproductions.api.payment.billing.client.clients.BillingFeignInternalClient;
 import com.funixproductions.api.payment.billing.client.dtos.BillingDTO;
 import com.funixproductions.core.exceptions.ApiException;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -36,6 +42,7 @@ public class AccountingService {
 
     private final BillingFeignInternalClient billingClient;
     private final ProductRepository productRepository;
+    private final IncomeRepository incomeRepository;
     private final GoogleGmailClient gmailClient;
 
     @Scheduled(cron = "0 1 1 * *")
@@ -47,11 +54,40 @@ public class AccountingService {
                     Date.from(dateRange[0]),
                     Date.from(dateRange[1])
             );
+            final List<Income> incomes = incomeRepository.findAllByCreatedAtBetween(
+                    Date.from(dateRange[0]),
+                    Date.from(dateRange[1])
+            );
 
-            final AccountingReport accountingReport = new AccountingReport(billingData, products);
+            final AccountingReport accountingReport = new AccountingReport(billingData, products, incomes);
+            sendMail(accountingReport);
         } catch (Exception e) {
             log.error("Error while sending last month billing report", e);
             throw new ApiException("Error while sending last month billing report", e);
+        }
+    }
+
+    private void sendMail(final AccountingReport accountingReport) {
+        final String monthAndYearString = getMonthAndYearString();
+        final String subject = String.format(SUBJECT, monthAndYearString);
+        final String body = String.format(BODY, monthAndYearString);
+
+        try (final AccountingPdfGenerator accountingPdfGenerator = new AccountingPdfGenerator(accountingReport, monthAndYearString)) {
+            final File pdfFile = accountingPdfGenerator.generate();
+
+            gmailClient.sendMail(
+                    new MailDTO(
+                            subject,
+                            body,
+                            new MailFileDTO(pdfFile)
+                    ),
+                    new String[]{OWNER_EMAIL}
+            );
+            if (!pdfFile.delete()) {
+                log.warn("Unable to delete file {}", pdfFile.getAbsolutePath());
+            }
+        } catch (FeignException e) {
+            throw new ApiException("Error while sending mail", e);
         }
     }
 

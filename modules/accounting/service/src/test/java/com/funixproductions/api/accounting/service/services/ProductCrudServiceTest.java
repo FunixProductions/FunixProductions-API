@@ -20,6 +20,7 @@ class ProductCrudServiceTest {
         productDTO.setProductName("Test Product");
         productDTO.setProductDescription("Un test de produit");
         productDTO.setMonthly(true);
+        productDTO.setIsEu(true);
         productDTO.setAmountHT(10.0);
         productDTO.setAmountTax(2.0);
 

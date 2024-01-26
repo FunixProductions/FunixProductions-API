@@ -24,6 +24,12 @@ public class ProductDTO extends ApiDTO {
     @NotNull(message = "Vous devez indiquer si la facture est mensuelle ou non.")
     private Boolean monthly;
 
+    @NotNull(message = "Vous devez indiquer si la facture est européenne ou non.")
+    private Boolean isEu;
+
+    @NotNull(message = "Vous devez indiquer si l'element acheté est physique ou non.")
+    private Boolean isPhysical;
+
     @NotNull(message = "Vous devez indiquer le montant HT de la facture.")
     @Min(value = 0, message = "Le montant HT de la facture ne peut pas être négatif.")
     private Double amountHT;
