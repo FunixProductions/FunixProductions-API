@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.lang.Nullable;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Getter
@@ -54,7 +55,7 @@ public class BillingDTO extends ApiDTO {
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class BilledEntity implements PDFCompanyData {
+    public static class BilledEntity implements PDFCompanyData, Serializable {
         @NotBlank(message = "Le nom de l'entité facturée est obligatoire")
         private String name;
 
@@ -91,7 +92,7 @@ public class BillingDTO extends ApiDTO {
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class Price {
+    public static class Price implements Serializable {
         @NotNull(message = "Le prix HT est obligatoire")
         @Min(value = 0, message = "Le prix HT doit être supérieur ou égal à 0")
         private Double ht;

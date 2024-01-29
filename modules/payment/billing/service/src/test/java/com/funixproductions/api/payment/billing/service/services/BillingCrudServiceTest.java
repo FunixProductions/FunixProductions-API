@@ -22,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.io.File;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -193,6 +194,15 @@ class BillingCrudServiceTest {
 
             assertThrowsExactly(ApiForbiddenException.class, () -> this.billingCrudService.getInvoiceFile(res2.getId().toString()));
         });
+    }
+
+    @Test
+    void testGetMonthlyReport() {
+        this.billingCrudService.create(generateDto());
+        this.billingCrudService.create(generateDto());
+
+        final List<BillingDTO> billingDTOS = this.billingCrudService.getMonthlyReport(LocalDate.now());
+        assertEquals(2, billingDTOS.size());
     }
 
     private BillingDTO generateDto() {

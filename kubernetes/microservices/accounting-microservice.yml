@@ -2,18 +2,18 @@ apiVersion: apps/v1
 kind: Deployment
 
 metadata:
-  name: payment-billing-microservice-deployment
+  name: accounting-microservice-deployment
   namespace: 'funixproductions'
   labels:
     app: springboot
-    service: payment-billing
+    service: accounting
 
 spec:
-  replicas: 4
+  replicas: 1
   selector:
     matchLabels:
       app: springboot
-      service: payment-billing
+      service: accounting
   template:
     metadata:
       namespace: 'funixproductions'
@@ -21,19 +21,16 @@ spec:
         build-time: "TIME-UPDATE-BUILD-FNG"
       labels:
         app: springboot
-        service: payment-billing
+        service: accounting
     spec:
       containers:
-        - name: springboot-payment-billing
-          image: ghcr.io/funixproductions/funixproductions-api-payment-billing:latest
-          volumeMounts:
-            - mountPath: /container/app/
-              name: pdf-storage
+        - name: springboot-accounting
+          image: ghcr.io/funixproductions/funixproductions-api-accounting:latest
           ports:
             - containerPort: 80
           resources:
             limits:
-                memory: "800Mi"
+                memory: "500Mi"
           imagePullPolicy: Always
           readinessProbe:
             httpGet:
@@ -69,10 +66,6 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: postgres-password
-      volumes:
-        - name: pdf-storage
-          hostPath:
-            path: /vagrant/nfs-storage/funixproductions/
 
 ---
 
@@ -81,13 +74,13 @@ kind: Service
 
 metadata:
   namespace: 'funixproductions'
-  name: payment-billing
+  name: accounting
 
 spec:
   type: ClusterIP
   selector:
     app: springboot
-    service: payment-billing
+    service: accounting
   ports:
     - protocol: TCP
       port: 80

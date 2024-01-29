@@ -29,6 +29,14 @@ spec:
                 port:
                   number: 80
 
+          - path: /accounting
+            pathType: Prefix
+            backend:
+              service:
+                name: accounting
+                port:
+                  number: 80
+
           - path: /twitch/auth
             pathType: Prefix
             backend:

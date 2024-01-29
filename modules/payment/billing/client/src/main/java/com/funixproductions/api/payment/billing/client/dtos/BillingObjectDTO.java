@@ -7,11 +7,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class BillingObjectDTO implements InvoiceItem {
+public class BillingObjectDTO implements InvoiceItem, Serializable {
 
     @NotBlank(message = "Le nom de l'objet facturé est obligatoire")
     @Size(max = 100, message = "Le nom de l'objet facturé ne doit pas dépasser 100 caractères")
