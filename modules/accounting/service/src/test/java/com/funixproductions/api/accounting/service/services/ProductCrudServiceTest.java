@@ -23,6 +23,7 @@ class ProductCrudServiceTest {
         productDTO.setIsEu(true);
         productDTO.setAmountHT(10.0);
         productDTO.setAmountTax(2.0);
+        productDTO.setIsPhysical(false);
 
         assertDoesNotThrow(() -> {
             final ProductDTO res = productCrudService.create(productDTO);
