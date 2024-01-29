@@ -13,6 +13,7 @@ public class AccountingPdfGenerator extends PDFGeneratorWithHeaderAndFooter {
 
     private final AccountingReport accountingReport;
     private final String dateReport;
+    private final float FONT_SIZE = DEFAULT_FONT_SIZE - 3;
 
     protected AccountingPdfGenerator(final AccountingReport accountingReport,
                                      final String dateReport) {
@@ -38,7 +39,7 @@ public class AccountingPdfGenerator extends PDFGeneratorWithHeaderAndFooter {
                         Color.GRAY
                 )
         ));
-        super.yPosition -= super.margin * 2;
+        super.yPosition -= super.margin;
 
         super.writePlainText(List.of(
                 new PDFLine(
@@ -47,107 +48,99 @@ public class AccountingPdfGenerator extends PDFGeneratorWithHeaderAndFooter {
                         DEFAULT_FONT,
                         Color.BLACK
                 ),
-                new PDFLine(""),
                 new PDFLine(
                         "CASE A1 & 08 - Revenus HT de prestations de services en France et hors UE : ",
-                        DEFAULT_FONT_SIZE,
+                        FONT_SIZE,
                         DEFAULT_FONT,
                         Color.GRAY
                 ),
                 new PDFLine(
                         parseDoubleEuros(accountingReport.getCaHtPrestation()),
-                        DEFAULT_FONT_SIZE,
+                        FONT_SIZE,
                         DEFAULT_FONT,
                         Color.BLACK
                 ),
-                new PDFLine(""),
                 new PDFLine(
                         "CASE A3 - Dépenses HT de prestations de services dans UE : ",
-                        DEFAULT_FONT_SIZE,
+                        FONT_SIZE,
                         DEFAULT_FONT,
                         Color.GRAY
                 ),
                 new PDFLine(
                         parseDoubleEuros(accountingReport.getHtServiceBoughtEu()),
-                        DEFAULT_FONT_SIZE,
+                        FONT_SIZE,
                         DEFAULT_FONT,
                         Color.BLACK
                 ),
-                new PDFLine(""),
                 new PDFLine(
                         "CASE A2 - Dépenses HT de prestations de services hors UE : ",
-                        DEFAULT_FONT_SIZE,
+                        FONT_SIZE,
                         DEFAULT_FONT,
                         Color.GRAY
                 ),
                 new PDFLine(
                         parseDoubleEuros(accountingReport.getHtServiceBoughtNonEu()),
-                        DEFAULT_FONT_SIZE,
+                        FONT_SIZE,
                         DEFAULT_FONT,
                         Color.BLACK
                 ),
-                new PDFLine(""),
                 new PDFLine(
                         "CASE B2 - Dépenses HT de biens physiques dans UE : ",
-                        DEFAULT_FONT_SIZE,
+                        FONT_SIZE,
                         DEFAULT_FONT,
                         Color.GRAY
                 ),
                 new PDFLine(
                         parseDoubleEuros(accountingReport.getHtPhysicalProductBoughtEu()),
-                        DEFAULT_FONT_SIZE,
+                        FONT_SIZE,
                         DEFAULT_FONT,
                         Color.BLACK
                 ),
-                new PDFLine(""),
                 new PDFLine(
                         "CASE A4 - Dépenses HT de biens physiques hors UE : ",
-                        DEFAULT_FONT_SIZE,
+                        FONT_SIZE,
                         DEFAULT_FONT,
                         Color.GRAY
                 ),
                 new PDFLine(
                         parseDoubleEuros(accountingReport.getHtPhysicalProductBoughtNonEu()),
-                        DEFAULT_FONT_SIZE,
+                        FONT_SIZE,
                         DEFAULT_FONT,
                         Color.BLACK
                 ),
-                new PDFLine(""),
                 new PDFLine(
                         "CASE E3 - TVA à déclarer par pays membre de l'union européenne (10k€ de ca annuel pays euro) : ",
-                        DEFAULT_FONT_SIZE,
+                        FONT_SIZE,
                         DEFAULT_FONT,
                         Color.GRAY
                 ),
                 new PDFLine(
                         parseDoubleEuros(accountingReport.getHtPrestationSoldEu().values().stream().reduce(0.0, Double::sum)),
-                        DEFAULT_FONT_SIZE,
+                        FONT_SIZE,
                         DEFAULT_FONT,
                         Color.BLACK
                 ),
-                new PDFLine(""),
                 new PDFLine(
                         "CASE 17 - TVA à déclarer pour les autoliquidation dans l'ue : ",
-                        DEFAULT_FONT_SIZE,
+                        FONT_SIZE,
                         DEFAULT_FONT,
                         Color.GRAY
                 ),
                 new PDFLine(
                         parseDoubleEuros(accountingReport.getIntracomVat()),
-                        DEFAULT_FONT_SIZE,
+                        FONT_SIZE,
                         DEFAULT_FONT,
                         Color.BLACK
                 ),
-                new PDFLine(""),
                 new PDFLine(
                         "CASE 20 - TVA à déduire des achats : ",
-                        DEFAULT_FONT_SIZE,
+                        FONT_SIZE,
                         DEFAULT_FONT,
                         Color.GRAY
                 ),
                 new PDFLine(
                         parseDoubleEuros(accountingReport.getTvaToDeduct()),
-                        DEFAULT_FONT_SIZE,
+                        FONT_SIZE,
                         DEFAULT_FONT,
                         Color.BLACK
                 )
