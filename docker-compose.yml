@@ -46,6 +46,15 @@ services:
         service_name: google-recaptcha
         service_base_dir: google/reCaptcha
 
+  #Accounting - Calculator ursaff and impots.gouv service
+  build-production-accounting-service:
+    image: ghcr.io/funixproductions/funixproductions-api-accounting:${IMAGE_TAG}
+    build:
+      context: .
+      args:
+        service_name: accounting
+        service_base_dir: accounting
+
   #Payment - PayPal service
   build-production-payment-paypal-service:
     image: ghcr.io/funixproductions/funixproductions-api-payment-paypal:${IMAGE_TAG}
