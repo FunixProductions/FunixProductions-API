@@ -158,7 +158,7 @@ public class AccountingPdfGenerator extends PDFGeneratorWithHeaderAndFooter {
                         Color.GRAY
                 ),
                 new PDFLine(
-                        "Repprt du " + dateReport,
+                        "Rapport du " + dateReport,
                         DEFAULT_FONT_SIZE,
                         DEFAULT_FONT,
                         Color.GRAY
