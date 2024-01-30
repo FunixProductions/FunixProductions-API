@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.funixproductions.api.twitch.auth</groupId>
         <artifactId>funixproductions-twitch-auth</artifactId>
-        <version>1.2.2.5</version>
+        <version>1.3.0</version>
     </parent>
 
     <groupId>com.funixproductions.api.twitch.auth.client</groupId>
