@@ -26,6 +26,7 @@ public interface BillingMapper extends ApiMapper<Billing, BillingDTO> {
     @Mapping(target = "priceTTC", source = "amountTotal.ttc")
     @Mapping(target = "priceTax", source = "amountTotal.tax")
     @Mapping(target = "percentageDiscount", source = "amountTotal.discount")
+    @Mapping(target = "invoiceFilePath", ignore = true)
     Billing toEntity(BillingDTO dto);
 
     @Override
