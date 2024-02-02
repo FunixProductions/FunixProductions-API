@@ -11,6 +11,9 @@ jobs:
     permissions:
       contents: read
 
+    environment:
+      name: maven-central
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -109,6 +112,8 @@ jobs:
       - build-production-docker-images
 
     runs-on: ubuntu-latest
+    environment:
+      name: production
 
     steps:
       - name: Set up kubectl
