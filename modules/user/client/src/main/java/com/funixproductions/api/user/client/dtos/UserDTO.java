@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 public class UserDTO extends ApiDTO {
@@ -38,7 +40,7 @@ public class UserDTO extends ApiDTO {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Country {
+    public static class Country implements Serializable {
         @NotBlank(message = "Le nom du pays ne peut pas être vide")
         private String name;
 

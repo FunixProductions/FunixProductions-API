@@ -43,21 +43,25 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         }
 
         final String token = bearerTokenHeader.split(" ")[1].trim();
-        final User user = tokenService.isTokenValid(token);
 
-        if (user == null) {
+        try {
+            final User user = tokenService.isTokenValid(token);
+            if (user == null) {
+                chain.doFilter(request, response);
+                return;
+            }
+
+            final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    getUserSession(token, user, request),
+                    null,
+                    user.getAuthorities()
+            );
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
             chain.doFilter(request, response);
-            return;
+        } catch (Exception e) {
+            chain.doFilter(request, response);
         }
-
-        final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                getUserSession(token, user, request),
-                null,
-                user.getAuthorities()
-        );
-        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        chain.doFilter(request, response);
     }
 
     private UserSession getUserSession(@NonNull final String token, final User user, final HttpServletRequest request) {
