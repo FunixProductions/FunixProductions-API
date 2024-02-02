@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Build Dev Environment
+name: Deploy Dev Environment
 
 on:
   push:
@@ -73,7 +73,7 @@ jobs:
           IMAGE_TAG: dev
         run: docker compose build --push
 
-  update-kubernetes-cluster:
+  deploy-to-kubernetes-cluster:
     needs:
       - build-production-docker-images
 
@@ -95,7 +95,7 @@ jobs:
 
   send-success-build-discord-notif:
     needs:
-      - update-kubernetes-cluster
+      - deploy-to-kubernetes-cluster
 
     runs-on: ubuntu-latest
 
