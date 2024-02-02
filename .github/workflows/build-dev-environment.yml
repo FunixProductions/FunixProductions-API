@@ -78,6 +78,8 @@ jobs:
       - build-production-docker-images
 
     runs-on: ubuntu-latest
+    environment: 
+      name: development
 
     steps:
       - name: Set up kubectl
