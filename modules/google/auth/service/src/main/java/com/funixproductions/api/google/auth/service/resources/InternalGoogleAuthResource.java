@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequestMapping("/kubeinternal/google/auth")
@@ -16,7 +18,7 @@ public class InternalGoogleAuthResource implements InternalGoogleAuthClient {
     private final GoogleAuthRepository googleAuthRepository;
 
     @Override
-    public void deleteAllByUserUuidIn(Iterable<String> userUuids) {
+    public void deleteAllByUserUuidIn(List<String> userUuids) {
         this.googleAuthRepository.deleteAllByUserUuidIn(userUuids);
         log.info("Deleted all google auths for users with uuids: {}", userUuids);
     }
