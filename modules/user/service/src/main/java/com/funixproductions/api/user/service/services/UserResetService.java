@@ -169,7 +169,7 @@ public class UserResetService {
             urlRedirect = origin.getDomainProd();
         }
 
-        return urlRedirect + "/reset-password?token=" + Base64.getEncoder().encodeToString(resetToken.getBytes());
+        return urlRedirect + "/user/reset-password?token=" + Base64.getEncoder().encodeToString(resetToken.getBytes());
     }
 
     private UserPasswordReset generateNewResetToken(final User user, final FrontOrigins origin) {
