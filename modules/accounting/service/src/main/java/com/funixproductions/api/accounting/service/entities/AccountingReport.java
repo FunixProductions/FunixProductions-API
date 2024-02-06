@@ -18,7 +18,7 @@ public class AccountingReport {
 
     /**
      * Chiffre d'affaire en hors taxe de prestation de services EN FRANCE et hors EU (revenus liés à pacifista, funixgaming les dons, etc...)
-     * Pour Impots.gouv case A1 et case 08
+     * Pour Impots.gouv case A1
      */
     private final Double caHtPrestation;
 
@@ -60,6 +60,11 @@ public class AccountingReport {
     private final Double intracomVat;
 
     /**
+     * Opérations réalisées en France Métropolitaine
+     */
+    private final Double francePrestationTaxHt;
+
+    /**
      * La TVA à déduire des achats (facture orange, hébergement web et dédié, etc...)
      * Ligne 20
      */
@@ -73,6 +78,7 @@ public class AccountingReport {
         this.htPhysicalProductBoughtEu = calculateHtPhysicalProductBoughtEu(products);
         this.htPhysicalProductBoughtNonEu = calculateHtPhysicalProductBoughtNonEu(products);
         this.htPrestationSoldEu = calculateHtPrestationSoldEu(billingData);
+        this.francePrestationTaxHt = calculateFranceTvaHt(billingData);
         this.intracomVat = this.htServiceBoughtEu * 0.2 + this.htPhysicalProductBoughtEu * 0.2;
         this.tvaToDeduct = calculateTvaToDeduct(products);
     }
@@ -93,11 +99,20 @@ public class AccountingReport {
         Double ca = 0.0;
 
         for (final BillingDTO billingDTO : billingData) {
-            if (billingDTO.getVatInformation() == null || billingDTO.getVatInformation() == VATInformation.FRANCE) {
-                ca += billingDTO.getAmountTotal().getHt();
-            }
+            ca += billingDTO.getAmountTotal().getHt();
         }
         return ca;
+    }
+
+    private static Double calculateFranceTvaHt(final List<BillingDTO> billingData) {
+        Double tva = 0.0;
+
+        for (final BillingDTO billingDTO : billingData) {
+            if (billingDTO.getVatInformation() == null || billingDTO.getVatInformation() == VATInformation.FRANCE) {
+                tva += billingDTO.getAmountTotal().getHt();
+            }
+        }
+        return tva;
     }
 
     private static Double calculateHtServiceBoughtEu(final List<Product> products) {

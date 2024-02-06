@@ -49,7 +49,7 @@ public class AccountingPdfGenerator extends PDFGeneratorWithHeaderAndFooter {
                         Color.BLACK
                 ),
                 new PDFLine(
-                        "CASE A1 & 08 - Revenus HT de prestations de services en France et hors UE : ",
+                        "CASE A1 - Revenus HT de prestations de services : ",
                         FONT_SIZE,
                         DEFAULT_FONT,
                         Color.GRAY
@@ -116,6 +116,18 @@ public class AccountingPdfGenerator extends PDFGeneratorWithHeaderAndFooter {
                 ),
                 new PDFLine(
                         parseDoubleEuros(accountingReport.getHtPrestationSoldEu().values().stream().reduce(0.0, Double::sum)),
+                        FONT_SIZE,
+                        DEFAULT_FONT,
+                        Color.BLACK
+                ),
+                new PDFLine(
+                        "CASE 08 - Opérations réalisées en France en HT : ",
+                        FONT_SIZE,
+                        DEFAULT_FONT,
+                        Color.GRAY
+                ),
+                new PDFLine(
+                        parseDoubleEuros(accountingReport.getFrancePrestationTaxHt()),
                         FONT_SIZE,
                         DEFAULT_FONT,
                         Color.BLACK
