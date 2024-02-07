@@ -60,7 +60,8 @@ public class AccountingReport {
     private final Double intracomVat;
 
     /**
-     * Opérations réalisées en France Métropolitaine
+     * Opérations réalisées en taxe 20% (ligne 08)
+     * Le montant des produits soumis au taux de 20% y compris le montant des acquisitions intracommunautaires.
      */
     private final Double francePrestationTaxHt;
 
@@ -79,7 +80,7 @@ public class AccountingReport {
         this.htPhysicalProductBoughtNonEu = calculateHtPhysicalProductBoughtNonEu(products);
         this.htPrestationSoldEu = calculateHtPrestationSoldEu(billingData);
         this.francePrestationTaxHt = calculateFranceTvaHt(billingData);
-        this.intracomVat = this.htServiceBoughtEu * 0.2 + this.htPhysicalProductBoughtEu * 0.2;
+        this.intracomVat = this.htServiceBoughtEu * (VATInformation.FRANCE.getVatRate() / 100) + this.htPhysicalProductBoughtEu * (VATInformation.FRANCE.getVatRate() / 100);
         this.tvaToDeduct = calculateTvaToDeduct(products);
     }
 
