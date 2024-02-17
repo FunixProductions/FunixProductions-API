@@ -124,8 +124,7 @@ public class InvoiceSenderService {
         } else {
             for (final PaypalOrderResponseDTO.PurchaseUnitResponse purchaseUnit : paypalOrderResponseDTO.getPurchaseUnits()) {
                 for (final PurchaseUnitDTO.Item item : purchaseUnit.getItems()) {
-                    final PurchaseUnitDTO.Amount.Breakdown breakdown = purchaseUnit.getAmount().getBreakdown();
-                    final double ht = Double.parseDouble(breakdown.getItemTotal().getValue());
+                    final double ht = Double.parseDouble(item.getUnitAmount().getValue());
 
                     toSend.add(new BillingObjectDTO(
                             item.getName(),
