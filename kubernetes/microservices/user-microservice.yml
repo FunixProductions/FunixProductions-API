@@ -9,7 +9,7 @@ metadata:
     service: user
 
 spec:
-  replicas: 4
+  replicas: 6
   selector:
     matchLabels:
       app: springboot
@@ -71,6 +71,11 @@ spec:
                 secretKeyRef:
                   name: encryption-secret
                   key: jwt-key
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: sentry-secret
+                  key: sentry-funixprod-api-key
 
 ---
 

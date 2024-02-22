@@ -44,6 +44,8 @@ spec:
           env:
             - name: APP_PORT
               value: '80'
+            - name: SPRING_PROFILES_ACTIVE
+              value: 'dev'
             - name: DB_HOSTNAME
               valueFrom:
                 configMapKeyRef:
@@ -69,6 +71,11 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: postgres-password
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: sentry-secret
+                  key: sentry-funixprod-api-key
       volumes:
         - name: pdf-storage
           hostPath:

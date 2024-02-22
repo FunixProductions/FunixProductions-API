@@ -9,7 +9,7 @@ metadata:
     service: twitch-reference
 
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: springboot
@@ -51,6 +51,11 @@ spec:
                 secretKeyRef:
                   name: twitch-secret
                   key: twitch-client-secret
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: sentry-secret
+                  key: sentry-funixprod-api-key
 
 ---
 

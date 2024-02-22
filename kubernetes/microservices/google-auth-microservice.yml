@@ -9,7 +9,7 @@ metadata:
     service: google-auth
 
 spec:
-  replicas: 2
+  replicas: 4
   selector:
     matchLabels:
       app: springboot
@@ -66,6 +66,11 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: postgres-password
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: sentry-secret
+                  key: sentry-funixprod-api-key
 
 ---
 
