@@ -9,7 +9,7 @@ metadata:
     service: payment-paypal
 
 spec:
-  replicas: 4
+  replicas: 6
   selector:
     matchLabels:
       app: springboot
@@ -76,6 +76,11 @@ spec:
                 secretKeyRef:
                   name: paypal-secret
                   key: paypal-client-secret
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: sentry-secret
+                  key: sentry-funixprod-api-key
 
 ---
 

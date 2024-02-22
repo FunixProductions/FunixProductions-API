@@ -9,7 +9,7 @@ metadata:
     service: payment-billing
 
 spec:
-  replicas: 4
+  replicas: 6
   selector:
     matchLabels:
       app: springboot
@@ -69,6 +69,11 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: postgres-password
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: sentry-secret
+                  key: sentry-funixprod-api-key
       volumes:
         - name: pdf-storage
           hostPath:

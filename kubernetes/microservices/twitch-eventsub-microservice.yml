@@ -81,6 +81,11 @@ spec:
                 secretKeyRef:
                   name: twitch-secret
                   key: twitch-hmac-secret-key
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: sentry-secret
+                  key: sentry-funixprod-api-key
 
 ---
 

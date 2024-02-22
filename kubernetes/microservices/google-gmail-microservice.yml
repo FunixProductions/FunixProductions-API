@@ -9,7 +9,7 @@ metadata:
     service: google-gmail
 
 spec:
-  replicas: 4
+  replicas: 6
   selector:
     matchLabels:
       app: springboot
@@ -43,6 +43,11 @@ spec:
               value: '80'
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: '/google/gmail/gmail-credentials.json'
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: sentry-secret
+                  key: sentry-funixprod-api-key
           volumeMounts:
             - name: gmail-credentials
               mountPath: "/google/gmail/"
