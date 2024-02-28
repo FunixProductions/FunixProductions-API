@@ -124,13 +124,9 @@ public class TwitchClientTokenService {
             throw new ApiBadRequestException("Pas de user uuid spécifié pour la récupération de tokens twitch.");
         }
 
-        final Optional<TwitchClientToken> twitchClientToken = this.twitchClientTokenRepository.findTwitchClientTokenByUserUuid(userUuid.toString());
+        final TwitchClientToken twitchClientToken = this.twitchClientTokenRepository.findTwitchClientTokenByUserUuid(userUuid.toString()).orElseThrow(() -> new ApiNotFoundException(String.format("L'utilisateur %s ne possède pas de tokens twitch.", userUuid)));
 
-        if (twitchClientToken.isPresent()) {
-            return refreshToken(twitchClientToken.get());
-        } else {
-            throw new ApiNotFoundException(String.format("L'utilisateur %s ne possède pas de tokens twitch.", userUuid));
-        }
+        return refreshToken(twitchClientToken);
     }
 
     public TwitchClientTokenDTO fetchTokenByStreamerUsername(final String streamerUsername) {
