@@ -9,7 +9,7 @@ metadata:
     service: google-gmail
 
 spec:
-  replicas: 6
+  replicas: 3
   selector:
     matchLabels:
       app: springboot
@@ -30,7 +30,7 @@ spec:
             - containerPort: 80
           resources:
             limits:
-                memory: "800Mi"
+                memory: "1200Mi"
           imagePullPolicy: Always
           readinessProbe:
             httpGet:

@@ -9,7 +9,7 @@ metadata:
     service: user
 
 spec:
-  replicas: 6
+  replicas: 3
   selector:
     matchLabels:
       app: springboot
@@ -30,7 +30,7 @@ spec:
             - containerPort: 80
           resources:
             limits:
-                memory: "900Mi"
+                memory: "1024Mi"
           imagePullPolicy: Always
           readinessProbe:
             httpGet:
