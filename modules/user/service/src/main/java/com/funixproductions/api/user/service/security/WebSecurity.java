@@ -1,6 +1,5 @@
 package com.funixproductions.api.user.service.security;
 
-import com.funixproductions.api.encryption.client.utils.EncryptionString;
 import com.funixproductions.api.user.client.enums.UserRole;
 import com.funixproductions.api.user.client.security.ApiWebSecurity;
 import com.funixproductions.api.user.service.services.UserCrudService;
@@ -14,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -63,24 +63,19 @@ public class WebSecurity {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager() {
-        return new FunixApiAuth(userCrudService);
+    public PasswordEncoder passwordEncoder() {
+        return new Argon2PasswordEncoder(
+                16,
+                32,
+                1,
+                60000,
+                10
+        );
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(EncryptionString encryptionString) {
-        return new PasswordEncoder() {
-            @Override
-            public String encode(CharSequence rawPassword) {
-                return encryptionString.convertToDatabaseColumn(rawPassword.toString());
-            }
-
-            @Override
-            public boolean matches(CharSequence rawPassword, String encodedPassword) {
-                final String decodedPassword = encryptionString.convertToEntityAttribute(encodedPassword);
-                return rawPassword.equals(decodedPassword);
-            }
-        };
+    public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) {
+        return new FunixApiAuth(userCrudService, passwordEncoder);
     }
 
 }
