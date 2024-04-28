@@ -9,7 +9,7 @@ metadata:
     service: payment-paypal
 
 spec:
-  replicas: 6
+  replicas: 4
   selector:
     matchLabels:
       app: springboot
@@ -30,7 +30,7 @@ spec:
             - containerPort: 80
           resources:
             limits:
-                memory: "800Mi"
+                memory: "1024Mi"
           imagePullPolicy: Always
           readinessProbe:
             httpGet:

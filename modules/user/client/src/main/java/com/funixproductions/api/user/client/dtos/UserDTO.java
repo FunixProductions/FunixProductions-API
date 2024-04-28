@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Date;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -55,5 +57,30 @@ public class UserDTO extends ApiDTO {
         @NotBlank(message = "Le code à 3 caractères du pays ne peut pas être vide")
         @Size(min = 3, max = 3, message = "Le code à 3 caractères du pays doit contenir 3 caractères")
         private String countryCode3Chars;
+    }
+
+    /**
+     * Generate fake data for testing purposes, DO NOT USE FOR REAL / PRODUCTION USAGE
+     * @return UserDTO with fake data
+     */
+    public static UserDTO generateFakeDataForTestingPurposes() {
+        final UserDTO userDTO = new UserDTO();
+
+        userDTO.setUsername(UUID.randomUUID().toString());
+        userDTO.setEmail(UUID.randomUUID() + "@fakemail.com");
+        userDTO.setRole(UserRole.USER);
+        userDTO.setValid(false);
+        userDTO.setId(UUID.randomUUID());
+        userDTO.setCreatedAt(new Date());
+        userDTO.setUpdatedAt(new Date());
+
+        final Country country = new Country();
+        country.setName("France");
+        country.setCode(33);
+        country.setCountryCode2Chars("fr");
+        country.setCountryCode3Chars("fra");
+
+        userDTO.setCountry(country);
+        return userDTO;
     }
 }
