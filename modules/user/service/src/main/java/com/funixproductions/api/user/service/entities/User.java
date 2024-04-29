@@ -1,8 +1,8 @@
 package com.funixproductions.api.user.service.entities;
 
-import com.funixproductions.api.encryption.client.utils.EncryptionString;
 import com.funixproductions.api.user.client.dtos.requests.UserCreationDTO;
 import com.funixproductions.api.user.client.enums.UserRole;
+import com.funixproductions.api.user.service.security.EncryptionBase64;
 import com.funixproductions.core.crud.entities.ApiEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -35,7 +35,7 @@ public class User extends ApiEntity implements UserDetails {
     private String email;
 
     @Column(nullable = false, length = 2000)
-    @Convert(converter = EncryptionString.class)
+    @Convert(converter = EncryptionBase64.class)
     private String password;
 
     @Column(nullable = false)

@@ -15,6 +15,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -26,16 +27,28 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
 
     private final UserValidationAccountService validationAccountService;
     private final InternalGoogleAuthClient googleAuthClient;
+    private final PasswordEncoder passwordEncoder;
 
     private final Cache<UUID, String> emailMapperCheck = CacheBuilder.newBuilder().expireAfterWrite(2, TimeUnit.MINUTES).build();
 
     public UserCrudService(UserMapper mapper,
                            UserRepository repository,
                            UserValidationAccountService validationAccountService,
-                           InternalGoogleAuthClient googleAuthClient) {
+                           InternalGoogleAuthClient googleAuthClient,
+                           PasswordEncoder passwordEncoder) {
         super(repository, mapper);
         this.validationAccountService = validationAccountService;
         this.googleAuthClient = googleAuthClient;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Override
+    public void beforeSavingEntity(@NonNull Iterable<User> entity) {
+        for (final User user : entity) {
+            if (user.getPassword() != null) {
+                user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+            }
+        }
     }
 
     @Override

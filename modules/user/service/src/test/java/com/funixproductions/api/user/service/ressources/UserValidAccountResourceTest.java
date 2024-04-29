@@ -167,7 +167,7 @@ class UserValidAccountResourceTest extends UserTestComponent {
         userDTO.setEmail(UUID.randomUUID() + "@gmail.com");
         mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.patch("/user/auth")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + loginUser(user).getToken())
+                        .header("Authorization", "Bearer " + loginUser(user, creationDTO.getPassword()).getToken())
                         .content(jsonHelper.toJson(userDTO)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
@@ -217,7 +217,7 @@ class UserValidAccountResourceTest extends UserTestComponent {
         userDTO.setUsername(UUID.randomUUID().toString());
         mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.patch("/user/auth")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + loginUser(user).getToken())
+                        .header("Authorization", "Bearer " + loginUser(user, creationDTO.getPassword()).getToken())
                         .content(jsonHelper.toJson(userDTO)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
