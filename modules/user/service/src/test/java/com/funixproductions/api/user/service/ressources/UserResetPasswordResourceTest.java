@@ -2,6 +2,7 @@ package com.funixproductions.api.user.service.ressources;
 
 import com.funixproductions.api.core.enums.FrontOrigins;
 import com.funixproductions.api.user.client.dtos.UserDTO;
+import com.funixproductions.api.user.client.dtos.requests.UserLoginDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserPasswordResetDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserPasswordResetRequestDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserSecretsDTO;
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.lang.reflect.Method;
@@ -51,12 +53,15 @@ class UserResetPasswordResourceTest extends UserTestComponent {
     private UserRepository userRepository;
 
     @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
     private IPUtils ipUtils;
 
     @Test
     void testUserResetPassword() throws Exception {
         final String email = UUID.randomUUID() + "test@gmail.com";
-        final String username = "heyTest" + UUID.randomUUID();
+        final String username = "heyTestForPassReset";
         final UserDTO userDTO = generateUser(email, username);
 
         final UserPasswordResetRequestDTO userPasswordResetRequestDTO = new UserPasswordResetRequestDTO();
@@ -77,6 +82,16 @@ class UserResetPasswordResourceTest extends UserTestComponent {
         mockMvc.perform(post("/user/auth/resetPassword")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.jsonHelper.toJson(userPasswordResetDTO))
+        ).andExpect(status().isOk());
+
+        final UserLoginDTO userLoginDTO = new UserLoginDTO();
+        userLoginDTO.setUsername(username);
+        userLoginDTO.setPassword(userPasswordResetDTO.getNewPassword());
+        userLoginDTO.setStayConnected(false);
+
+        mockMvc.perform(post("/user/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.jsonHelper.toJson(userLoginDTO))
         ).andExpect(status().isOk());
 
         mockMvc.perform(post("/user/auth/resetPassword")
@@ -108,7 +123,8 @@ class UserResetPasswordResourceTest extends UserTestComponent {
                 userRepository,
                 userPasswordResetRepository,
                 super.googleGmailClient,
-                ipUtils
+                ipUtils,
+                passwordEncoder
         ), user, frontOrigin, token, clientIp);
 
         assertTrue(mailBody.contains("<h1>Réinitialisation du mot de passe</h1>"));
@@ -132,7 +148,8 @@ class UserResetPasswordResourceTest extends UserTestComponent {
                 userRepository,
                 userPasswordResetRepository,
                 super.googleGmailClient,
-                ipUtils
+                ipUtils,
+                passwordEncoder
         ), user, FrontOrigins.FUNIX_PRODUCTIONS_DASHBOARD, null, clientIp);
 
         assertTrue(mailBody.contains("<h1>Réinitialisation du mot de passe</h1>"));

@@ -24,6 +24,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -47,17 +48,20 @@ public class UserResetService {
     private final UserPasswordResetRepository userPasswordResetRepository;
     private final GoogleGmailClient googleGmailClient;
     private final IPUtils ipUtils;
+    private final PasswordEncoder passwordEncoder;
 
     private final Cache<Long, Integer> triesCache = CacheBuilder.newBuilder().expireAfterWrite(COOLDOWN_REQUEST_SPAM, TimeUnit.MINUTES).build();
 
     public UserResetService(final UserRepository userRepository,
                             final UserPasswordResetRepository userPasswordResetRepository,
                             final GoogleGmailClient googleGmailClient,
-                            final IPUtils ipUtils) {
+                            final IPUtils ipUtils,
+                            final PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userPasswordResetRepository = userPasswordResetRepository;
         this.googleGmailClient = googleGmailClient;
         this.ipUtils = ipUtils;
+        this.passwordEncoder = passwordEncoder;
         this.resetMailTemplate = StringUtils.readFromClasspath("user/reset-mail.html", this.getClass());
         this.resetMailDoneTemplate = StringUtils.readFromClasspath("user/reset-mail-done.html", this.getClass());
     }
@@ -98,7 +102,7 @@ public class UserResetService {
 
             final User user = userPasswordReset.getUser();
 
-            user.setPassword(request.getNewPassword());
+            user.setPassword(this.passwordEncoder.encode(request.getNewPassword()));
 
             this.userRepository.save(user);
             this.userPasswordResetRepository.delete(userPasswordReset);
