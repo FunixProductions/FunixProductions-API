@@ -4,6 +4,7 @@ import com.funixproductions.api.encryption.client.clients.EncryptionClient;
 import com.funixproductions.api.google.auth.client.clients.InternalGoogleAuthClient;
 import com.funixproductions.api.google.gmail.client.clients.GoogleGmailClient;
 import com.funixproductions.api.google.recaptcha.client.clients.GoogleRecaptchaInternalClient;
+import com.funixproductions.api.user.client.dtos.UserDTO;
 import com.funixproductions.api.user.client.dtos.UserTokenDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserLoginDTO;
 import com.funixproductions.api.user.client.enums.UserRole;
@@ -86,7 +87,7 @@ public abstract class UserTestComponent {
         return userRepository.save(user);
     }
 
-    public User createBasicUser() {
+    public UserDTO createBasicUser() {
         final User user = new User();
 
         user.setUsername(UUID.randomUUID().toString());

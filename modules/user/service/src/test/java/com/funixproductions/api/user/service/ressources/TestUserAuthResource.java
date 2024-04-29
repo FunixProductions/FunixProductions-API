@@ -271,11 +271,13 @@ class TestUserAuthResource extends UserTestComponent {
 
     @Test
     void testFunixAdminCreation() throws Exception {
+        final String password = UUID.randomUUID() + "ousddffdi22AA";
+
         final UserCreationDTO creationDTO = new UserCreationDTO();
         creationDTO.setEmail(UUID.randomUUID() + "@gmail.com");
         creationDTO.setUsername("funix");
-        creationDTO.setPassword("ousddffdi22AA");
-        creationDTO.setPasswordConfirmation("ousddffdi22AA");
+        creationDTO.setPassword(password);
+        creationDTO.setPasswordConfirmation(password);
         creationDTO.setAcceptCGU(true);
         creationDTO.setAcceptCGV(true);
         creationDTO.setCountry(new UserDTO.Country(
