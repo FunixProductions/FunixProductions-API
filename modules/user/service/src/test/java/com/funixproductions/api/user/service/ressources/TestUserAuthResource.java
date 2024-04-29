@@ -78,6 +78,15 @@ class TestUserAuthResource extends UserTestComponent {
         assertEquals(creationDTO.getUsername(), userDTO.getUsername());
         assertEquals(creationDTO.getEmail(), userDTO.getEmail());
         assertEquals(UserRole.USER, userDTO.getRole());
+
+        final UserLoginDTO loginDTO = new UserLoginDTO();
+        loginDTO.setUsername(userDTO.getUsername());
+        loginDTO.setPassword(creationDTO.getPassword());
+        loginDTO.setStayConnected(true);
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonHelper.toJson(loginDTO)))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -208,7 +217,7 @@ class TestUserAuthResource extends UserTestComponent {
 
         final UserLoginDTO loginDTO = new UserLoginDTO();
         loginDTO.setUsername(account.getUsername());
-        loginDTO.setPassword(account.getPassword());
+        loginDTO.setPassword(UserTestComponent.PASSWORD);
         loginDTO.setStayConnected(false);
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")
@@ -453,7 +462,7 @@ class TestUserAuthResource extends UserTestComponent {
 
         final UserLoginDTO loginDTO = new UserLoginDTO();
         loginDTO.setUsername(account.getUsername());
-        loginDTO.setPassword(account.getPassword());
+        loginDTO.setPassword(UserTestComponent.PASSWORD);
         loginDTO.setStayConnected(false);
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")
@@ -474,7 +483,7 @@ class TestUserAuthResource extends UserTestComponent {
 
         final UserLoginDTO loginDTO = new UserLoginDTO();
         loginDTO.setUsername(account.getUsername());
-        loginDTO.setPassword(account.getPassword());
+        loginDTO.setPassword(UserTestComponent.PASSWORD);
         loginDTO.setStayConnected(true);
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")
@@ -508,7 +517,7 @@ class TestUserAuthResource extends UserTestComponent {
 
         final UserLoginDTO loginDTO = new UserLoginDTO();
         loginDTO.setUsername(account.getUsername());
-        loginDTO.setPassword(account.getPassword());
+        loginDTO.setPassword(UserTestComponent.PASSWORD);
         loginDTO.setStayConnected(true);
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")

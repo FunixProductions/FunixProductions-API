@@ -29,8 +29,8 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -126,7 +126,7 @@ class TestUserCrudResource extends UserTestComponent {
 
         final Optional<User> search = userRepository.findByUuid(user.getId().toString());
         Assertions.assertTrue(search.isPresent());
-        assertEquals(requestChangePassword.getPassword(), search.get().getPassword());
+        assertNotEquals(requestChangePassword.getPassword(), search.get().getPassword());
     }
 
     @Test

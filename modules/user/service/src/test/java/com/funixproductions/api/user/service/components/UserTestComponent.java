@@ -4,7 +4,6 @@ import com.funixproductions.api.encryption.client.clients.EncryptionClient;
 import com.funixproductions.api.google.auth.client.clients.InternalGoogleAuthClient;
 import com.funixproductions.api.google.gmail.client.clients.GoogleGmailClient;
 import com.funixproductions.api.google.recaptcha.client.clients.GoogleRecaptchaInternalClient;
-import com.funixproductions.api.user.client.dtos.UserDTO;
 import com.funixproductions.api.user.client.dtos.UserTokenDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserLoginDTO;
 import com.funixproductions.api.user.client.enums.UserRole;
@@ -15,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -37,6 +37,9 @@ public abstract class UserTestComponent {
     @Autowired
     private JsonHelper jsonHelper;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @MockBean
     protected EncryptionClient encryptionClient;
 
@@ -48,6 +51,8 @@ public abstract class UserTestComponent {
 
     @MockBean
     protected GoogleGmailClient googleGmailClient;
+
+    public static final String PASSWORD = "ousddffdi22AA" + UUID.randomUUID();
 
     @BeforeEach
     public void setup() {
@@ -63,7 +68,7 @@ public abstract class UserTestComponent {
         final User user = new User();
 
         user.setUsername(UUID.randomUUID().toString());
-        user.setPassword(UUID.randomUUID() + "ousddffdi22AA");
+        user.setPassword(passwordEncoder.encode(PASSWORD));
         user.setEmail(UUID.randomUUID() + "@gmail.com");
         user.setRole(UserRole.ADMIN);
         user.setCountryName("France");
@@ -77,7 +82,7 @@ public abstract class UserTestComponent {
         final User user = new User();
 
         user.setUsername(UUID.randomUUID().toString());
-        user.setPassword(UUID.randomUUID() + "ousddffdi22AA");
+        user.setPassword(passwordEncoder.encode(PASSWORD));
         user.setEmail(UUID.randomUUID() + "@gmail.com");
         user.setRole(UserRole.MODERATOR);
         user.setCountryName("France");
@@ -87,11 +92,11 @@ public abstract class UserTestComponent {
         return userRepository.save(user);
     }
 
-    public UserDTO createBasicUser() {
+    public User createBasicUser() {
         final User user = new User();
 
         user.setUsername(UUID.randomUUID().toString());
-        user.setPassword(UUID.randomUUID() + "ousddffdi22AA");
+        user.setPassword(passwordEncoder.encode(PASSWORD));
         user.setEmail(UUID.randomUUID() + "@gmail.com");
         user.setCountryName("France");
         user.setCountryCode(250);
@@ -103,7 +108,7 @@ public abstract class UserTestComponent {
     public UserTokenDTO loginUser(final User user) throws Exception {
         final UserLoginDTO userLoginDTO = new UserLoginDTO();
         userLoginDTO.setUsername(user.getUsername());
-        userLoginDTO.setPassword(user.getPassword());
+        userLoginDTO.setPassword(PASSWORD);
         userLoginDTO.setStayConnected(true);
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")
