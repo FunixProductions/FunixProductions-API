@@ -120,4 +120,19 @@ public abstract class UserTestComponent {
         return jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), UserTokenDTO.class);
     }
 
+    public UserTokenDTO loginUser(final User user, final String password) throws Exception {
+        final UserLoginDTO userLoginDTO = new UserLoginDTO();
+        userLoginDTO.setUsername(user.getUsername());
+        userLoginDTO.setPassword(password);
+        userLoginDTO.setStayConnected(true);
+
+        MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/user/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonHelper.toJson(userLoginDTO)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        return jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), UserTokenDTO.class);
+    }
+
 }

@@ -15,8 +15,8 @@ public class CryptPasswords {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new Argon2PasswordEncoder(
+                32,
                 64,
-                128,
                 1,
                 60000,
                 10

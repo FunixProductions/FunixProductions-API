@@ -16,6 +16,8 @@ public class FunixApiAuth implements AuthenticationManager {
     private final UserCrudService userCrudService;
     private final PasswordEncoder passwordEncoder;
 
+    private static final String BAD_CREDENTIALS = "Mot de passe ou nom d'utilisateur incorrect.";
+
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         try {
@@ -24,10 +26,10 @@ public class FunixApiAuth implements AuthenticationManager {
             if (this.passwordEncoder.matches(authentication.getCredentials().toString(), user.getPassword())) {
                 return new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
             } else {
-                throw new ApiBadRequestException("Mauvais identifiants.");
+                throw new ApiBadRequestException(BAD_CREDENTIALS);
             }
         } catch (Exception e) {
-            throw new ApiBadRequestException("Mauvais identifiants.");
+            throw new ApiBadRequestException(BAD_CREDENTIALS, e);
         }
     }
 }
