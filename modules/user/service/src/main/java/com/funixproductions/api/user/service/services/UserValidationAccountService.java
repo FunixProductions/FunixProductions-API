@@ -12,8 +12,6 @@ import com.funixproductions.core.exceptions.ApiNotFoundException;
 import com.funixproductions.core.tools.string.PasswordGenerator;
 import com.funixproductions.core.tools.string.StringUtils;
 import com.google.common.base.Strings;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,7 +19,6 @@ import org.springframework.stereotype.Service;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -33,8 +30,6 @@ public class UserValidationAccountService {
     private final UserValidAccountTokenRepository userValidAccountTokenRepository;
     private final UserRepository userRepository;
     private final String mailTemplate;
-
-    private final Cache<Long, Integer> triesCache = CacheBuilder.newBuilder().expireAfterWrite(COOLDOWN_REQUEST_SPAM, TimeUnit.MINUTES).build();
 
     public UserValidationAccountService(GoogleGmailClient googleGmailClient,
                                         UserRepository userRepository,
@@ -80,7 +75,6 @@ public class UserValidationAccountService {
             user.setValid(true);
             this.userRepository.save(user);
             this.userValidAccountTokenRepository.delete(userValidAccountToken);
-            this.triesCache.invalidate(user.getId());
         } else {
             throw new ApiBadRequestException("Token invalide. Veuillez en demander un nouveau.");
         }
@@ -89,9 +83,6 @@ public class UserValidationAccountService {
     private String generateNewValidToken(final User user) {
         if (Boolean.TRUE.equals(user.getValid())) {
             throw new ApiBadRequestException("Le compte est déjà validé.");
-        }
-        if (this.triesCache.getIfPresent(user.getId()) != null) {
-            throw new ApiBadRequestException("Veuillez patienter 5 minutes entre chaque demande avant de demander un nouveau token de validation de compte.");
         }
 
         try {
@@ -110,7 +101,6 @@ public class UserValidationAccountService {
             userValidAccountToken.setValidationToken(token);
 
             userValidAccountToken = userValidAccountTokenRepository.save(userValidAccountToken);
-            this.triesCache.put(user.getId(), 1);
             return userValidAccountToken.getValidationToken();
         } catch (Exception e) {
             log.error("Erreur interne lors de la génération du token de validation de compte pour le compte {}", user.getUsername(), e);
