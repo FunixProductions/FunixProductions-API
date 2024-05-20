@@ -82,9 +82,10 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
             } else {
                 final String emailCache = this.emailMapperCheck.getIfPresent(user.getUuid());
 
-                if (emailCache != null && !emailCache.equals(user.getEmail())) {
+                if (emailCache != null && Strings.isNotBlank(user.getEmail()) && !emailCache.equals(user.getEmail())) {
                     user.setValid(false);
-                    this.validationAccountService.sendMailValidationRequest(super.getRepository().save(user));
+                    super.getRepository().save(user);
+                    this.validationAccountService.sendMailValidationRequest(user);
                 }
             }
 
