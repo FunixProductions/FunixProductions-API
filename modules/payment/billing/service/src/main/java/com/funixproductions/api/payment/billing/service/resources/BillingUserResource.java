@@ -9,15 +9,11 @@ import com.funixproductions.core.crud.dtos.PageDTO;
 import com.funixproductions.core.crud.enums.SearchOperation;
 import com.funixproductions.core.exceptions.ApiForbiddenException;
 import com.funixproductions.core.exceptions.ApiUnauthorizedException;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RestController
@@ -27,8 +23,6 @@ public class BillingUserResource implements BillingClient {
 
     private final CurrentSession currentSession;
     private final BillingCrudService billingCrudService;
-
-    private final Cache<UserDTO, Resource> downloadsCache = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.HOURS).build();
 
     @Override
     public PageDTO<BillingDTO> getAll(final String page,
@@ -67,13 +61,6 @@ public class BillingUserResource implements BillingClient {
             throw new ApiUnauthorizedException("Utilisateur non connecté.");
         }
 
-        Resource resource = downloadsCache.getIfPresent(userDTO);
-        if (resource != null) {
-            return resource;
-        } else {
-            resource = billingCrudService.getInvoiceFile(id);
-            this.downloadsCache.put(userDTO, resource);
-            return resource;
-        }
+        return billingCrudService.getInvoiceFile(id);
     }
 }
