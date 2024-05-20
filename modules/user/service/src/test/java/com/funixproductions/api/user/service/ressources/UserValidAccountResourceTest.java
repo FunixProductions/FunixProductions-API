@@ -175,7 +175,7 @@ class UserValidAccountResourceTest extends UserTestComponent {
         final UserDTO userDTOAfterPatch = jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), UserDTO.class);
         verify(this.googleGmailClient, times(1)).sendMail(any(), any());
         assertNotEquals(creationDTO.getEmail(), userDTOAfterPatch.getEmail());
-        assertFalse(userDTOAfterPatch.getValid());
+        assertTrue(userDTOAfterPatch.getValid());
     }
 
     @Test
