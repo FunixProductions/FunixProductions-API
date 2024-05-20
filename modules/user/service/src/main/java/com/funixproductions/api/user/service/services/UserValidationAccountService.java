@@ -24,8 +24,6 @@ import java.util.UUID;
 @Service
 public class UserValidationAccountService {
 
-    private static final int COOLDOWN_REQUEST_SPAM = 5;
-
     private final GoogleGmailClient googleGmailClient;
     private final UserValidAccountTokenRepository userValidAccountTokenRepository;
     private final UserRepository userRepository;

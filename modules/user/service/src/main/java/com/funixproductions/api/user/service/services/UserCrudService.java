@@ -60,11 +60,12 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
                 ids.add(request.getId().toString());
             }
         }
+
         final Iterable<User> users = this.getRepository().findAllByUuidIn(ids);
 
         this.validAccountCheckerFilter(requestList, users);
 
-        for (final Map.Entry<UUID, String> entry : this.getEmailFromUserList(requestList).entrySet()) {
+        for (final Map.Entry<UUID, String> entry : this.getEmailFromUserList(users).entrySet()) {
             this.emailMapperCheck.put(entry.getKey(), entry.getValue());
         }
 
@@ -77,18 +78,17 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
     public void afterSavingEntity(@NonNull Iterable<User> entity) {
         for (final User user : entity) {
             if (Boolean.FALSE.equals(user.getValid())) {
-                this.emailMapperCheck.invalidate(user.getUuid());
                 this.validationAccountService.sendMailValidationRequest(user);
             } else {
                 final String emailCache = this.emailMapperCheck.getIfPresent(user.getUuid());
 
                 if (emailCache != null && !emailCache.equals(user.getEmail())) {
-                    this.emailMapperCheck.invalidate(user.getUuid());
                     user.setValid(false);
-                    super.getRepository().save(user);
-                    this.validationAccountService.sendMailValidationRequest(user);
+                    this.validationAccountService.sendMailValidationRequest(super.getRepository().save(user));
                 }
             }
+
+            this.emailMapperCheck.invalidate(user.getUuid());
         }
     }
 
@@ -118,15 +118,7 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
         this.googleAuthClient.deleteAllByUserUuidIn(uuidsToRemove);
     }
 
-    private Map<UUID, String> getEmailFromUserList(final Iterable<UserDTO> users) {
-        final List<String> ids = new ArrayList<>();
-        for (final UserDTO user : users) {
-            if (user.getId() != null) {
-                ids.add(user.getId().toString());
-            }
-        }
-
-        final Iterable<User> usersDatabase = super.getRepository().findAllByUuidIn(ids);
+    private Map<UUID, String> getEmailFromUserList(final Iterable<User> usersDatabase) {
         final Map<UUID, String> emailMapper = new HashMap<>();
 
         for (final User user : usersDatabase) {
