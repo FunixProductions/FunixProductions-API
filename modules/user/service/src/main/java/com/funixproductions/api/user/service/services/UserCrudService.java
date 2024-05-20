@@ -9,8 +9,6 @@ import com.funixproductions.api.user.service.repositories.UserRepository;
 import com.funixproductions.core.crud.services.ApiService;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiNotFoundException;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
@@ -18,8 +16,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -28,8 +27,6 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
     private final UserValidationAccountService validationAccountService;
     private final InternalGoogleAuthClient googleAuthClient;
     private final PasswordEncoder passwordEncoder;
-
-    private final Cache<UUID, String> emailMapperCheck = CacheBuilder.newBuilder().expireAfterWrite(2, TimeUnit.MINUTES).build();
 
     public UserCrudService(UserMapper mapper,
                            UserRepository repository,
@@ -65,10 +62,6 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
 
         this.validAccountCheckerFilter(requestList, users);
 
-        for (final Map.Entry<UUID, String> entry : this.getEmailFromUserList(users).entrySet()) {
-            this.emailMapperCheck.put(entry.getKey(), entry.getValue());
-        }
-
         for (final UserDTO request : requestList) {
             this.checkUsernameFilter(request);
         }
@@ -79,17 +72,7 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
         for (final User user : entity) {
             if (Boolean.FALSE.equals(user.getValid())) {
                 this.validationAccountService.sendMailValidationRequest(user);
-            } else {
-                final String emailCache = this.emailMapperCheck.getIfPresent(user.getUuid());
-
-                if (emailCache != null && Strings.isNotBlank(user.getEmail()) && !emailCache.equals(user.getEmail())) {
-                    user.setValid(false);
-                    super.getRepository().save(user);
-                    this.validationAccountService.sendMailValidationRequest(user);
-                }
             }
-
-            this.emailMapperCheck.invalidate(user.getUuid());
         }
     }
 
@@ -111,21 +94,12 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
 
     @Override
     public void beforeDeletingEntity(@NonNull Iterable<User> entity) {
-        final List<String> uuidsToRemove = new ArrayList<>();
+        final ArrayList<String> uuidsToRemove = new ArrayList<>();
 
         for (final User user : entity) {
             uuidsToRemove.add(user.getUuid().toString());
         }
-        this.googleAuthClient.deleteAllByUserUuidIn(uuidsToRemove.toArray(new String[0]));
-    }
-
-    private Map<UUID, String> getEmailFromUserList(final Iterable<User> usersDatabase) {
-        final Map<UUID, String> emailMapper = new HashMap<>();
-
-        for (final User user : usersDatabase) {
-            emailMapper.put(user.getUuid(), user.getEmail());
-        }
-        return emailMapper;
+        this.googleAuthClient.deleteAllByUserUuidIn(uuidsToRemove);
     }
 
     private void validAccountCheckerFilter(final Iterable<UserDTO> requestList, final Iterable<User> users) {
