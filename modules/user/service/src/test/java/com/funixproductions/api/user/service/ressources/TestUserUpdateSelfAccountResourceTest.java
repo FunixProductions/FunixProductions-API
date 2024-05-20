@@ -57,7 +57,7 @@ class TestUserUpdateSelfAccountResourceTest extends UserTestComponent {
         final UserUpdateRequestDTO userUpdateRequestDTO = new UserUpdateRequestDTO();
         userUpdateRequestDTO.setNewPassword(newPassword);
         userUpdateRequestDTO.setNewPasswordConfirmation(newPassword);
-        userUpdateRequestDTO.setOldPassword(userTest.getPassword());
+        userUpdateRequestDTO.setOldPassword(UserTestComponent.PASSWORD);
 
         this.mockMvc.perform(patch("/user/auth")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenDTO.getToken())
@@ -74,6 +74,38 @@ class TestUserUpdateSelfAccountResourceTest extends UserTestComponent {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.jsonHelper.toJson(userUpdateRequestDTO))
         ).andExpect(status().isOk()).andReturn();
+
+        final UserDTO res = this.jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), UserDTO.class);
+        assertEquals(userTest.getRole(), res.getRole());
+    }
+
+    @Test
+    void testUpdateSelfAccountAdminPasswordSuccess() throws Exception {
+        final User userTest = this.createAdminAccount();
+        final UserTokenDTO tokenDTO = this.loginUser(userTest);
+
+        final String newPassword = "superNewPassword22";
+        final UserUpdateRequestDTO userUpdateRequestDTO = new UserUpdateRequestDTO();
+        userUpdateRequestDTO.setNewPassword(newPassword);
+        userUpdateRequestDTO.setNewPasswordConfirmation(newPassword);
+        userUpdateRequestDTO.setOldPassword(UserTestComponent.PASSWORD);
+
+        this.mockMvc.perform(patch("/user/auth")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenDTO.getToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.jsonHelper.toJson(userUpdateRequestDTO))
+        ).andExpect(status().isOk());
+
+        userUpdateRequestDTO.setRole(UserRole.USER);
+        userUpdateRequestDTO.setNewPassword(null);
+        userUpdateRequestDTO.setNewPasswordConfirmation(null);
+        userUpdateRequestDTO.setOldPassword(null);
+        MvcResult mvcResult = this.mockMvc.perform(patch("/user/auth")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenDTO.getToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.jsonHelper.toJson(userUpdateRequestDTO))
+        ).andExpect(status().isOk()).andReturn();
+
         final UserDTO res = this.jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), UserDTO.class);
         assertEquals(userTest.getRole(), res.getRole());
     }
@@ -86,7 +118,7 @@ class TestUserUpdateSelfAccountResourceTest extends UserTestComponent {
         final UserUpdateRequestDTO userUpdateRequestDTO = new UserUpdateRequestDTO();
         userUpdateRequestDTO.setNewPassword("newPassword");
         userUpdateRequestDTO.setNewPasswordConfirmation("newPasswordMissMatch");
-        userUpdateRequestDTO.setOldPassword(userTest.getPassword());
+        userUpdateRequestDTO.setOldPassword(UserTestComponent.PASSWORD);
 
         this.mockMvc.perform(patch("/user/auth")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenDTO.getToken())

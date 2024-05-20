@@ -9,6 +9,7 @@ import com.google.common.base.Strings;
 import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,6 +20,7 @@ import java.util.UUID;
 public class UserUpdateAccountService {
 
     private final UserCrudService userCrudService;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public UserDTO updateUser(final UserUpdateRequestDTO request) {
@@ -47,7 +49,7 @@ public class UserUpdateAccountService {
         if (search.isPresent()) {
             final User user = search.get();
 
-            if (!user.getPassword().equals(oldPassword)) {
+            if (!this.passwordEncoder.matches(oldPassword, user.getPassword())) {
                 throw new ApiBadRequestException("L'ancien mot de passe n'est pas valide.");
             }
         } else {

@@ -29,7 +29,7 @@ public class UserDTO extends ApiDTO {
     private String email;
 
     @NotNull(message = "Le rôle ne peut pas être vide")
-    private UserRole role = UserRole.USER;
+    private UserRole role;
 
     @NotNull(message = "Le compte doit être validé ou non")
     private Boolean valid = false;
