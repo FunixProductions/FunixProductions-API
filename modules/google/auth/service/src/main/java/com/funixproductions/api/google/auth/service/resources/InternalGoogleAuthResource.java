@@ -2,6 +2,7 @@ package com.funixproductions.api.google.auth.service.resources;
 
 import com.funixproductions.api.google.auth.client.clients.InternalGoogleAuthClient;
 import com.funixproductions.api.google.auth.service.repositories.GoogleAuthRepository;
+import com.funixproductions.core.exceptions.ApiException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +20,11 @@ public class InternalGoogleAuthResource implements InternalGoogleAuthClient {
 
     @Override
     public void deleteAllByUserUuidIn(List<String> userUuids) {
-        this.googleAuthRepository.deleteAllByUserUuidIn(userUuids);
-        log.info("Deleted all google auths for users with uuids: {}", userUuids);
+        try {
+            this.googleAuthRepository.deleteAllByUserUuidIn(userUuids);
+            log.info("Deleted all google auths for users with uuids: {}", userUuids);
+        } catch (Exception e) {
+            throw new ApiException("Erreur lors de la suppression des comptes googles liés.", e);
+        }
     }
 }
