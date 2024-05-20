@@ -116,7 +116,7 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
         for (final User user : entity) {
             uuidsToRemove.add(user.getUuid().toString());
         }
-        this.googleAuthClient.deleteAllByUserUuidIn(uuidsToRemove);
+        this.googleAuthClient.deleteAllByUserUuidIn(uuidsToRemove.toArray(new String[0]));
     }
 
     private Map<UUID, String> getEmailFromUserList(final Iterable<User> usersDatabase) {

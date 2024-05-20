@@ -22,7 +22,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
@@ -60,7 +61,7 @@ public abstract class UserTestComponent {
         when(encryptionClient.decrypt(anyString())).thenAnswer(invocation -> invocation.<String>getArgument(0));
 
         doNothing().when(googleCaptchaService).verify(any(), any(), any());
-        doNothing().when(googleAuthClient).deleteAllByUserUuidIn(anyList());
+        doNothing().when(googleAuthClient).deleteAllByUserUuidIn(any());
         doNothing().when(googleGmailClient).sendMail(any(), any());
     }
 
