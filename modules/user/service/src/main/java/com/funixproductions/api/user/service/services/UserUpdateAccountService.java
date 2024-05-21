@@ -28,6 +28,8 @@ public class UserUpdateAccountService {
 
         checkPassword(request, updateDto, currentUser);
         updateDto.setId(currentUser.getId());
+        updateDto.setValid(currentUser.getValid());
+        updateDto.setRole(currentUser.getRole());
         return this.userCrudService.update(updateDto);
     }
 
