@@ -221,15 +221,14 @@ public class UserAuthResource {
     }
 
     @PatchMapping
-    public UserDTO updateAccount(@RequestBody UserUpdateRequestDTO request) {
+    public UserDTO updateAccount(@RequestBody @Valid UserUpdateRequestDTO request) {
         final UserDTO currentUser = this.currentSession.getCurrentUser();
         if (currentUser == null) {
             throw new ApiForbiddenException("Vous n'êtes pas connecté.");
         }
 
         try {
-            request.setId(currentUser.getId());
-            return this.userUpdateAccountService.updateUser(request);
+            return this.userUpdateAccountService.updateUser(request, currentUser);
         } catch (ApiException e) {
             throw e;
         } catch (Exception e) {

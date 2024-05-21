@@ -21,6 +21,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -76,6 +78,17 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         }
 
         return userSession;
+    }
+
+    public void cleanUserCache(final UUID userId) {
+        UserSession userSession;
+
+        for (final Map.Entry<String, UserSession> entry : sessionsCache.asMap().entrySet()) {
+            userSession = entry.getValue();
+            if (userSession.getUser() != null && userSession.getUser().getUuid().equals(userId)) {
+                sessionsCache.invalidate(entry.getKey());
+            }
+        }
     }
 
 }

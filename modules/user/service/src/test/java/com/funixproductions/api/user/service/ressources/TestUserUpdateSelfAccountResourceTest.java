@@ -3,7 +3,6 @@ package com.funixproductions.api.user.service.ressources;
 import com.funixproductions.api.user.client.dtos.UserDTO;
 import com.funixproductions.api.user.client.dtos.UserTokenDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserUpdateRequestDTO;
-import com.funixproductions.api.user.client.enums.UserRole;
 import com.funixproductions.api.user.service.components.UserTestComponent;
 import com.funixproductions.api.user.service.entities.User;
 import com.funixproductions.api.user.service.services.UserValidationAccountService;
@@ -65,7 +64,6 @@ class TestUserUpdateSelfAccountResourceTest extends UserTestComponent {
                 .content(this.jsonHelper.toJson(userUpdateRequestDTO))
         ).andExpect(status().isOk());
 
-        userUpdateRequestDTO.setRole(UserRole.ADMIN);
         userUpdateRequestDTO.setNewPassword(null);
         userUpdateRequestDTO.setNewPasswordConfirmation(null);
         userUpdateRequestDTO.setOldPassword(null);
@@ -96,7 +94,6 @@ class TestUserUpdateSelfAccountResourceTest extends UserTestComponent {
                 .content(this.jsonHelper.toJson(userUpdateRequestDTO))
         ).andExpect(status().isOk());
 
-        userUpdateRequestDTO.setRole(UserRole.USER);
         userUpdateRequestDTO.setNewPassword(null);
         userUpdateRequestDTO.setNewPasswordConfirmation(null);
         userUpdateRequestDTO.setOldPassword(null);

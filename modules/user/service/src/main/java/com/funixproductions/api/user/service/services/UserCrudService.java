@@ -6,6 +6,7 @@ import com.funixproductions.api.user.client.dtos.requests.UserSecretsDTO;
 import com.funixproductions.api.user.service.entities.User;
 import com.funixproductions.api.user.service.mappers.UserMapper;
 import com.funixproductions.api.user.service.repositories.UserRepository;
+import com.funixproductions.api.user.service.security.JwtTokenFilter;
 import com.funixproductions.core.crud.services.ApiService;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiNotFoundException;
@@ -27,16 +28,19 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
     private final UserValidationAccountService validationAccountService;
     private final InternalGoogleAuthClient googleAuthClient;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenFilter jwtTokenFilter;
 
     public UserCrudService(UserMapper mapper,
                            UserRepository repository,
                            UserValidationAccountService validationAccountService,
                            InternalGoogleAuthClient googleAuthClient,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder,
+                           JwtTokenFilter jwtTokenFilter) {
         super(repository, mapper);
         this.validationAccountService = validationAccountService;
         this.googleAuthClient = googleAuthClient;
         this.passwordEncoder = passwordEncoder;
+        this.jwtTokenFilter = jwtTokenFilter;
     }
 
     @Override
@@ -73,6 +77,7 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
             if (Boolean.FALSE.equals(user.getValid())) {
                 this.validationAccountService.sendMailValidationRequest(user);
             }
+            this.jwtTokenFilter.cleanUserCache(user.getUuid());
         }
     }
 
@@ -98,6 +103,7 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
 
         for (final User user : entity) {
             uuidsToRemove.add(user.getUuid().toString());
+            this.jwtTokenFilter.cleanUserCache(user.getUuid());
         }
         this.googleAuthClient.deleteAllByUserUuidIn(uuidsToRemove.toArray(new String[0]));
     }

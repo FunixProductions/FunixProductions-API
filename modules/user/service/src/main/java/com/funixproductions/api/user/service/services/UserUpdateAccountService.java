@@ -23,19 +23,22 @@ public class UserUpdateAccountService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public UserDTO updateUser(final UserUpdateRequestDTO request) {
+    public UserDTO updateUser(final UserUpdateRequestDTO request, final UserDTO currentUser) {
         final UserSecretsDTO updateDto = this.userCrudService.getMapper().toSecretsDto(request);
 
-        checkPassword(request, updateDto);
+        checkPassword(request, updateDto, currentUser);
+        updateDto.setId(currentUser.getId());
         return this.userCrudService.update(updateDto);
     }
 
-    private void checkPassword(final UserUpdateRequestDTO request, final UserSecretsDTO updateRequest) {
+    private void checkPassword(final UserUpdateRequestDTO request,
+                               final UserSecretsDTO updateRequest,
+                               final UserDTO currentUser) {
         if (!Strings.isNullOrEmpty(request.getNewPassword()) &&
                 !Strings.isNullOrEmpty(request.getNewPasswordConfirmation()) &&
                 !Strings.isNullOrEmpty(request.getOldPassword())) {
             if (request.getNewPassword().equals(request.getNewPasswordConfirmation())) {
-                checkOldPasswordEquals(request.getOldPassword(), request.getId());
+                checkOldPasswordEquals(request.getOldPassword(), currentUser.getId());
                 updateRequest.setPassword(request.getNewPassword());
             } else {
                 throw new ApiBadRequestException("Vos mots de passe ne correspondent pas.");
