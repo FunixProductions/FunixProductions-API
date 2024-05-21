@@ -4,8 +4,6 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
-
 @FeignClient(
         name = "InternalGoogleAuth",
         url = "${funixproductions.api.google.auth.app-domain-url}",
@@ -14,6 +12,6 @@ import java.util.List;
 public interface InternalGoogleAuthClient {
 
     @DeleteMapping
-    void deleteAllByUserUuidIn(@RequestParam List<String> userUuids);
+    void deleteAllByUserUuidIn(@RequestParam String... ids);
 
 }
