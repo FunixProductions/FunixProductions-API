@@ -19,9 +19,9 @@ public class InternalGoogleAuthResource implements InternalGoogleAuthClient {
     private final GoogleAuthRepository googleAuthRepository;
 
     @Override
-    public void deleteAllByUserUuidIn(String[] userUuids) {
+    public void deleteAllByUserUuidIn(String[] ids) {
         try {
-            this.googleAuthRepository.deleteAllByUserUuidIn(List.of(userUuids));
+            this.googleAuthRepository.deleteAllByUserUuidIn(List.of(ids));
         } catch (Exception e) {
             throw new ApiException("Erreur lors de la suppression des comptes googles liés.", e);
         }
