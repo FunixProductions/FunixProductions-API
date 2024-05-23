@@ -4,6 +4,7 @@ import com.funixproductions.api.user.service.entities.User;
 import com.funixproductions.api.user.service.services.UserCrudService;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
+import com.funixproductions.core.exceptions.ApiNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,6 +18,8 @@ public class FunixApiAuth implements AuthenticationManager {
     private final UserCrudService userCrudService;
     private final PasswordEncoder passwordEncoder;
 
+    private static final String BAD_CREDENTIALS = "Mot de passe ou nom d'utilisateur incorrect.";
+
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         try {
@@ -25,8 +28,10 @@ public class FunixApiAuth implements AuthenticationManager {
             if (this.passwordEncoder.matches(authentication.getCredentials().toString(), user.getPassword())) {
                 return new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
             } else {
-                throw new ApiBadRequestException("Mot de passe ou nom d'utilisateur incorrect.");
+                throw new ApiBadRequestException(BAD_CREDENTIALS);
             }
+        } catch (ApiNotFoundException e) {
+            throw new ApiBadRequestException(BAD_CREDENTIALS);
         } catch (ApiException e) {
             throw e;
         } catch (Exception e) {
