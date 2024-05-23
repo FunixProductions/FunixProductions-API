@@ -40,15 +40,6 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
     }
 
     @Override
-    public void beforeSavingEntity(@NonNull Iterable<User> entity) {
-        for (final User user : entity) {
-            if (user.getPassword() != null) {
-                user.setPassword(this.passwordEncoder.encode(user.getPassword()));
-            }
-        }
-    }
-
-    @Override
     public void beforeMappingToEntity(@NonNull Iterable<UserDTO> requestList) {
         final List<String> ids = new ArrayList<>();
 
@@ -61,7 +52,6 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
         final Iterable<User> users = this.getRepository().findAllByUuidIn(ids);
 
         this.validAccountCheckerFilter(requestList, users);
-
         for (final UserDTO request : requestList) {
             this.checkUsernameFilter(request);
         }
@@ -79,7 +69,7 @@ public class UserCrudService extends ApiService<UserDTO, User, UserMapper, UserR
     @Override
     public void afterMapperCall(@NonNull UserDTO dto, @NonNull User entity) {
         if (dto instanceof final UserSecretsDTO secretsDTO && Strings.isNotBlank(secretsDTO.getPassword())) {
-            entity.setPassword(secretsDTO.getPassword());
+            entity.setPassword(this.passwordEncoder.encode(secretsDTO.getPassword()));
         }
     }
 

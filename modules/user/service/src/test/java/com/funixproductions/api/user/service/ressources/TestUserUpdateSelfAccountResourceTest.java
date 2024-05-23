@@ -2,6 +2,7 @@ package com.funixproductions.api.user.service.ressources;
 
 import com.funixproductions.api.user.client.dtos.UserDTO;
 import com.funixproductions.api.user.client.dtos.UserTokenDTO;
+import com.funixproductions.api.user.client.dtos.requests.UserLoginDTO;
 import com.funixproductions.api.user.client.dtos.requests.UserUpdateRequestDTO;
 import com.funixproductions.api.user.service.components.UserTestComponent;
 import com.funixproductions.api.user.service.entities.User;
@@ -25,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -140,5 +142,78 @@ class TestUserUpdateSelfAccountResourceTest extends UserTestComponent {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.jsonHelper.toJson(userUpdateRequestDTO))
         ).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testUpdateSelfAccountOnlyPersonalDataSuccess() throws Exception {
+        final User userTest = this.createBasicUser();
+        final UserTokenDTO tokenDTO = this.loginUser(userTest);
+
+        final UserUpdateRequestDTO userUpdateRequestDTO = new UserUpdateRequestDTO();
+        userUpdateRequestDTO.setUsername("newUsername");
+        userUpdateRequestDTO.setEmail("sdqlmfjsmlfjjqsldf1@gmail.com");
+        userUpdateRequestDTO.setCountry(new UserDTO.Country(
+                "test",
+                16,
+                "te",
+                "tes"
+        ));
+
+        MvcResult mvcResult = this.mockMvc.perform(patch("/user/auth")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenDTO.getToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.jsonHelper.toJson(userUpdateRequestDTO))
+        ).andExpect(status().isOk()).andReturn();
+        final UserDTO res = this.jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), UserDTO.class);
+        assertEquals(userTest.getRole(), res.getRole());
+        assertEquals(userUpdateRequestDTO.getUsername(), res.getUsername());
+        assertEquals(userUpdateRequestDTO.getEmail(), res.getEmail());
+        assertEquals(userUpdateRequestDTO.getCountry(), res.getCountry());
+
+        res.setEmail(null);
+        mvcResult = this.mockMvc.perform(patch("/user/auth")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenDTO.getToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.jsonHelper.toJson(res))
+        ).andExpect(status().isOk()).andReturn();
+        final UserDTO res2 = this.jsonHelper.fromJson(mvcResult.getResponse().getContentAsString(), UserDTO.class);
+        assertEquals(userUpdateRequestDTO.getEmail(), res2.getEmail());
+        assertEquals(userUpdateRequestDTO.getUsername(), res2.getUsername());
+
+        final UserLoginDTO userLoginDTO = new UserLoginDTO();
+        userLoginDTO.setUsername(userUpdateRequestDTO.getUsername());
+        userLoginDTO.setPassword(UserTestComponent.PASSWORD);
+
+        this.mockMvc.perform(post("/user/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.jsonHelper.toJson(userLoginDTO))
+        ).andExpect(status().isOk());
+    }
+
+    @Test
+    void testUpdateSelfAccountOnlyPasswordDataSuccess() throws Exception {
+        final User userTest = this.createBasicUser();
+        final UserTokenDTO tokenDTO = this.loginUser(userTest);
+
+        final UserUpdateRequestDTO userUpdateRequestDTO = new UserUpdateRequestDTO();
+        final String newPassword = "superNewPassword22Hourra";
+        userUpdateRequestDTO.setNewPassword(newPassword);
+        userUpdateRequestDTO.setNewPasswordConfirmation(newPassword);
+        userUpdateRequestDTO.setOldPassword(UserTestComponent.PASSWORD);
+
+        this.mockMvc.perform(patch("/user/auth")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenDTO.getToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.jsonHelper.toJson(userUpdateRequestDTO))
+        ).andExpect(status().isOk());
+
+        final UserLoginDTO userLoginDTO = new UserLoginDTO();
+        userLoginDTO.setUsername(userTest.getUsername());
+        userLoginDTO.setPassword(newPassword);
+
+        this.mockMvc.perform(post("/user/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.jsonHelper.toJson(userLoginDTO))
+        ).andExpect(status().isOk());
     }
 }

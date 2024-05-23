@@ -18,7 +18,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -81,9 +80,13 @@ public class UserAuthService {
             } else {
                 throw new ApiException("Une erreur interne est survenue lors de la connexion.");
             }
-        } catch (BadCredentialsException ex) {
+        } catch (ApiBadRequestException ex) {
             failLogin(servletRequest);
-            throw new ApiBadRequestException("Vos identifiants sont incorrects.", ex);
+            throw ex;
+        } catch (ApiException e) {
+            throw e;
+        } catch (Exception ex) {
+            throw new ApiException("Erreur interne lors de la connexion.", ex);
         }
     }
 

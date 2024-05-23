@@ -15,6 +15,8 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserDTO extends ApiDTO {
     public static final String REGEX_PASSWORD = "^(?=.*\\d.*\\d)(?=.*[a-zA-Z].*[a-zA-Z].*[a-zA-Z]).*$";
     public static final String REGEX_USERNAME = "^[a-zA-Z0-9_-]{3,}$";
@@ -38,6 +40,30 @@ public class UserDTO extends ApiDTO {
     @NotNull(message = "Le pays ne peut pas être vide")
     private Country country;
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof final UserDTO userDTO) {
+            return this.username.equals(userDTO.username) &&
+                    this.email.equals(userDTO.email) &&
+                    this.role.equals(userDTO.role) &&
+                    this.valid.equals(userDTO.valid) &&
+                    this.country.equals(userDTO.country) &&
+                    super.equals(obj);
+        } else {
+            return super.equals(obj);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() +
+                this.username.hashCode() +
+                this.email.hashCode() +
+                this.role.hashCode() +
+                this.valid.hashCode() +
+                this.country.hashCode();
+    }
+
     @Getter
     @Setter
     @AllArgsConstructor
@@ -57,6 +83,26 @@ public class UserDTO extends ApiDTO {
         @NotBlank(message = "Le code à 3 caractères du pays ne peut pas être vide")
         @Size(min = 3, max = 3, message = "Le code à 3 caractères du pays doit contenir 3 caractères")
         private String countryCode3Chars;
+
+        @Override
+        public int hashCode() {
+            return this.name.hashCode() +
+                    this.code.hashCode() +
+                    this.countryCode2Chars.hashCode() +
+                    this.countryCode3Chars.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof final Country country) {
+                return this.name.equals(country.name) &&
+                        this.code.equals(country.code) &&
+                        this.countryCode2Chars.equals(country.countryCode2Chars) &&
+                        this.countryCode3Chars.equals(country.countryCode3Chars);
+            } else {
+                return false;
+            }
+        }
     }
 
     /**
