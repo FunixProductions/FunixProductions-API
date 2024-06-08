@@ -1,10 +1,10 @@
-FROM openjdk:17-alpine
+FROM openjdk:21-slim
 
 ARG service_name
 ARG service_base_dir
 ENV SERVICE_NAME=${service_name}
 ENV SERVICE_BASE_DIR=${service_base_dir}
-ENV APP_VERSION=1.3.2.0
+ENV APP_VERSION=1.3.2.1
 
 WORKDIR /container/java
 
