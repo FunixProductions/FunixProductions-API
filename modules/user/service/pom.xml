@@ -88,6 +88,12 @@
             <version>${org.flywaydb.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+            <version>${org.flywaydb.version}</version>
+        </dependency>
+
         <!-- Used for auth tokens -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
