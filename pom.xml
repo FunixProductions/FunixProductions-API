@@ -44,7 +44,7 @@
         <!-- https://central.sonatype.com/artifact/com.google.auth/google-auth-library-oauth2-http -->
         <com.google.auth.library.oauth2.http.version>1.23.0</com.google.auth.library.oauth2.http.version>
         <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
-        <org.jsoup.version>1.17.2</org.jsoup.version>
+        <org.jsoup.version>1.18.1</org.jsoup.version>
     </properties>
 
     <scm>
