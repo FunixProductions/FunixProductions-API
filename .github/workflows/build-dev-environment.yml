@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - id: import_gpg
         name: Import GPG key
@@ -60,7 +60,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Checkout source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download Package Artifacts
         uses: actions/download-artifact@v3
@@ -90,7 +90,7 @@ jobs:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
 
       - name: Checkout source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Update Kubernetes Dev Cluster
         run: cd kubernetes-dev && chmod +x ./deployServices.sh && ./deployServices.sh
