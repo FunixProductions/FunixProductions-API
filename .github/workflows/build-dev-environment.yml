@@ -83,7 +83,7 @@ jobs:
 
     steps:
       - name: Set up kubectl
-        uses: azure/k8s-set-context@v3
+        uses: azure/k8s-set-context@v4
         with:
           kubeconfig: ${{ secrets.KUBECONFIG }}
         env:
