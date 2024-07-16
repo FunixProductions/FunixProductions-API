@@ -74,7 +74,7 @@ jobs:
         run: mvn --batch-mode clean package -Dmaven.javadoc.skip -T 6
 
       - name: Publish Package Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: maven-packages
           path: modules/**/target/*.jar
