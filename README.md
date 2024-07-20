@@ -1,4 +1,20 @@
 # FunixProductionsAPI
 Global api for the company
 
-![Maven Central](https://img.shields.io/maven-central/v/com.funixproductions.api/funixproductions-api.svg)
+## Maven repo
+
+Lien du repository Maven : [FunixProductions - Api package](https://mvn.funixproductions.com/#/releases/com/funixproductions/api)
+
+```xml
+<repository>
+  <id>funixproductions-repository-releases</id>
+  <name>FunixProductions Repository</name>
+  <url>https://mvn.funixproductions.com/releases</url>
+</repository>
+
+<parent>
+    <groupId>com.funixproductions.api</groupId>
+    <artifactId>funixproductions-api</artifactId>
+    <version>1.3.3.0</version>
+</parent>
+```
