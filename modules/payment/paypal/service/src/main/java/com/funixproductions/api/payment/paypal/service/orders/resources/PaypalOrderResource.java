@@ -296,7 +296,7 @@ public class PaypalOrderResource implements PaypalOrderClient {
         for (final PaymentDTO.PurchaseUnitDTO.Item item : purchaseUnitDTO.getItems()) {
             totalHt += PaymentDTO.formatPrice(item.getPrice() * item.getQuantity());
             if (tax > 0) {
-                totalTaxes += PaymentDTO.formatPrice((item.getPrice() * tax) * item.getQuantity());
+                totalTaxes += PaymentDTO.formatPrice(PaymentDTO.formatPrice(item.getPrice() * tax) * item.getQuantity());
             }
         }
 
