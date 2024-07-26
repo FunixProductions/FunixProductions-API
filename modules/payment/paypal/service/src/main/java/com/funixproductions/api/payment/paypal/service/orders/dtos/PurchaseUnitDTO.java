@@ -50,6 +50,19 @@ public class PurchaseUnitDTO {
     @JsonProperty(value = "soft_descriptor")
     private String softDescriptor;
 
+    @Override
+    public String toString() {
+        return "PurchaseUnitDTO{" +
+                "amount=" + amount +
+                ", customId='" + customId + '\'' +
+                ", description='" + description + '\'' +
+                ", items=" + items +
+                ", payee=" + payee +
+                ", referenceId='" + referenceId + '\'' +
+                ", softDescriptor='" + softDescriptor + '\'' +
+                '}';
+    }
+
     /**
      * Product price
      */
@@ -70,6 +83,15 @@ public class PurchaseUnitDTO {
         private String value;
 
         private Breakdown breakdown;
+
+        @Override
+        public String toString() {
+            return "Amount{" +
+                    "currencyCode='" + currencyCode + '\'' +
+                    ", value='" + value + '\'' +
+                    ", breakdown=" + breakdown +
+                    '}';
+        }
 
         /**
          * The breakdown of the amount. Breakdown provides details such as total item amount, total tax amount, shipping, handling, insurance, and discounts, if any.
@@ -96,6 +118,15 @@ public class PurchaseUnitDTO {
              * The discount for all items within a given purchase_unit. discount.value can not be a negative number.
              */
             private Money discount;
+
+            @Override
+            public String toString() {
+                return "Breakdown{" +
+                        "itemTotal=" + itemTotal +
+                        ", taxTotal=" + taxTotal +
+                        ", discount=" + discount +
+                        '}';
+            }
         }
     }
 
@@ -125,6 +156,18 @@ public class PurchaseUnitDTO {
         private Money tax;
 
         private Category category;
+
+        @Override
+        public String toString() {
+            return "Item{" +
+                    "name='" + name + '\'' +
+                    ", quantity='" + quantity + '\'' +
+                    ", description='" + description + '\'' +
+                    ", unitAmount=" + unitAmount +
+                    ", tax=" + tax +
+                    ", category=" + category +
+                    '}';
+        }
     }
 
     @Getter
@@ -141,6 +184,14 @@ public class PurchaseUnitDTO {
         private String currencyCode;
 
         private String value;
+
+        @Override
+        public String toString() {
+            return "Money{" +
+                    "currencyCode='" + currencyCode + '\'' +
+                    ", value='" + value + '\'' +
+                    '}';
+        }
     }
 
     public enum Category {
@@ -176,6 +227,14 @@ public class PurchaseUnitDTO {
          */
         @JsonProperty(value = "merchant_id")
         private String merchantId;
+
+        @Override
+        public String toString() {
+            return "Payee{" +
+                    "emailAddress='" + emailAddress + '\'' +
+                    ", merchantId='" + merchantId + '\'' +
+                    '}';
+        }
     }
 
 }

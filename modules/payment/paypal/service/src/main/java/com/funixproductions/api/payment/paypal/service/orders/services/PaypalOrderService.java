@@ -26,6 +26,7 @@ public class PaypalOrderService implements PaypalOrderClient {
     public PaypalOrderResponseDTO createOrder(@NonNull String requestId,
                                               @NonNull PaypalOrderCreationDTO request) {
         try {
+            log.info("DEBUG: purchasesUnisLen: {} data: {}", request.getPurchaseUnits().size(), request.getPurchaseUnits());
             return this.orderClient.createOrder(requestId, request);
         } catch (FeignException e) {
             throw handleFeignException(e, "de créer");
