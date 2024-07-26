@@ -296,7 +296,7 @@ public class PaypalOrderResource implements PaypalOrderClient {
         for (final PaymentDTO.PurchaseUnitDTO.Item item : purchaseUnitDTO.getItems()) {
             totalHt += PaymentDTO.formatPrice(item.getPrice() * item.getQuantity());
             if (tax > 0) {
-                totalTaxes += PaymentDTO.formatPrice((item.getPrice() / tax) * item.getQuantity());
+                totalTaxes += PaymentDTO.formatPrice((item.getPrice() * tax) * item.getQuantity());
             }
         }
 
@@ -331,11 +331,11 @@ public class PaypalOrderResource implements PaypalOrderClient {
                     item.getDescription(),
                     new PurchaseUnitDTO.Money(
                             "EUR",
-                            Double.toString(PaymentDTO.formatPrice(item.getPrice()))
+                            PaymentDTO.formatPrice(item.getPrice()).toString()
                     ),
                     tax > 0 ? new PurchaseUnitDTO.Money(
                             "EUR",
-                            Double.toString(PaymentDTO.formatPrice(item.getPrice() * tax))
+                            PaymentDTO.formatPrice(item.getPrice() * tax).toString()
                     ) : null,
                     PurchaseUnitDTO.Category.DIGITAL_GOODS
             ));
