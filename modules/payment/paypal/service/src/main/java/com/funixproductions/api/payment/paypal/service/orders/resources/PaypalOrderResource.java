@@ -22,9 +22,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -283,6 +280,33 @@ public class PaypalOrderResource implements PaypalOrderClient {
         return toSend;
     }
 
+    private PurchaseUnitDTO.Amount initPurchaseAmount(final PaymentDTO.PurchaseUnitDTO purchaseUnitDTO, @Nullable VATInformation vatInformation) {
+        final PurchaseUnitDTO.Amount amount = new PurchaseUnitDTO.Amount();
+        double totalHt = 0;
+
+        for (final PaymentDTO.PurchaseUnitDTO.Item item : purchaseUnitDTO.getItems()) {
+            totalHt += PaymentDTO.formatPrice(item.getPrice() * item.getQuantity());
+        }
+
+        final double totalTaxes = vatInformation == null ? 0 : PaymentDTO.formatPrice(totalHt * (vatInformation.getVatRate() / 100));
+
+        amount.setCurrencyCode("EUR");
+        amount.setValue(Double.toString(PaymentDTO.formatPrice(totalHt + totalTaxes)));
+
+        amount.setBreakdown(new PurchaseUnitDTO.Amount.Breakdown(
+                new PurchaseUnitDTO.Money(
+                        "EUR",
+                        Double.toString(PaymentDTO.formatPrice(totalHt))
+                ),
+                new PurchaseUnitDTO.Money(
+                        "EUR",
+                        Double.toString(PaymentDTO.formatPrice(totalTaxes))
+                ),
+                null
+        ));
+        return amount;
+    }
+
     private List<PurchaseUnitDTO.Item> generateItems(final List<PaymentDTO.PurchaseUnitDTO.Item> items, @Nullable VATInformation vatInformation) {
         final List<PurchaseUnitDTO.Item> toSend = new ArrayList<>();
 
@@ -293,49 +317,16 @@ public class PaypalOrderResource implements PaypalOrderClient {
                     item.getDescription(),
                     new PurchaseUnitDTO.Money(
                             "EUR",
-                            parseDoubleToString(item.getPrice())
+                            Double.toString(PaymentDTO.formatPrice(item.getPrice()))
                     ),
                     vatInformation == null ? null : new PurchaseUnitDTO.Money(
                             "EUR",
-                            parseDoubleToString(item.getPrice() * (vatInformation.getVatRate() / 100))
+                            Double.toString(PaymentDTO.formatPrice(item.getPrice() * (vatInformation.getVatRate() / 100)))
                     ),
                     PurchaseUnitDTO.Category.DIGITAL_GOODS
             ));
         }
         return toSend;
-    }
-
-    private PurchaseUnitDTO.Amount initPurchaseAmount(final PaymentDTO.PurchaseUnitDTO purchaseUnitDTO, @Nullable VATInformation vatInformation) {
-        final PurchaseUnitDTO.Amount amount = new PurchaseUnitDTO.Amount();
-        double totalHt = 0;
-
-        for (final PaymentDTO.PurchaseUnitDTO.Item item : purchaseUnitDTO.getItems()) {
-            totalHt += item.getPrice() * item.getQuantity();
-        }
-
-        final double totalTaxes = vatInformation == null ? 0 : totalHt * (vatInformation.getVatRate() / 100);
-        amount.setCurrencyCode("EUR");
-        amount.setValue(parseDoubleToString(totalHt + totalTaxes));
-
-        amount.setBreakdown(new PurchaseUnitDTO.Amount.Breakdown(
-                new PurchaseUnitDTO.Money(
-                        "EUR",
-                        parseDoubleToString(totalHt)
-                ),
-                new PurchaseUnitDTO.Money(
-                        "EUR",
-                        parseDoubleToString(totalTaxes)
-                ),
-                null
-        ));
-        return amount;
-    }
-
-    private static String parseDoubleToString(double value) {
-        final BigDecimal bd = BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP);
-        final DecimalFormat df = new DecimalFormat("#.00");
-
-        return df.format(bd).replace(",", ".");
     }
 
     private static String formatCreditCardExpiry(int year, int month) {
