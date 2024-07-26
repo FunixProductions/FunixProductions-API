@@ -22,6 +22,9 @@ import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -313,6 +316,7 @@ public class PaypalOrderResource implements PaypalOrderClient {
         final double totalTaxes = vatInformation == null ? 0 : totalHt * (vatInformation.getVatRate() / 100);
         amount.setCurrencyCode("EUR");
         amount.setValue(parseDoubleToString(totalHt + totalTaxes));
+
         amount.setBreakdown(new PurchaseUnitDTO.Amount.Breakdown(
                 new PurchaseUnitDTO.Money(
                         "EUR",
@@ -328,7 +332,10 @@ public class PaypalOrderResource implements PaypalOrderClient {
     }
 
     private static String parseDoubleToString(double value) {
-        return String.format("%.2f", value).replace(",", ".");
+        final BigDecimal bd = BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP);
+        final DecimalFormat df = new DecimalFormat("#.00");
+
+        return df.format(bd).replace(",", ".");
     }
 
     private static String formatCreditCardExpiry(int year, int month) {
