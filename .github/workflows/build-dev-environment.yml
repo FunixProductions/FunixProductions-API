@@ -35,7 +35,7 @@ jobs:
         env:
           ENCRYPTION_KEY: hwJdNY1/yC3miXQR+Vw2V3qtt1e3FPJ2y62BKtROUJs=
           ENCRYPTION_IV: DKKyySzj8ao5WgraQpwj+A==
-        run: mvn --batch-mode clean package -Dmaven.javadoc.skip -DskipTests -T 6
+        run: mvn --batch-mode clean package -Dmaven.javadoc.skip -T 6
 
       - name: Publish Package Artifacts
         uses: actions/upload-artifact@v4
