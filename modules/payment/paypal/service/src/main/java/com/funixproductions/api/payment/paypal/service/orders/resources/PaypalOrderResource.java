@@ -305,16 +305,12 @@ public class PaypalOrderResource implements PaypalOrderClient {
     private PurchaseUnitDTO.Amount initPurchaseAmount(final PaymentDTO.PurchaseUnitDTO purchaseUnitDTO, @Nullable VATInformation vatInformation) {
         final PurchaseUnitDTO.Amount amount = new PurchaseUnitDTO.Amount();
         double totalHt = 0;
-        double totalTaxes = 0;
 
         for (final PaymentDTO.PurchaseUnitDTO.Item item : purchaseUnitDTO.getItems()) {
             totalHt += item.getPrice() * item.getQuantity();
-
-            if (vatInformation != null) {
-                totalTaxes += (item.getPrice() * (vatInformation.getVatRate() / 100)) * item.getQuantity();
-            }
         }
 
+        final double totalTaxes = vatInformation == null ? 0 : totalHt * (vatInformation.getVatRate() / 100);
         amount.setCurrencyCode("EUR");
         amount.setValue(parseDoubleToString(totalHt + totalTaxes));
         amount.setBreakdown(new PurchaseUnitDTO.Amount.Breakdown(
