@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.lang.Nullable;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.UUID;
 
@@ -162,7 +164,32 @@ public abstract class PaymentDTO {
             private Double price;
 
             private Double tax;
+
+            public @NotNull(message = "Le prix de l'article est obligatoire") @Min(value = 0, message = "Le prix de l'article doit être supérieur à 0") Double getPrice() {
+                return formatPrice(this.price);
+            }
+
+            public void setPrice(@NotNull(message = "Le prix de l'article est obligatoire") @Min(value = 0, message = "Le prix de l'article doit être supérieur à 0") Double price) {
+                this.price = formatPrice(price);
+            }
+
+            public Double getTax() {
+                return formatPrice(this.tax);
+            }
+
+            public void setTax(Double tax) {
+                this.tax = formatPrice(tax);
+            }
         }
 
+    }
+
+    public static Double formatPrice(Double value) {
+        if (value == null) {
+            return null;
+        }
+
+        final BigDecimal bd = BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
 }
