@@ -66,7 +66,7 @@ public class PaypalOrderService implements PaypalOrderClient {
             final PaypalOrderErrorResponse error = gson.fromJson(e.contentUTF8(), PaypalOrderErrorResponse.class);
             final String errorMessage = buildErrorMessage(error);
 
-            log.error("Impossible {} un ordre d'achat avec PayPal. Message Erreur {}. MessageBuilder: {}", action, e.getMessage(), errorMessage, e);
+            log.error("Impossible {} un ordre d'achat avec PayPal. Message Erreur {}. Details: {} MessageBuilder: {}", action, e.getMessage(), (error != null ? error.getDetails() : ""), errorMessage, e);
 
             final String finalMessage = String.format("%s Envoyez un email à contact@funixproductions.com en cas de besoin.", errorMessage);
             if (error == null || error.getName() == null || !error.getName().equals(PaypalOrderErrorResponse.ErrorCode.UNPROCESSABLE_ENTITY)) {
