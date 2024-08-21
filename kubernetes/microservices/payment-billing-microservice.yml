@@ -9,7 +9,7 @@ metadata:
     service: payment-billing
 
 spec:
-  replicas: 4
+  replicas: 1
   selector:
     matchLabels:
       app: springboot

@@ -9,7 +9,7 @@ metadata:
     service: payment-paypal
 
 spec:
-  replicas: 4
+  replicas: 1
   selector:
     matchLabels:
       app: springboot
