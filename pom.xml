@@ -12,7 +12,7 @@
 
     <groupId>com.funixproductions.api</groupId>
     <artifactId>funixproductions-api</artifactId>
-    <version>1.3.3.0</version>
+    <version>1.3.3.1</version>
     <name>FunixProductions-API</name>
     <description>Main api for all funixproductions projects</description>
     <url>https://funixproductions.com</url>
@@ -33,7 +33,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <com.funixproductions.api.version>1.3.3.0</com.funixproductions.api.version>
+        <com.funixproductions.api.version>1.3.3.1</com.funixproductions.api.version>
 
         <!-- Google api client version https://central.sonatype.com/artifact/com.google.api-client/google-api-client -->
         <com.google.api.client.version>2.6.0</com.google.api.client.version>
@@ -42,7 +42,7 @@
         <!-- https://central.sonatype.com/artifact/com.google.oauth-client/google-oauth-client-jetty -->
         <com.google.oauth.client.jetty.version>1.34.0</com.google.oauth.client.jetty.version>
         <!-- https://central.sonatype.com/artifact/com.google.auth/google-auth-library-oauth2-http -->
-        <com.google.auth.library.oauth2.http.version>1.24.0</com.google.auth.library.oauth2.http.version>
+        <com.google.auth.library.oauth2.http.version>1.24.1</com.google.auth.library.oauth2.http.version>
         <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
         <org.jsoup.version>1.18.1</org.jsoup.version>
     </properties>

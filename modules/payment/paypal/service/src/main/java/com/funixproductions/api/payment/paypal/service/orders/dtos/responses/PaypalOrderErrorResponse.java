@@ -29,6 +29,15 @@ public class PaypalOrderErrorResponse {
 
         private String description;
 
+        @Override
+        public String toString() {
+            return "Details{" +
+                    "field='" + field + '\'' +
+                    ", issue=" + issue +
+                    ", description='" + description + '\'' +
+                    '}';
+        }
+
         @Getter
         @AllArgsConstructor
         public enum Issue {

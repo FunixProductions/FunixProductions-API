@@ -43,7 +43,10 @@ public class PaypalOrderResource implements PaypalOrderClient {
     public PaypalOrderDTO createCardOrder(CreditCardPaymentDTO creditCardPaymentDTO) {
         try {
             OrderDTO orderDTO = createOrderFromRequest(creditCardPaymentDTO);
-            final PaypalOrderResponseDTO response = paypalOrderService.createOrder(orderDTO.getId().toString(), createCardOrderDTO(creditCardPaymentDTO));
+            final PaypalOrderResponseDTO response = paypalOrderService.createOrder(
+                    orderDTO.getId().toString(),
+                    createCardOrderDTO(creditCardPaymentDTO)
+            );
 
             orderDTO.setOrderId(response.getId());
             if (response.getStatus() == OrderStatus.COMPLETED) {
@@ -69,7 +72,10 @@ public class PaypalOrderResource implements PaypalOrderClient {
     public PaypalOrderDTO createPaypalOrder(PaypalPaymentDTO paypalPaymentDTO) {
         try {
             OrderDTO orderDTO = createOrderFromRequest(paypalPaymentDTO);
-            final PaypalOrderResponseDTO response = paypalOrderService.createOrder(orderDTO.getId().toString(), createPaypalOrderDTO(paypalPaymentDTO));
+            final PaypalOrderResponseDTO response = paypalOrderService.createOrder(
+                    orderDTO.getId().toString(),
+                    createPaypalOrderDTO(paypalPaymentDTO)
+            );
 
             orderDTO.setOrderId(response.getId());
             orderDTO = this.paypalOrderCrudService.update(orderDTO);
@@ -280,7 +286,42 @@ public class PaypalOrderResource implements PaypalOrderClient {
         return toSend;
     }
 
+    private PurchaseUnitDTO.Amount initPurchaseAmount(final PaymentDTO.PurchaseUnitDTO purchaseUnitDTO, @Nullable VATInformation vatInformation) {
+        final PurchaseUnitDTO.Amount amount = new PurchaseUnitDTO.Amount();
+        final double tax = vatInformation == null ? 0 : (vatInformation.getVatRate() / 100);
+
+        double totalHt = 0;
+        double totalTaxes = 0;
+
+        for (final PaymentDTO.PurchaseUnitDTO.Item item : purchaseUnitDTO.getItems()) {
+            totalHt += PaymentDTO.formatPrice(item.getPrice() * item.getQuantity());
+            if (tax > 0) {
+                totalTaxes += PaymentDTO.formatPrice(PaymentDTO.formatPrice(item.getPrice() * tax) * item.getQuantity());
+            }
+        }
+
+        totalHt = PaymentDTO.formatPrice(totalHt);
+        totalTaxes = PaymentDTO.formatPrice(totalTaxes);
+
+        amount.setCurrencyCode("EUR");
+        amount.setValue(Double.toString(PaymentDTO.formatPrice(totalHt + totalTaxes)));
+
+        amount.setBreakdown(new PurchaseUnitDTO.Amount.Breakdown(
+                new PurchaseUnitDTO.Money(
+                        "EUR",
+                        Double.toString(totalHt)
+                ),
+                new PurchaseUnitDTO.Money(
+                        "EUR",
+                        Double.toString(totalTaxes)
+                ),
+                null
+        ));
+        return amount;
+    }
+
     private List<PurchaseUnitDTO.Item> generateItems(final List<PaymentDTO.PurchaseUnitDTO.Item> items, @Nullable VATInformation vatInformation) {
+        final double tax = vatInformation == null ? 0 : (vatInformation.getVatRate() / 100);
         final List<PurchaseUnitDTO.Item> toSend = new ArrayList<>();
 
         for (final PaymentDTO.PurchaseUnitDTO.Item item : items) {
@@ -290,49 +331,16 @@ public class PaypalOrderResource implements PaypalOrderClient {
                     item.getDescription(),
                     new PurchaseUnitDTO.Money(
                             "EUR",
-                            parseDoubleToString(item.getPrice())
+                            PaymentDTO.formatPrice(item.getPrice()).toString()
                     ),
-                    vatInformation == null ? null : new PurchaseUnitDTO.Money(
+                    tax > 0 ? new PurchaseUnitDTO.Money(
                             "EUR",
-                            parseDoubleToString(item.getPrice() * (vatInformation.getVatRate() / 100))
-                    ),
+                            PaymentDTO.formatPrice(item.getPrice() * tax).toString()
+                    ) : null,
                     PurchaseUnitDTO.Category.DIGITAL_GOODS
             ));
         }
         return toSend;
-    }
-
-    private PurchaseUnitDTO.Amount initPurchaseAmount(final PaymentDTO.PurchaseUnitDTO purchaseUnitDTO, @Nullable VATInformation vatInformation) {
-        final PurchaseUnitDTO.Amount amount = new PurchaseUnitDTO.Amount();
-        double totalHt = 0;
-        double totalTaxes = 0;
-
-        for (final PaymentDTO.PurchaseUnitDTO.Item item : purchaseUnitDTO.getItems()) {
-            totalHt += item.getPrice() * item.getQuantity();
-
-            if (vatInformation != null) {
-                totalTaxes += (item.getPrice() * (vatInformation.getVatRate() / 100)) * item.getQuantity();
-            }
-        }
-
-        amount.setCurrencyCode("EUR");
-        amount.setValue(parseDoubleToString(totalHt + totalTaxes));
-        amount.setBreakdown(new PurchaseUnitDTO.Amount.Breakdown(
-                new PurchaseUnitDTO.Money(
-                        "EUR",
-                        parseDoubleToString(totalHt)
-                ),
-                new PurchaseUnitDTO.Money(
-                        "EUR",
-                        parseDoubleToString(totalTaxes)
-                ),
-                null
-        ));
-        return amount;
-    }
-
-    private static String parseDoubleToString(double value) {
-        return String.format("%.2f", value).replace(",", ".");
     }
 
     private static String formatCreditCardExpiry(int year, int month) {

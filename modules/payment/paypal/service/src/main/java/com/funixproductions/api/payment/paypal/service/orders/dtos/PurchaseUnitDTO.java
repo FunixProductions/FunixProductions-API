@@ -96,6 +96,7 @@ public class PurchaseUnitDTO {
              * The discount for all items within a given purchase_unit. discount.value can not be a negative number.
              */
             private Money discount;
+
         }
     }
 
@@ -125,6 +126,7 @@ public class PurchaseUnitDTO {
         private Money tax;
 
         private Category category;
+
     }
 
     @Getter
@@ -141,6 +143,7 @@ public class PurchaseUnitDTO {
         private String currencyCode;
 
         private String value;
+
     }
 
     public enum Category {
@@ -176,6 +179,14 @@ public class PurchaseUnitDTO {
          */
         @JsonProperty(value = "merchant_id")
         private String merchantId;
+
+        @Override
+        public String toString() {
+            return "Payee{" +
+                    "emailAddress='" + emailAddress + '\'' +
+                    ", merchantId='" + merchantId + '\'' +
+                    '}';
+        }
     }
 
 }
