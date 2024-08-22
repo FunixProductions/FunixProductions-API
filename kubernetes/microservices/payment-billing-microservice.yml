@@ -77,7 +77,7 @@ spec:
       volumes:
         - name: pdf-storage
           hostPath:
-            path: /vagrant/nfs-storage/funixproductions/
+            path: /root/k3s/data/funixproductions/
 
 ---
 
