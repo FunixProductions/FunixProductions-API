@@ -1,6 +1,5 @@
 package com.funixproductions.api.google.gmail.service.config;
 
-import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.gmail.Gmail;
@@ -28,6 +27,11 @@ public class GoogleGmailConfig {
      */
     private String appEmail = "noreply@funixproductions.com";
 
+    /**
+     * App sender display name
+     */
+    private String appEmailName = "FunixProductions";
+
     @Bean
     public GoogleCredentials googleCredentials() throws Exception {
         return GoogleCredentials.getApplicationDefault().createScoped(GmailScopes.GMAIL_SEND).createDelegated(this.appEmail);
@@ -35,8 +39,7 @@ public class GoogleGmailConfig {
 
     @Bean
     public Gmail gmail(GoogleCredentials googleCredentials) {
-        final HttpRequestInitializer requestInitializer = new HttpCredentialsAdapter(googleCredentials);
-        return new Gmail.Builder(new NetHttpTransport(), new GsonFactory(), requestInitializer)
+        return new Gmail.Builder(new NetHttpTransport(), new GsonFactory(), new HttpCredentialsAdapter(googleCredentials))
                 .setApplicationName("FunixProductions Gmail Service")
                 .build();
     }

@@ -47,8 +47,8 @@ public class GoogleGmailService {
         this.templateMail = StringUtils.readFromClasspath(TEMPLATE_FILE_NAME, this.getClass());
 
         try {
-            this.serverEmailAddress = new InternetAddress(gmailConfig.getAppEmail());
-        } catch (MessagingException e) {
+            this.serverEmailAddress = new InternetAddress(gmailConfig.getAppEmail(), gmailConfig.getAppEmailName());
+        } catch (Exception e) {
             throw new ApiException("Can't set server email address", e);
         }
     }
