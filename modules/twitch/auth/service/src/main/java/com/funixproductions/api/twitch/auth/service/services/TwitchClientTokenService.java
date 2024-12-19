@@ -112,23 +112,25 @@ public class TwitchClientTokenService {
         }
 
         final CsrfUser csrfUser = this.csrfTokens.get(csrfToken);
-
         if (csrfUser == null) {
             throw new ApiBadRequestException("Le csrf token est invalide. Veuillez vous reconnecter avec twitch.");
-        } else {
-            final UserDTO userDTO = csrfUser.getUser();
-            final Optional<TwitchClientToken> searchToken = this.twitchClientTokenRepository.findTwitchClientTokenByUserUuidAndTokenType(
-                    userDTO.getId().toString(),
-                    csrfUser.tokenType
-            );
-
-            searchToken.ifPresent(this.twitchClientTokenRepository::delete);
-
-            this.generateNewAccessToken(csrfUser, userDTO, oAuthCode);
-            this.csrfTokens.remove(csrfToken);
-
-            return csrfUser.getFrontOrigin();
         }
+        final UserDTO userDTO = csrfUser.getUser();
+        final TwitchClientTokenType tokenType = csrfUser.getTokenType();
+        final Optional<TwitchClientToken> searchToken = this.twitchClientTokenRepository.findTwitchClientTokenByUserUuidAndTokenType(
+                userDTO.getId().toString(),
+                csrfUser.tokenType
+        );
+
+        searchToken.ifPresent(this.twitchClientTokenRepository::delete);
+
+        final TwitchClientToken generatedToken = this.generateNewAccessToken(csrfUser, userDTO, oAuthCode);
+        if (tokenType.isNeedRegisterEvents()) {
+            this.createEventSub(generatedToken.getTwitchUsername());
+        }
+
+        this.csrfTokens.remove(csrfToken);
+        return csrfUser.getFrontOrigin();
     }
 
     public TwitchClientTokenDTO fetchToken(final UUID userUuid, final TwitchClientTokenType tokenType) {
@@ -281,7 +283,7 @@ public class TwitchClientTokenService {
         return state;
     }
 
-    private void generateNewAccessToken(final CsrfUser csrfUser, final UserDTO user, final String oAuthToken) {
+    private TwitchClientToken generateNewAccessToken(final CsrfUser csrfUser, final UserDTO user, final String oAuthToken) {
         final Map<String, String> formData = new HashMap<>();
         formData.put("client_id", twitchApiConfig.getAppClientId());
         formData.put("client_secret", twitchApiConfig.getAppClientSecret());
@@ -305,7 +307,8 @@ public class TwitchClientTokenService {
             twitchClientToken.setAccessToken(tokenResponseDTO.getAccessToken());
             twitchClientToken.setRefreshToken(tokenResponseDTO.getRefreshToken());
             twitchClientToken.setExpirationDateToken(Date.from(Instant.now().plusSeconds(tokenResponseDTO.getExpiresIn() - 60L)));
-            this.twitchClientTokenRepository.save(twitchClientToken);
+
+            return this.twitchClientTokenRepository.save(twitchClientToken);
         } catch (FeignException e) {
             if (e.status() == HttpStatus.UNAUTHORIZED.value()) {
                 throw new ApiForbiddenException(String.format("L'utilisateur %s à retiré l'accès à la FunixAPI sur twitch.", csrfUser.getUser().getUsername()));
@@ -353,6 +356,10 @@ public class TwitchClientTokenService {
                 throw new ApiException("Une erreur est survenue lors du refresh access token via Twitch.", e);
             }
         }
+    }
+
+    private void createEventSub(final String streamerName) {
+
     }
 
 }

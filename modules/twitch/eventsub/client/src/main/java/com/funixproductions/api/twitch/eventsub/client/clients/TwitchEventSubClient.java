@@ -2,7 +2,8 @@ package com.funixproductions.api.twitch.eventsub.client.clients;
 
 import com.funixproductions.api.twitch.eventsub.client.dtos.TwitchEventSubListDTO;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(
         name = "TwitchEventSubClient",
@@ -32,19 +33,5 @@ public interface TwitchEventSubClient {
             @RequestParam(name = "user_id", required = false) String userId,
             @RequestParam(name = "after", required = false) String after
     );
-
-    /**
-     * Documentation <a href="https://dev.twitch.tv/docs/api/reference/#delete-eventsub-subscription">Doc remove</a>
-     * @param streamerUsername streamer username who has created streamer token with funix api
-     */
-    @DeleteMapping
-    void deleteSubscription(@RequestParam(name = "streamer_username") String streamerUsername);
-
-    /**
-     * Documentation <a href="https://dev.twitch.tv/docs/api/reference/#create-eventsub-subscription">Create sub</a>
-     * @param streamerUsername streamer username who has created streamer token with funix api
-     */
-    @PostMapping
-    void createSubscription(@RequestBody String streamerUsername);
 
 }

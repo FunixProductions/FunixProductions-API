@@ -6,9 +6,11 @@ import com.funixproductions.api.twitch.eventsub.service.clients.TwitchEventSubRe
 import com.funixproductions.api.twitch.eventsub.service.configs.TwitchEventSubConfig;
 import com.funixproductions.api.twitch.eventsub.service.requests.TwitchSubscription;
 import com.funixproductions.api.twitch.reference.client.services.TwitchReferenceService;
+import com.funixproductions.core.exceptions.ApiException;
 import feign.FeignException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
  * Service who encapsulates the twitch client who calls the twitch api
  */
 @Service
+@Slf4j(topic = "TwitchEventSubReferenceService")
 @RequiredArgsConstructor
 public class TwitchEventSubReferenceService extends TwitchReferenceService {
 
@@ -53,7 +56,10 @@ public class TwitchEventSubReferenceService extends TwitchReferenceService {
                     request.getPayload()
             );
         } catch (FeignException e) {
-            throw super.handleFeignException(e);
+            final int statusCode = e.status();
+
+            if (statusCode == Status)
+            log.error("Create subscription error twitch.", new ApiException());
         }
     }
 

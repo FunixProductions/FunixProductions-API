@@ -17,6 +17,7 @@ public class WebSecurity extends ApiWebSecurity {
     @Override
     public Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> getUrlsMatchers() {
         return ex -> ex
+                .requestMatchers("/kubeinternal/**").permitAll()
                 .requestMatchers("/ws/public/**").permitAll()
                 .requestMatchers("/twitch/eventsub/cb**").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
