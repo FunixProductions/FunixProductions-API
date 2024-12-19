@@ -12,9 +12,9 @@ import com.funixproductions.api.user.service.repositories.UserRepository;
 import com.funixproductions.core.test.beans.JsonHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -41,16 +41,16 @@ public abstract class UserTestComponent {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @MockBean
+    @MockitoBean
     protected EncryptionClient encryptionClient;
 
-    @MockBean
+    @MockitoBean
     protected GoogleRecaptchaInternalClient googleCaptchaService;
 
-    @MockBean
+    @MockitoBean
     protected InternalGoogleAuthClient googleAuthClient;
 
-    @MockBean
+    @MockitoBean
     protected GoogleGmailClient googleGmailClient;
 
     public static final String PASSWORD = "ousddffdi22AA" + UUID.randomUUID();

@@ -50,7 +50,8 @@ public class TwitchEventSubReferenceService extends TwitchReferenceService {
             this.eventSubReferenceClient.createSubscription(
                     super.addBearerPrefix(tokenService.fetchServerToken()),
                     MediaType.APPLICATION_JSON_VALUE,
-                    request.getPayload());
+                    request.getPayload()
+            );
         } catch (FeignException e) {
             throw super.handleFeignException(e);
         }

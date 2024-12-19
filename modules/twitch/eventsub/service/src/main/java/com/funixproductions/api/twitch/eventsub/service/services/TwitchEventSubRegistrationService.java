@@ -7,7 +7,7 @@ import com.funixproductions.api.twitch.eventsub.service.entities.TwitchEventSubS
 import com.funixproductions.api.twitch.eventsub.service.enums.ChannelEventType;
 import com.funixproductions.api.twitch.eventsub.service.repositories.TwitchEventSubStreamerRepository;
 import com.funixproductions.api.twitch.eventsub.service.requests.TwitchSubscription;
-import com.funixproductions.api.twitch.eventsub.service.requests.channel.ChannelSubscription;
+import com.funixproductions.api.twitch.eventsub.service.requests.channel.AChannelSubscription;
 import com.funixproductions.api.twitch.reference.client.clients.users.TwitchUsersClient;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.user.TwitchUserDTO;
@@ -24,10 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -121,12 +118,11 @@ public class TwitchEventSubRegistrationService {
      */
     @Async
     public void updateSubscriptions(final String streamerUsername, final String streamerId) {
-        final List<TwitchSubscription> subscriptions = new ArrayList<>();
-        subscriptions.addAll(generateChannelSubscriptions(streamerId));
-
+        final Collection<TwitchSubscription> subscriptions = this.generateChannelSubscriptions(streamerId);
         if (this.streamerIdsCreating.contains(streamerId)) {
             return;
         }
+
         this.streamerIdsCreating.add(streamerId);
 
         try {
@@ -156,7 +152,7 @@ public class TwitchEventSubRegistrationService {
     @Scheduled(fixedRate = 10, timeUnit = TimeUnit.MINUTES)
     public void checkStreamersSubscriptions() {
         for (final TwitchEventSubStreamer subStreamer : repository.findAll()) {
-            updateSubscriptions("streamerId:" + subStreamer.getStreamerId(), subStreamer.getStreamerId());
+            this.updateSubscriptions("streamerId:" + subStreamer.getStreamerId(), subStreamer.getStreamerId());
         }
     }
 
@@ -235,8 +231,8 @@ public class TwitchEventSubRegistrationService {
             final List<TwitchSubscription> subscriptions = new ArrayList<>();
 
             for (ChannelEventType eventType : ChannelEventType.values()) {
-                final Constructor<? extends ChannelSubscription> constructor = eventType.getClazz().getConstructor(String.class);
-                final ChannelSubscription channelSubscription = constructor.newInstance(streamerId);
+                final Constructor<? extends AChannelSubscription> constructor = eventType.getClazz().getConstructor(String.class);
+                final AChannelSubscription channelSubscription = constructor.newInstance(streamerId);
                 subscriptions.add(channelSubscription);
             }
 

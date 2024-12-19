@@ -1,21 +1,20 @@
 package com.funixproductions.api.twitch.eventsub.service.services;
 
-import com.funixproductions.api.twitch.eventsub.service.services.handler.TwitchEventSubHandlerService;
+import com.funixproductions.api.twitch.eventsub.service.services.websocket.TwitchEventSubWebsocketService;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
+import com.google.common.base.Strings;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -35,9 +34,11 @@ public class TwitchEventSubCallbackService {
     private static final String BODY_JSON_NOT_VALID = "Le body ne vient pas de twitch (malformé).";
 
     private final TwitchEventSubHmacService hmacService;
-    private final TwitchEventSubHandlerService twitchEventSubHandlerService;
+    private final TwitchEventSubWebsocketService websocketService;
 
-    private final Map<String, Instant> messagesIdsReceived = new HashMap<>();
+    private final Cache<String, Boolean> messagesIdsTreated = CacheBuilder.newBuilder()
+            .expireAfterWrite(30, TimeUnit.MINUTES)
+            .build();
 
     /**
      * Method called every time Twitch sends a call
@@ -55,24 +56,31 @@ public class TwitchEventSubCallbackService {
             throw new ApiBadRequestException("Il manque le message type");
         }
 
-        if (this.messagesIdsReceived.containsKey(messageId)) {
-            throw new ApiBadRequestException("Cette notification à déjà été traitée.");
+        if (Boolean.TRUE.equals(this.messagesIdsTreated.getIfPresent(messageId))) {
+            throw new ApiBadRequestException("Cette notification twitch a déjà été traitée.");
         } else {
-            hmacService.validEventMessage(httpServletRequest, body);
-            this.messagesIdsReceived.put(messageId, Instant.now());
+            this.hmacService.validEventMessage(httpServletRequest, body);
+            this.messagesIdsTreated.put(messageId, true);
 
             final String bodyParsed = new String(body, StandardCharsets.UTF_8);
 
             switch (messageType) {
                 case MESSAGE_TYPE_NOTIFICATION -> {
-                    final JsonObject message = getTwitchMessage(bodyParsed);
+                    final JsonObject message = this.getTwitchMessage(bodyParsed);
                     final JsonElement eventElement = message.get("event");
 
                     if (eventElement.isJsonObject()) {
-                        final String notificationType = getNotificationType(message);
+                        final String notificationType = this.getNotificationType(message);
                         final JsonObject event = eventElement.getAsJsonObject();
+                        final String streamerId = this.getStreamerIdInNotification(event);
 
-                        twitchEventSubHandlerService.receiveNewNotification(notificationType, event);
+                        if (!Strings.isNullOrEmpty(streamerId)) {
+                            this.websocketService.newNotification(
+                                    notificationType,
+                                    streamerId,
+                                    event.toString()
+                            );
+                        }
                     } else {
                         throw new ApiBadRequestException(BODY_JSON_NOT_VALID);
                     }
@@ -80,41 +88,15 @@ public class TwitchEventSubCallbackService {
                     return "s";
                 }
                 case MESSAGE_TYPE_VERIFICATION -> {
-                    final JsonObject message = getTwitchMessage(bodyParsed);
-                    return getChallenge(message);
+                    return this.getChallenge(
+                            this.getTwitchMessage(bodyParsed)
+                    );
                 }
                 case MESSAGE_TYPE_REVOCATION -> {
                     return "s";
                 }
                 default -> throw new ApiBadRequestException("Le message type n'existe pas.");
             }
-        }
-    }
-
-    /**
-     * Method used to clean the messages ids received
-     */
-    @Scheduled(fixedRate = 10, timeUnit = TimeUnit.MINUTES)
-    public void cleanMessagesIds() {
-        final Instant now = Instant.now();
-        final Map<String, Instant> copyMap = new HashMap<>(this.messagesIdsReceived);
-
-        for (final Map.Entry<String, Instant> entry : copyMap.entrySet()) {
-            final Instant receivedAt = entry.getValue();
-
-            if (now.minus(30, ChronoUnit.MINUTES).isAfter(receivedAt)) {
-                this.messagesIdsReceived.remove(entry.getKey());
-            }
-        }
-    }
-
-    private JsonObject getTwitchMessage(final String object) {
-        final JsonElement element = JsonParser.parseString(object);
-
-        if (element.isJsonObject()) {
-            return element.getAsJsonObject();
-        } else {
-            throw new ApiBadRequestException(BODY_JSON_NOT_VALID);
         }
     }
 
@@ -144,6 +126,27 @@ public class TwitchEventSubCallbackService {
             return challenge.getAsString();
         } else {
             throw new ApiBadRequestException(BODY_JSON_NOT_VALID);
+        }
+    }
+
+    private JsonObject getTwitchMessage(final String object) {
+        final JsonElement element = JsonParser.parseString(object);
+
+        if (element.isJsonObject()) {
+            return element.getAsJsonObject();
+        } else {
+            throw new ApiBadRequestException(BODY_JSON_NOT_VALID);
+        }
+    }
+
+    @Nullable
+    private String getStreamerIdInNotification(final JsonObject jsonObject) {
+        final JsonElement idJson = jsonObject.get("broadcaster_user_id");
+
+        if (idJson != null && idJson.isJsonPrimitive()) {
+            return idJson.getAsJsonPrimitive().getAsString();
+        } else {
+            return null;
         }
     }
 

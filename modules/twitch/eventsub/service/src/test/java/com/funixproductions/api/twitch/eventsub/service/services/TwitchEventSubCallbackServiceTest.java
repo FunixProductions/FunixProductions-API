@@ -1,7 +1,6 @@
 package com.funixproductions.api.twitch.eventsub.service.services;
 
 import com.funixproductions.api.twitch.eventsub.client.dtos.events.channel.TwitchEventChannelFollowDTO;
-import com.funixproductions.api.twitch.eventsub.service.services.handler.TwitchEventSubHandlerService;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
 import com.google.gson.Gson;
@@ -34,15 +33,11 @@ class TwitchEventSubCallbackServiceTest {
     @Mock
     private TwitchEventSubHmacService hmacService;
 
-    @Mock
-    private TwitchEventSubHandlerService handlerService;
-
     private final Gson gson = new Gson();
 
     @Test
     void testNewWebhookNotification() throws RuntimeException {
         doNothing().when(hmacService).validEventMessage(any(), any());
-        doNothing().when(handlerService).receiveNewNotification(any(), any());
 
         final MockHttpServletRequest httpServletRequest = new MockHttpServletRequest();
         httpServletRequest.addHeader(TwitchEventSubCallbackService.TWITCH_MESSAGE_ID, "10");
@@ -56,8 +51,6 @@ class TwitchEventSubCallbackServiceTest {
         assertThrows(ApiBadRequestException.class, () ->
                 service.handleNewWebhook(httpServletRequest, gson.toJson(test).getBytes(StandardCharsets.UTF_8))
         );
-
-        service.cleanMessagesIds();
     }
 
     @Test
@@ -89,7 +82,6 @@ class TwitchEventSubCallbackServiceTest {
     void missingMessageIdOrMessageType() {
         assertThrows(ApiBadRequestException.class, () -> {
             doNothing().when(hmacService).validEventMessage(any(), any());
-            doNothing().when(handlerService).receiveNewNotification(any(), any());
             final MockHttpServletRequest request = new MockHttpServletRequest();
 
             service.handleNewWebhook(request, "".getBytes());
@@ -104,7 +96,6 @@ class TwitchEventSubCallbackServiceTest {
     void testMalformatedBodyNotification() {
         assertThrows(ApiBadRequestException.class, () -> {
             doNothing().when(hmacService).validEventMessage(any(), any());
-            doNothing().when(handlerService).receiveNewNotification(any(), any());
             final MockHttpServletRequest request = new MockHttpServletRequest();
             request.addHeader(TwitchEventSubCallbackService.TWITCH_MESSAGE_ID, UUID.randomUUID().toString());
             request.addHeader(TwitchEventSubCallbackService.TWITCH_MESSAGE_TYPE, TwitchEventSubCallbackService.MESSAGE_TYPE_NOTIFICATION);
@@ -117,7 +108,6 @@ class TwitchEventSubCallbackServiceTest {
     void testMalformatedBodyVerification() {
         assertThrows(ApiBadRequestException.class, () -> {
             doNothing().when(hmacService).validEventMessage(any(), any());
-            doNothing().when(handlerService).receiveNewNotification(any(), any());
             final MockHttpServletRequest request = new MockHttpServletRequest();
             request.addHeader(TwitchEventSubCallbackService.TWITCH_MESSAGE_ID, UUID.randomUUID().toString());
             request.addHeader(TwitchEventSubCallbackService.TWITCH_MESSAGE_TYPE, TwitchEventSubCallbackService.MESSAGE_TYPE_VERIFICATION);

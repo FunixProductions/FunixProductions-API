@@ -5,6 +5,7 @@ import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
 import com.funixproductions.core.tools.string.PasswordGenerator;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Getter;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +31,12 @@ public class TwitchEventSubHmacService {
     public static final String TWITCH_MESSAGE_TIMESTAMP = "Twitch-Eventsub-Message-Timestamp";
     public static final String TWITCH_MESSAGE_SIGNATURE = "Twitch-Eventsub-Message-Signature";
 
+    /**
+     * key used to encode messages, twitch need this
+     */
+    @Getter
     private final String key;
+
     private final Mac mac;
 
     public TwitchEventSubHmacService(TwitchEventSubConfig twitchEventSubConfig) {
@@ -77,16 +83,8 @@ public class TwitchEventSubHmacService {
         final byte[] expectedHmac = messageSignature.substring(HMAC_PREFIX.length()).getBytes(StandardCharsets.UTF_8);
 
         if (!MessageDigest.isEqual(twitchHmac, expectedHmac)) {
-            throw new ApiBadRequestException("La clé fournie en header ne correspond pas avec la clé de la funix api.");
+            throw new ApiBadRequestException("La clé fournie en header ne correspond pas avec la clé de la FunixProductions Api.");
         }
-    }
-
-    /**
-     * Method to get the key used to encode messages, twitch need this
-     * @return String key
-     */
-    public String getKey() {
-        return key;
     }
 
     private byte[] getHmacFromTwitch(final HttpServletRequest request, final byte[] body) {

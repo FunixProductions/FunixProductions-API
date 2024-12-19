@@ -109,6 +109,6 @@ public enum ChannelEventType {
 
     private final String type;
     private final String version;
-    private final Class<? extends ChannelSubscription> clazz;
+    private final Class<? extends AChannelSubscription> clazz;
 
 }

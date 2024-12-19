@@ -3,11 +3,11 @@ package com.funixproductions.api.twitch.eventsub.service.requests.channel;
 import com.funixproductions.api.twitch.eventsub.service.requests.TwitchSubscription;
 import com.google.gson.JsonObject;
 
-public abstract class ChannelSubscription extends TwitchSubscription {
+public abstract class AChannelSubscription extends TwitchSubscription {
 
     private final String streamerId;
 
-    protected ChannelSubscription(String streamerId, String type, String version) {
+    protected AChannelSubscription(String streamerId, String type, String version) {
         super(type, version);
         this.streamerId = streamerId;
     }

@@ -37,9 +37,9 @@ public class TwitchValidTokenClient {
         httpRequest.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
         httpRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
 
-        try {
+        try (final HttpClient httpClient = HttpClient.newHttpClient()) {
             final HttpRequest request = httpRequest.build();
-            final HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+            final HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             final int status = response.statusCode();
 
             if (Integer.toString(status).startsWith("2")) {

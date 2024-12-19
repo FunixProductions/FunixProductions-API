@@ -2,6 +2,7 @@ package com.funixproductions.api.twitch.reference.service.resources.channel;
 
 import com.funixproductions.api.twitch.auth.client.clients.TwitchInternalAuthClient;
 import com.funixproductions.api.twitch.auth.client.dtos.TwitchClientTokenDTO;
+import com.funixproductions.api.twitch.auth.client.enums.TwitchClientTokenType;
 import com.funixproductions.api.twitch.reference.client.clients.channel.TwitchChannelClient;
 import com.funixproductions.api.twitch.reference.client.dtos.requests.TwitchChannelUpdateDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
@@ -41,7 +42,7 @@ public class TwitchChannelResource implements TwitchChannelClient {
     @Override
     public void updateChannelInformation(TwitchChannelUpdateDTO channelUpdateDTO, String userId) {
         try {
-            final TwitchClientTokenDTO tokenDTO = this.internalAuthClient.fetchToken(userId);
+            final TwitchClientTokenDTO tokenDTO = this.internalAuthClient.fetchToken(userId, TwitchClientTokenType.FUNIXGAMING.name());
 
             service.updateChannelInformation(
                     tokenDTO.getAccessToken(),
@@ -58,7 +59,7 @@ public class TwitchChannelResource implements TwitchChannelClient {
     @Override
     public TwitchDataResponseDTO<TwitchChannelUserDTO> getChannelVips(String maximumReturned, String after, List<String> userIds, String userId) {
         try {
-            final TwitchClientTokenDTO tokenDTO = this.internalAuthClient.fetchToken(userId);
+            final TwitchClientTokenDTO tokenDTO = this.internalAuthClient.fetchToken(userId, TwitchClientTokenType.FUNIXGAMING.name());
 
             return service.getChannelVips(
                     tokenDTO.getAccessToken(),
@@ -77,7 +78,7 @@ public class TwitchChannelResource implements TwitchChannelClient {
     @Override
     public TwitchDataResponseDTO<TwitchFollowDTO> getChannelFollowers(String maximumReturned, String after, String userTwitchId, String userAppId) {
         try {
-            final TwitchClientTokenDTO tokenDTO = this.internalAuthClient.fetchToken(userAppId);
+            final TwitchClientTokenDTO tokenDTO = this.internalAuthClient.fetchToken(userAppId, TwitchClientTokenType.STREAMER.name());
 
             return service.getChannelFollowers(
                     tokenDTO.getAccessToken(),

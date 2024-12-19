@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 /**
  * <a href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelfollow">Documentation</a>
  */
-public class ChannelFollowSubscription extends ChannelSubscription {
+public class ChannelFollowSubscription extends AChannelSubscription {
 
     public ChannelFollowSubscription(String streamerId) {
         super(streamerId, ChannelEventType.FOLLOW.getType(), ChannelEventType.FOLLOW.getVersion());
