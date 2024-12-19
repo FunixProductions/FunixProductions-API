@@ -2,6 +2,7 @@ package com.funixproductions.api.twitch.reference.service.resources.chat;
 
 import com.funixproductions.api.twitch.auth.client.clients.TwitchInternalAuthClient;
 import com.funixproductions.api.twitch.auth.client.dtos.TwitchClientTokenDTO;
+import com.funixproductions.api.twitch.auth.client.enums.TwitchClientTokenType;
 import com.funixproductions.api.twitch.reference.client.clients.chat.TwitchChatClient;
 import com.funixproductions.api.twitch.reference.client.dtos.requests.TwitchChatAnnouncement;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
@@ -25,7 +26,7 @@ public class TwitchChatResource implements TwitchChatClient {
                                                                               String paginationCursor,
                                                                               String userId) {
         try {
-            final TwitchClientTokenDTO tokenDTO = this.internalAuthClient.fetchToken(userId);
+            final TwitchClientTokenDTO tokenDTO = this.internalAuthClient.fetchToken(userId, TwitchClientTokenType.STREAMER.name());
 
             return service.getChannelChatters(
                     tokenDTO.getAccessToken(),
@@ -44,7 +45,7 @@ public class TwitchChatResource implements TwitchChatClient {
     @Override
     public void sendChatAnnouncement(TwitchChatAnnouncement announcement, String userId) {
         try {
-            final TwitchClientTokenDTO tokenDTO = this.internalAuthClient.fetchToken(userId);
+            final TwitchClientTokenDTO tokenDTO = this.internalAuthClient.fetchToken(userId, TwitchClientTokenType.FUNIXGAMING.name());
 
             service.sendChatAnnouncement(
                     tokenDTO.getAccessToken(),

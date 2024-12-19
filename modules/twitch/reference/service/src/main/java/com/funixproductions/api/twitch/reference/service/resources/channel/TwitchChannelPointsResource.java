@@ -2,6 +2,7 @@ package com.funixproductions.api.twitch.reference.service.resources.channel;
 
 import com.funixproductions.api.twitch.auth.client.clients.TwitchInternalAuthClient;
 import com.funixproductions.api.twitch.auth.client.dtos.TwitchClientTokenDTO;
+import com.funixproductions.api.twitch.auth.client.enums.TwitchClientTokenType;
 import com.funixproductions.api.twitch.reference.client.clients.channel.TwitchChannelPointsClient;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDataResponseDTO;
 import com.funixproductions.api.twitch.reference.client.dtos.responses.channel.chat.TwitchChannelRewardDTO;
@@ -22,7 +23,7 @@ public class TwitchChannelPointsResource implements TwitchChannelPointsClient {
     @Override
     public TwitchDataResponseDTO<TwitchChannelRewardDTO> getChannelRewards(String userId) {
         try {
-            final TwitchClientTokenDTO tokenDTO = this.internalAuthClient.fetchToken(userId);
+            final TwitchClientTokenDTO tokenDTO = this.internalAuthClient.fetchToken(userId, TwitchClientTokenType.STREAMER.name());
 
             return service.getChannelRewards(
                     tokenDTO.getAccessToken(),

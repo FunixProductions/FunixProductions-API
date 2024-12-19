@@ -16,4 +16,9 @@ public class TwitchAuthConfig {
      */
     private String appCallbackDomain = "https://api.funixproductions.com";
 
+    /**
+     * To know if the API is in dev mode or not
+     */
+    private Boolean devMode = false;
+
 }

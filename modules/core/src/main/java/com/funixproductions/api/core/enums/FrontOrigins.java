@@ -4,6 +4,8 @@ import com.google.common.base.Strings;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import javax.annotation.Nullable;
+
 @Getter
 @RequiredArgsConstructor
 public enum FrontOrigins {
@@ -11,7 +13,7 @@ public enum FrontOrigins {
            "funixproductions-dashboard",
            "Dashboard Funix Productions",
            "https://dashboard.funixproductions.com",
-           "http://localhost:4200"
+           "https://dev.dashboard.funixproductions.com"
    ),
    PACIFISTA_PUBLIC_WEB(
            "pacifista-public-web",
@@ -25,7 +27,8 @@ public enum FrontOrigins {
    private final String domainProd;
    private final String domainDev;
 
-   public static FrontOrigins getRedirectAuthOrigin(String origin) {
+   @Nullable
+   public static FrontOrigins getRedirectAuthOrigin(@Nullable String origin) {
        if (Strings.isNullOrEmpty(origin)) {
            return null;
        }
