@@ -1,6 +1,7 @@
 package com.funixproductions.api.twitch.eventsub.service.services.websocket;
 
 import com.funixproductions.api.twitch.auth.client.clients.TwitchInternalAuthClient;
+import com.funixproductions.api.twitch.auth.client.enums.TwitchClientTokenType;
 import com.funixproductions.api.twitch.eventsub.client.dtos.websocket.TwitchEventSubWebsocketMessage;
 import com.funixproductions.core.tools.websocket.services.ApiWebsocketServerHandler;
 import com.google.common.cache.Cache;
@@ -62,8 +63,11 @@ public class TwitchEventSubWebsocketService extends ApiWebsocketServerHandler {
     protected void newWebsocketMessage(@NonNull WebSocketSession session, @NonNull String message) {
         final String[] data = message.split(":");
 
-        if (data.length == 2 && data[0].equals(LISTEN_CALL_CLIENT)) {
-            final String streamerId = this.getStreamerIdByUsername(data[1]);
+        if (data.length == 3 && data[0].equals(LISTEN_CALL_CLIENT)) {
+            final String streamerId = this.getStreamerIdByUsername(
+                    data[1],
+                    TwitchClientTokenType.getTokenTypeByString(data[2])
+            );
             if (streamerId == null) return;
 
             final List<String> streamersEvents = this.sessionsMapsStreamersEvents.getOrDefault(session.getId(), new ArrayList<>());
@@ -79,14 +83,14 @@ public class TwitchEventSubWebsocketService extends ApiWebsocketServerHandler {
     }
 
     @Nullable
-    private String getStreamerIdByUsername(final String username) {
+    private String getStreamerIdByUsername(final String username, final TwitchClientTokenType tokenType) {
         String streamerId = this.streamerIdCache.getIfPresent(username);
 
         if (streamerId != null) {
             return streamerId;
         } else {
             try {
-                streamerId = twitchInternalAuthClient.fetchTokenByStreamerName(username).getTwitchUserId();
+                streamerId = twitchInternalAuthClient.fetchTokenByStreamerName(username, tokenType.name()).getTwitchUserId();
                 this.streamerIdCache.put(username, streamerId);
 
                 return streamerId;

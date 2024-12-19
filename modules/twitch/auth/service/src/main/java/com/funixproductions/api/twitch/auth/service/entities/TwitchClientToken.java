@@ -1,6 +1,7 @@
 package com.funixproductions.api.twitch.auth.service.entities;
 
 import com.funixproductions.api.encryption.client.utils.EncryptionString;
+import com.funixproductions.api.twitch.auth.client.enums.TwitchClientTokenType;
 import com.funixproductions.core.crud.entities.ApiEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -42,6 +43,9 @@ public class TwitchClientToken extends ApiEntity {
 
     @Column(name = "expiration_date_token", nullable = false)
     private Date expirationDateToken;
+
+    @Column(name = "token_type", nullable = false)
+    private TwitchClientTokenType tokenType;
 
     public boolean isUsable() {
         return Instant.now().isBefore(expirationDateToken.toInstant());

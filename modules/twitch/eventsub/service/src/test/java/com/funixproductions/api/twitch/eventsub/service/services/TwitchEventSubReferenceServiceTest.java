@@ -41,7 +41,7 @@ class TwitchEventSubReferenceServiceTest {
     void setupMocks() {
         when(hmacService.getKey()).thenReturn("key");
         when(tokenService.fetchServerToken()).thenReturn("token");
-        when(tokenService.fetchToken(anyString())).thenReturn(new TwitchClientTokenDTO());
+        when(tokenService.fetchToken(anyString(), anyString())).thenReturn(new TwitchClientTokenDTO());
         when(referenceClient.getSubscriptions(any(), any(), any(), any(), any())).thenReturn(new TwitchEventSubListDTO());
         doNothing().when(referenceClient).createSubscription(any(), any(), any());
         doNothing().when(referenceClient).deleteSubscription(any(), any());
