@@ -22,4 +22,5 @@ public interface TwitchTokenAuthClient {
     @PostMapping("token")
     @Headers("Content-Type: application/x-www-form-urlencoded")
     TwitchTokenResponseDTO getToken(Map<String, String> formParams);
+
 }

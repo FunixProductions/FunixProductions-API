@@ -13,7 +13,7 @@ import com.funixproductions.core.tools.pdf.tools.VATInformation;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 import java.util.Random;
@@ -30,16 +30,16 @@ class AccountingServiceTest {
     @Autowired
     private AccountingService accountingService;
 
-    @MockBean
+    @MockitoBean
     private IncomeRepository incomeRepository;
 
-    @MockBean
+    @MockitoBean
     private ProductRepository productRepository;
 
-    @MockBean
+    @MockitoBean
     private GoogleGmailClient gmailClient;
 
-    @MockBean
+    @MockitoBean
     private BillingFeignInternalClient billingClient;
 
     @Test
