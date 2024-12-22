@@ -6,6 +6,7 @@ import com.funixproductions.api.twitch.eventsub.service.clients.TwitchEventSubRe
 import com.funixproductions.api.twitch.eventsub.service.configs.TwitchEventSubConfig;
 import com.funixproductions.api.twitch.eventsub.service.requests.TwitchSubscription;
 import com.funixproductions.api.twitch.reference.client.services.TwitchReferenceService;
+import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
 import feign.FeignException;
 import lombok.NonNull;
@@ -45,7 +46,13 @@ public class TwitchEventSubReferenceService extends TwitchReferenceService {
         }
     }
 
-    public void createSubscription(@NonNull final TwitchSubscription request) {
+    /**
+     * Create a subscription to twitch eventsub
+     * @param request the subscription request
+     * @throws ApiException when error
+     * @throws ApiBadRequestException when conflicts
+     */
+    public void createSubscription(@NonNull final TwitchSubscription request) throws ApiException, ApiBadRequestException {
         request.setEventUrlCallback(twitchEventSubConfig.getDomainUrlAppCallback() + "/twitch/eventsub/cb");
         request.setSecretHmacKey(hmacService.getKey());
 
@@ -58,8 +65,27 @@ public class TwitchEventSubReferenceService extends TwitchReferenceService {
         } catch (FeignException e) {
             final int statusCode = e.status();
 
-            if (statusCode == Status)
-            log.error("Create subscription error twitch.", new ApiException());
+            if (statusCode == 400) {
+                throw new ApiException("Erreur 400 Bad Request de Twitch lors de la création d'une subscription Twitch.", e);
+            } else if (statusCode == 401) {
+                throw new ApiException("Erreur 401 Unauthorized de Twitch lors de la création d'une subscription Twitch.", e);
+            } else if (statusCode == 403) {
+                throw new ApiException("Erreur 403 Forbidden de Twitch lors de la création d'une subscription Twitch.", e);
+            } else if (statusCode == 404) {
+                throw new ApiException("Erreur 404 Not Found de Twitch lors de la création d'une subscription Twitch.", e);
+            } else if (statusCode == 429) {
+                throw new ApiException("Erreur 429 Too Many Requests (rate limit) de Twitch lors de la création d'une subscription Twitch.", e);
+            } else if (statusCode == 409) {
+                throw new ApiException(String.format(
+                        "Erreur 409 Conflict de Twitch lors de la création d'une subscription Twitch. Event %s déjà existant.",
+                        request.getType()
+                ), e);
+            } else {
+                throw new ApiException(String.format(
+                        "Erreur inconnue (code: %d) lors de la création d'une subscription Twitch.",
+                        statusCode
+                ), e);
+            }
         }
     }
 

@@ -18,9 +18,4 @@ public class TwitchEventSubInternalResource implements TwitchEventSubInternalCli
         twitchEventSubRegistrationService.createSubscription(streamerUsername);
     }
 
-    @Override
-    public void deleteSubscription(String streamerUsername) {
-        twitchEventSubRegistrationService.removeSubscription(streamerUsername);
-    }
-
 }

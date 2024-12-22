@@ -2,6 +2,7 @@ package com.funixproductions.api.twitch.eventsub.service.services;
 
 import com.funixproductions.api.twitch.eventsub.client.dtos.TwitchEventSubListDTO;
 import com.funixproductions.api.twitch.eventsub.service.enums.ChannelEventType;
+import com.funixproductions.api.twitch.eventsub.service.enums.TwitchEventStatus;
 import com.funixproductions.api.twitch.eventsub.service.requests.TwitchSubscription;
 import com.funixproductions.api.twitch.eventsub.service.requests.channel.AChannelSubscription;
 import com.funixproductions.api.twitch.reference.client.clients.users.TwitchUsersClient;
@@ -9,15 +10,17 @@ import com.funixproductions.api.twitch.reference.client.dtos.responses.TwitchDat
 import com.funixproductions.api.twitch.reference.client.dtos.responses.user.TwitchUserDTO;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
 import com.funixproductions.core.exceptions.ApiException;
-import jakarta.transaction.Transactional;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Service dedicated to the handling of register and removing streamer subscriptions events
@@ -28,13 +31,11 @@ import java.util.*;
 @RequiredArgsConstructor
 public class TwitchEventSubRegistrationService {
 
-    public static final String TWITCH_SUBSCRIPTION_ACTIVE_STATUS = "enabled";
-
     private final TwitchEventSubReferenceService twitchEventSubReferenceService;
     private final TwitchUsersClient twitchUsersClient;
 
-    private final Set<String> streamerIdsCreating = new HashSet<>();
-    private final Set<String> streamerIdsRemoving = new HashSet<>();
+    private final Queue<TwitchSubscription> subscriptions = new LinkedList<>();
+    private final Queue<String> unsubscriptions = new LinkedList<>();
 
     /**
      * Method called by the ressource to create the event list subscriptions for a streamer
@@ -42,105 +43,82 @@ public class TwitchEventSubRegistrationService {
      * @param streamerUsername streamer name like funixgaming to create his subscriptions
      * @throws ApiBadRequestException when error
      */
-    public void createSubscription(final String streamerUsername) throws ApiBadRequestException {
-        final String streamerId = getUserIdFromUsername(streamerUsername);
+    public void createSubscription(final String streamerUsername) {
+        final String streamerId = this.getUserIdFromUsername(streamerUsername);
 
-        updateSubscriptions(streamerUsername, streamerId);
+        this.subscriptions.addAll(
+                this.generateChannelSubscriptions(streamerId)
+        );
     }
 
-    /**
-     * Method called by the ressource to remove a subscription list for a streamer
-     * Calls inside an async function who process the task (high CPU demand due to delay to not spamm twitch api)
-     * @param streamerUsername streamer name like funixgaming to remove his subscriptions
-     * @throws ApiBadRequestException when error
-     */
-    @Transactional
-    public void removeSubscription(final String streamerUsername) throws ApiBadRequestException {
-        final String streamerId = getUserIdFromUsername(streamerUsername);
-        removeStreamerSubscriptions(streamerUsername, streamerId);
+    @Scheduled(fixedRate = 1, timeUnit = TimeUnit.SECONDS)
+    public void handleOnePendingSubscriptionFromQueue() {
+        final TwitchSubscription subscription = this.subscriptions.poll();
+
+        if (subscription != null) {
+            this.twitchEventSubReferenceService.createSubscription(subscription);
+        }
     }
 
-    /**
-     * Async method to remove all the streamer subscriptions from twitch
-     * @param streamerUsername streamer username used for logging
-     * @param streamerId streamer id
-     */
-    @Async
-    public void removeStreamerSubscriptions(final String streamerUsername, final String streamerId) {
-        if (this.streamerIdsRemoving.contains(streamerId)) {
+    @Scheduled(fixedRate = 2, timeUnit = TimeUnit.SECONDS)
+    public void handleOnePendingUnsubscriptionFromQueue() {
+        final String subscriptionId = this.unsubscriptions.poll();
+
+        if (subscriptionId != null) {
+            this.twitchEventSubReferenceService.deleteSubscription(subscriptionId);
+        }
+    }
+
+    @Scheduled(fixedRate = 10, timeUnit = TimeUnit.MINUTES)
+    public void fetchEventsThatNeedUpdate() {
+        final List<TwitchEventSubListDTO.TwitchEventSub> events = this.getEventsThatNeedUpdate();
+        if (events.isEmpty()) {
             return;
         }
-        this.streamerIdsRemoving.add(streamerId);
 
-        try {
-            for (final TwitchEventSubListDTO.TwitchEventSub sub : getActualEventsForStreamer(streamerId)) {
-                deleteSubscriptionRequest(sub, streamerId, streamerUsername);
+        for (TwitchEventSubListDTO.TwitchEventSub event : events) {
+            final TwitchSubscription subscription = this.generateSubscriptionFromEvent(event);
+
+            if (subscription != null) {
+                this.subscriptions.add(subscription);
+                this.unsubscriptions.add(event.getId());
             }
-        } catch (InterruptedException e) {
-            this.streamerIdsRemoving.remove(streamerId);
-            Thread.currentThread().interrupt();
-            throw new ApiException(String.format("Thread coupé pendant la récupération des twitch events pour le streamer %s.", streamerUsername), e);
-        } catch (ApiException e) {
-            log.error("Une erreur est survenue lors de la récupération des events twitch pour le streamer {}. Erreur: {}", streamerUsername, e.getMessage());
         }
-
-        this.streamerIdsRemoving.remove(streamerId);
-        log.info("Streamer {} ne possède plus le hook des events twitch sur la funix api.", streamerUsername);
     }
 
-    /**
-     * Async method to run the whole subscriptions creation listed in the enums defined here: <br>
-     * Enums: {@link com.funixproductions.api.twitch.eventsub.service.requests}<br>
-     * It will check if the subscriptions you create are not aleready activated.
-     * @param streamerUsername streamer twitch username used for logging
-     * @param streamerId streamer twitch id
-     */
-    @Async
-    public void updateSubscriptions(final String streamerUsername, final String streamerId) {
-        final Collection<TwitchSubscription> subscriptions = this.generateChannelSubscriptions(streamerId);
-        if (this.streamerIdsCreating.contains(streamerId)) return;
-        this.streamerIdsCreating.add(streamerId);
+    @Nullable
+    private TwitchSubscription generateSubscriptionFromEvent(TwitchEventSubListDTO.TwitchEventSub event) {
+        final TwitchEventSubListDTO.Condition condition = event.getCondition();
+        if (condition == null) {
+            return null;
+        }
+        final String streamerId = condition.getStreamerId();
+        if (streamerId == null) {
+            return null;
+        }
+
+        final List<TwitchSubscription> subscriptions = this.generateChannelSubscriptions(streamerId);
 
         for (final TwitchSubscription subscription : subscriptions) {
-            createNewSubscriptionRequest(subscription, streamerUsername);
+            if (subscription.getType().equals(event.getType())) {
+                return subscription;
+            }
         }
-        this.streamerIdsCreating.remove(streamerId);
+
+        return null;
     }
 
-    private void createNewSubscriptionRequest(final TwitchSubscription subscription, final String streamerUsername) {
+    private String getUserIdFromUsername(final String username) throws ApiBadRequestException {
         try {
-            this.twitchEventSubReferenceService.createSubscription(subscription);
-            Thread.sleep(400);
-            log.info("CREATION TWITCH EVENT Le streamer {} possède désormais le hook twitch event {} sur la funix api.", streamerUsername, subscription.getType());
-        } catch (InterruptedException interruptedException) {
-            Thread.currentThread().interrupt();
-            throw new ApiException(String.format("Thread tué lors de la création de subscription pour le streamer %s.", streamerUsername), interruptedException);
-        } catch (ApiException apiException) {
-            log.error("Impossible de créer le hook avec l'event de type {} pour le streamer {}. Erreur: {}", subscription.getType(), streamerUsername, apiException.getMessage(), apiException);
-        }
-    }
+            final TwitchDataResponseDTO<TwitchUserDTO> userList = this.twitchUsersClient.getUsersByName(List.of(username));
 
-    private void deleteSubscriptionRequest(final TwitchEventSubListDTO.TwitchEventSub sub, final String streamerId, final String streamerUsername) {
-        try {
-            this.twitchEventSubReferenceService.deleteSubscription(sub.getId());
-            Thread.sleep(400);
-            log.info("SUPPRESSION TWITCH EVENT Le streamer {} ne recevera plus de notifications pour l'event {}.", streamerId, sub.getType());
-        } catch (InterruptedException interruptedException) {
-            Thread.currentThread().interrupt();
-            throw new ApiException(String.format("Thread tué lors de la suppression d'une subscription type %s pour le streamer %s.", sub.getType(), streamerUsername), interruptedException);
-        } catch (ApiBadRequestException e) {
-            log.error("Une erreur est survenue lors de la suppression d'un event twitch pour le streamer {}. Event id {} Event type {}. Erreur: {}", streamerUsername, sub.getId(), sub.getType(), e.getMessage(), e);
-        }
-    }
-
-    private String getUserIdFromUsername(final String username) {
-        final TwitchDataResponseDTO<TwitchUserDTO> userList = this.twitchUsersClient.getUsersByName(List.of(username));
-
-        if (userList.getData().isEmpty()) {
-            throw new ApiBadRequestException(String.format("Le streamer %s n'existe pas sur twitch.", username));
-        } else {
-            final TwitchUserDTO twitchUserDTO = userList.getData().get(0);
-            return twitchUserDTO.getId();
+            try {
+                return userList.getData().getFirst().getId();
+            } catch (NoSuchElementException e) {
+                throw new ApiBadRequestException(String.format("Le streamer %s n'existe pas sur twitch.", username));
+            }
+        } catch (FeignException e) {
+            throw new ApiException(String.format("Erreur interne lors de la récupération de l'id du streamer %s.", username), e);
         }
     }
 
@@ -157,6 +135,34 @@ public class TwitchEventSubRegistrationService {
             return subscriptions;
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
             throw new ApiException(String.format("Erreur interne lors de la création de twitch events pour le streamer %s.", streamerId), e);
+        }
+    }
+
+    private List<TwitchEventSubListDTO.TwitchEventSub> getEventsThatNeedUpdate() throws ApiException {
+        try {
+            final List<TwitchEventSubListDTO.TwitchEventSub> toSend = new ArrayList<>();
+
+            TwitchEventSubListDTO subs = this.twitchEventSubReferenceService.getSubscriptions(
+                    TwitchEventStatus.VERSION_REMOVED.getStatus(), null, null, null
+            );
+            String pagination;
+
+            while (true) {
+                toSend.addAll(subs.getData());
+                pagination = subs.hasPagination();
+
+                if (pagination == null) {
+                    break;
+                } else {
+                    subs = this.twitchEventSubReferenceService.getSubscriptions(
+                            TwitchEventStatus.VERSION_REMOVED.getStatus(), null, null, pagination
+                    );
+                }
+            }
+
+            return toSend;
+        } catch (Exception e) {
+            throw new ApiException("Erreur lors de la récupération des events Twitch qui demandent une mise à jour.", e);
         }
     }
 
