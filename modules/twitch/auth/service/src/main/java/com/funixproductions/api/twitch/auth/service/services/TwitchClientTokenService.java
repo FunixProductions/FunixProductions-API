@@ -1,5 +1,6 @@
 package com.funixproductions.api.twitch.auth.service.services;
 
+import com.funixproductions.api.core.enums.FrontOrigins;
 import com.funixproductions.api.twitch.auth.client.configurations.TwitchApiConfig;
 import com.funixproductions.api.twitch.auth.client.dtos.TwitchClientTokenDTO;
 import com.funixproductions.api.twitch.auth.client.enums.TwitchClientTokenType;
@@ -26,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nullable;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -55,6 +57,7 @@ public class TwitchClientTokenService {
     private static class CsrfUser {
         private final UserDTO user;
         private final TwitchClientTokenType tokenType;
+        private final @Nullable FrontOrigins frontOrigin;
         private final Instant createdAt;
     }
 
@@ -85,21 +88,23 @@ public class TwitchClientTokenService {
      * @param tokenType token type to determine the scopes permissions
      * @return url login
      */
-    public String getAuthClientUrl(final TwitchClientTokenType tokenType) {
+    public String getAuthClientUrl(final TwitchClientTokenType tokenType, final FrontOrigins frontOrigin) {
         return "https://id.twitch.tv/oauth2/authorize" +
                 "?response_type=code" +
                 "&client_id=" + twitchApiConfig.getAppClientId() +
                 "&redirect_uri=" + twitchAuthConfig.getAppCallbackDomain() + "/twitch/auth/cb" +
                 "&scope=" + generateScopesForTokenType(tokenType) +
-                "&state=" + generateNewState(tokenType);
+                "&state=" + generateNewState(tokenType, frontOrigin);
     }
 
     /**
      * Called when we receive callback from twitch login
      * @param oAuthCode given by twitch
      * @param csrfToken echo back of the csrf we sended
+     * @return FrontOrigins si non null, redirige l'utilisateur sur une page web de la FunixProductions
      */
-    public void registerNewAuthorizationAuthToken(final String oAuthCode, final String csrfToken) {
+    @Nullable
+    public FrontOrigins registerNewAuthorizationAuthToken(final String oAuthCode, final String csrfToken) {
         if (Strings.isNullOrEmpty(oAuthCode)) {
             throw new ApiBadRequestException("Il manque le oAuth code.");
         } else if (Strings.isNullOrEmpty(csrfToken)) {
@@ -109,51 +114,70 @@ public class TwitchClientTokenService {
         final CsrfUser csrfUser = this.csrfTokens.get(csrfToken);
         if (csrfUser == null) {
             throw new ApiBadRequestException("Le csrf token est invalide. Veuillez vous reconnecter avec twitch.");
-        } else {
-            final UserDTO userDTO = csrfUser.getUser();
-            final Optional<TwitchClientToken> searchToken = this.twitchClientTokenRepository.findTwitchClientTokenByUserUuid(userDTO.getId().toString());
-
-            searchToken.ifPresent(this.twitchClientTokenRepository::delete);
-            generateNewAccessToken(csrfUser, userDTO, oAuthCode);
-            this.csrfTokens.remove(csrfToken);
         }
+
+        final UserDTO userDTO = csrfUser.getUser();
+        final TwitchClientTokenType tokenType = csrfUser.getTokenType();
+        final Optional<TwitchClientToken> searchToken = this.twitchClientTokenRepository.findTwitchClientTokenByUserUuidAndTokenType(
+                userDTO.getId().toString(),
+                csrfUser.tokenType
+        );
+
+        searchToken.ifPresent(this.twitchClientTokenRepository::delete);
+
+        final TwitchClientToken generatedToken = this.generateNewAccessToken(csrfUser, userDTO, oAuthCode);
+        if (tokenType.isNeedRegisterEvents()) {
+            this.createEventSub(generatedToken.getTwitchUsername());
+        }
+
+        this.csrfTokens.remove(csrfToken);
+        return csrfUser.getFrontOrigin();
     }
 
-    public TwitchClientTokenDTO fetchToken(final UUID userUuid) {
+    public TwitchClientTokenDTO fetchToken(final UUID userUuid, final TwitchClientTokenType tokenType) {
         if (userUuid == null) {
             throw new ApiBadRequestException("Pas de user uuid spécifié pour la récupération de tokens twitch.");
         }
 
-        final TwitchClientToken twitchClientToken = this.twitchClientTokenRepository.findTwitchClientTokenByUserUuid(userUuid.toString()).orElseThrow(() -> new ApiNotFoundException(String.format("L'utilisateur %s ne possède pas de tokens twitch.", userUuid)));
+        final TwitchClientToken twitchClientToken = this.twitchClientTokenRepository.findTwitchClientTokenByUserUuidAndTokenType(
+                userUuid.toString(),
+                tokenType
+        ).orElseThrow(() -> new ApiNotFoundException(String.format("L'utilisateur %s ne possède pas de tokens twitch de type %s.", userUuid, tokenType)));
 
         return refreshToken(twitchClientToken);
     }
 
-    public TwitchClientTokenDTO fetchTokenByStreamerUsername(final String streamerUsername) {
+    public TwitchClientTokenDTO fetchTokenByStreamerUsername(final String streamerUsername, final TwitchClientTokenType tokenType) {
         if (Strings.isNullOrEmpty(streamerUsername)) {
             throw new ApiBadRequestException("Pas de streamer username spécifié pour la récupération de tokens twitch.");
         }
 
-        final Optional<TwitchClientToken> twitchClientToken = this.twitchClientTokenRepository.findTwitchClientTokenByTwitchUsername(streamerUsername);
+        final Optional<TwitchClientToken> twitchClientToken = this.twitchClientTokenRepository.findTwitchClientTokenByTwitchUsernameAndTokenType(
+                streamerUsername,
+                tokenType
+        );
 
         if (twitchClientToken.isPresent()) {
             return refreshToken(twitchClientToken.get());
         } else {
-            throw new ApiNotFoundException(String.format("Le streamer %s ne possède pas de tokens twitch.", streamerUsername));
+            throw new ApiNotFoundException(String.format("Le streamer %s ne possède pas de tokens twitch de type %s.", streamerUsername, tokenType));
         }
     }
 
-    public TwitchClientTokenDTO fetchTokenByStreamerId(final String streamerId) {
+    public TwitchClientTokenDTO fetchTokenByStreamerId(final String streamerId, final TwitchClientTokenType tokenType) {
         if (Strings.isNullOrEmpty(streamerId)) {
             throw new ApiBadRequestException("Pas de streamer id spécifié pour la récupération de tokens twitch.");
         }
 
-        final Optional<TwitchClientToken> twitchClientToken = this.twitchClientTokenRepository.findTwitchClientTokenByTwitchUserId(streamerId);
+        final Optional<TwitchClientToken> twitchClientToken = this.twitchClientTokenRepository.findTwitchClientTokenByTwitchUserIdAndTokenType(
+                streamerId,
+                tokenType
+        );
 
         if (twitchClientToken.isPresent()) {
             return refreshToken(twitchClientToken.get());
         } else {
-            throw new ApiNotFoundException(String.format("Le streamer %s ne possède pas de tokens twitch.", streamerId));
+            throw new ApiNotFoundException(String.format("Le streamer %s ne possède pas de tokens twitch de type %s.", streamerId, tokenType));
         }
     }
 
@@ -166,7 +190,7 @@ public class TwitchClientTokenService {
     private String generateScopesForTokenType(final TwitchClientTokenType tokenType) {
         final Set<String> scopes;
 
-        if (tokenType == TwitchClientTokenType.STREAMER) {
+        if (tokenType == TwitchClientTokenType.FUNIXGAMING) {
             scopes = Set.of(
                     "bits:read",
                     "channel:edit:commercial",
@@ -211,6 +235,21 @@ public class TwitchClientTokenService {
                     "moderator:read:shoutouts",
                     "moderator:manage:shoutouts"
             );
+        } else if (tokenType == TwitchClientTokenType.STREAMER) {
+            scopes = Set.of(
+                    "user:read:email",
+                    "user:read:follows",
+                    "user:read:subscriptions",
+                    "moderator:read:followers",
+                    "moderator:read:chatters",
+                    "bits:read",
+                    "channel:read:hype_train",
+                    "channel:read:polls",
+                    "channel:read:predictions",
+                    "channel:read:subscriptions",
+                    "channel:read:redemptions",
+                    "channel:manage:redemptions"
+            );
         } else {
             scopes = Set.of(
                     "channel:read:subscriptions",
@@ -220,24 +259,32 @@ public class TwitchClientTokenService {
             );
         }
 
-        final String scopeList = String.join(" ", scopes);
-        return URLEncoder.encode(scopeList, StandardCharsets.UTF_8);
+        return URLEncoder.encode(
+                String.join(" ", scopes),
+                StandardCharsets.UTF_8
+        );
     }
 
-    private String generateNewState(final TwitchClientTokenType tokenType) throws ApiBadRequestException {
+    private String generateNewState(final TwitchClientTokenType tokenType,
+                                    final @Nullable FrontOrigins frontOrigin) throws ApiBadRequestException {
         final UserDTO userDTO = currentSession.getCurrentUser();
         if (userDTO == null) {
-            throw new ApiBadRequestException("Vous n'êtes pas connecté à la FunixAPI.");
+            throw new ApiBadRequestException("Vous n'êtes pas connecté à la FunixProductions API.");
         }
 
-        final CsrfUser csrfUser = new CsrfUser(userDTO, tokenType, Instant.now());
+        final CsrfUser csrfUser = new CsrfUser(
+                userDTO,
+                tokenType,
+                frontOrigin,
+                Instant.now()
+        );
         final String state = passwordGenerator.generateRandomPassword();
 
         this.csrfTokens.put(state, csrfUser);
         return state;
     }
 
-    private void generateNewAccessToken(final CsrfUser csrfUser, final UserDTO user, final String oAuthToken) {
+    private TwitchClientToken generateNewAccessToken(final CsrfUser csrfUser, final UserDTO user, final String oAuthToken) {
         final Map<String, String> formData = new HashMap<>();
         formData.put("client_id", twitchApiConfig.getAppClientId());
         formData.put("client_secret", twitchApiConfig.getAppClientSecret());
@@ -260,8 +307,10 @@ public class TwitchClientTokenService {
             twitchClientToken.setOAuthCode(oAuthToken);
             twitchClientToken.setAccessToken(tokenResponseDTO.getAccessToken());
             twitchClientToken.setRefreshToken(tokenResponseDTO.getRefreshToken());
+            twitchClientToken.setTokenType(csrfUser.getTokenType());
             twitchClientToken.setExpirationDateToken(Date.from(Instant.now().plusSeconds(tokenResponseDTO.getExpiresIn() - 60L)));
-            this.twitchClientTokenRepository.save(twitchClientToken);
+
+            return this.twitchClientTokenRepository.save(twitchClientToken);
         } catch (FeignException e) {
             if (e.status() == HttpStatus.UNAUTHORIZED.value()) {
                 throw new ApiForbiddenException(String.format("L'utilisateur %s à retiré l'accès à la FunixAPI sur twitch.", csrfUser.getUser().getUsername()));
@@ -299,6 +348,7 @@ public class TwitchClientTokenService {
             }
 
             final TwitchClientTokenDTO tokenToSend = twitchClientTokenMapper.toDto(twitchClientTokenRepository.save(token));
+
             tokenToSend.setScopes(scopes);
             return tokenToSend;
         } catch (FeignException e) {
@@ -310,5 +360,8 @@ public class TwitchClientTokenService {
         }
     }
 
+    private void createEventSub(final String streamerName) {
+
+    }
 
 }

@@ -12,7 +12,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 @AutoConfigureMockMvc
 class PaypalAccessTokenServiceTest {
 
-    @MockBean
+    @MockitoBean
     private PaypalAuthClient paypalAuthClient;
 
     @Autowired

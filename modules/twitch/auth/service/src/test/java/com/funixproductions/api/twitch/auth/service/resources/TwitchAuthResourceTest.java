@@ -18,8 +18,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -36,16 +36,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(MockitoJUnitRunner.class)
 class TwitchAuthResourceTest {
 
-    @MockBean
+    @MockitoBean
     private UserAuthClient userAuthClient;
 
-    @MockBean
+    @MockitoBean
     private TwitchTokenAuthClient twitchTokenAuthClient;
 
-    @MockBean
+    @MockitoBean
     private TwitchValidTokenClient twitchValidTokenClient;
 
-    @MockBean
+    @MockitoBean
     private EncryptionClient encryptionClient;
 
     @Autowired
@@ -127,7 +127,7 @@ class TwitchAuthResourceTest {
         mockMvc.perform(get("/twitch/auth/cb?code=dfggopaizepoaznqsdlb&state=codeAuPifNonValide")).andExpect(status().isBadRequest());
 
         result = mockMvc.perform(get("/twitch/auth/cb?error=error_custom&error_description=Une erreur custom faite exprès."))
-                .andExpect(status().isOk())
+                .andExpect(status().isUnauthorized())
                 .andReturn();
         responseCallback = result.getResponse().getContentAsString();
         assertTrue(responseCallback.contains("erreur"));

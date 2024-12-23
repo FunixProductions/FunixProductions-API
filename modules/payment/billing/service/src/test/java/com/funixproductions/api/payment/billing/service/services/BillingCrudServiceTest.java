@@ -19,7 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -41,10 +41,10 @@ class BillingCrudServiceTest {
     @Autowired
     private BillingRepository billingRepository;
 
-    @MockBean
+    @MockitoBean
     private CurrentSession currentSession;
 
-    @MockBean
+    @MockitoBean
     private GoogleGmailClient googleGmailClient;
 
     @BeforeEach

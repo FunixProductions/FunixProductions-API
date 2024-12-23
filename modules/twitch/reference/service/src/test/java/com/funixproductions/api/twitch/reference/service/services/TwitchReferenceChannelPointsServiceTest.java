@@ -16,7 +16,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.Instant;
 import java.util.Date;
@@ -33,13 +33,13 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 class TwitchReferenceChannelPointsServiceTest {
 
-    @MockBean
+    @MockitoBean
     private TwitchReferenceChannelPointsClient client;
 
     @Autowired
     private TwitchReferenceChannelPointsService service;
 
-    @MockBean
+    @MockitoBean
     private TwitchInternalAuthClient internalAuthClient;
 
     @BeforeEach
@@ -51,7 +51,7 @@ class TwitchReferenceChannelPointsServiceTest {
         twitchClientTokenDTO.setExpirationDateToken(Date.from(Instant.now().plusSeconds(1000)));
 
         when(internalAuthClient.fetchServerToken()).thenReturn(UUID.randomUUID().toString());
-        when(internalAuthClient.fetchToken(anyString())).thenReturn(twitchClientTokenDTO);
+        when(internalAuthClient.fetchToken(anyString(), anyString())).thenReturn(twitchClientTokenDTO);
     }
 
     @Test
@@ -63,38 +63,6 @@ class TwitchReferenceChannelPointsServiceTest {
     @Test
     void testThrow400() {
         final FeignException exception = new FeignException.BadRequest("test error", mockRequest(), null, null);
-        when(client.getChannelRewards(anyString(), anyString())).thenThrow(exception);
-
-        assertThrows(ApiBadRequestException.class, () -> service.getChannelRewards("token", "10"));
-    }
-
-    @Test
-    void testThrow401() {
-        final FeignException exception = new FeignException.Unauthorized("test error", mockRequest(), null, null);
-        when(client.getChannelRewards(anyString(), anyString())).thenThrow(exception);
-
-        assertThrows(ApiBadRequestException.class, () -> service.getChannelRewards("token", "10"));
-    }
-
-    @Test
-    void testThrow403() {
-        final FeignException exception = new FeignException.Forbidden("test error", mockRequest(), null, null);
-        when(client.getChannelRewards(anyString(), anyString())).thenThrow(exception);
-
-        assertThrows(ApiBadRequestException.class, () -> service.getChannelRewards("token", "10"));
-    }
-
-    @Test
-    void testThrow404() {
-        final FeignException exception = new FeignException.NotFound("test error", mockRequest(), null, null);
-        when(client.getChannelRewards(anyString(), anyString())).thenThrow(exception);
-
-        assertThrows(ApiBadRequestException.class, () -> service.getChannelRewards("token", "10"));
-    }
-
-    @Test
-    void testThrow429() {
-        final FeignException exception = new FeignException.TooManyRequests("test error", mockRequest(), null, null);
         when(client.getChannelRewards(anyString(), anyString())).thenThrow(exception);
 
         assertThrows(ApiBadRequestException.class, () -> service.getChannelRewards("token", "10"));

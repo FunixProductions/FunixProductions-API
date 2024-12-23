@@ -3,7 +3,10 @@ package com.funixproductions.api.twitch.eventsub.service.requests.channel;
 import com.funixproductions.api.twitch.eventsub.service.enums.ChannelEventType;
 import com.google.gson.JsonObject;
 
-public class ChannelShoutOutReceiveSubscription extends ChannelSubscription {
+/**
+ * <a href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelshoutoutreceive">Doc</a>
+ */
+public class ChannelShoutOutReceiveSubscription extends AChannelSubscription {
 
     public ChannelShoutOutReceiveSubscription(final String streamerId) {
         super(streamerId, ChannelEventType.SHOUTOUT_RECEIVE.getType(), ChannelEventType.SHOUTOUT_RECEIVE.getVersion());

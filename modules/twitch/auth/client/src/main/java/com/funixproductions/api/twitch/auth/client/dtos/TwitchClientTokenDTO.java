@@ -1,5 +1,6 @@
 package com.funixproductions.api.twitch.auth.client.dtos;
 
+import com.funixproductions.api.twitch.auth.client.enums.TwitchClientTokenType;
 import com.funixproductions.core.crud.dtos.ApiDTO;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import java.util.UUID;
 @Getter
 @Setter
 public class TwitchClientTokenDTO extends ApiDTO {
+
     private UUID userUuid;
 
     private String twitchUserId;
@@ -23,6 +25,8 @@ public class TwitchClientTokenDTO extends ApiDTO {
     private List<String> scopes;
 
     private Date expirationDateToken;
+
+    private TwitchClientTokenType tokenType;
 
     public String getUserUuid() {
         if (this.userUuid == null) {

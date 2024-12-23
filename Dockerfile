@@ -1,4 +1,4 @@
-FROM openjdk:21-slim
+FROM amazoncorretto:21-alpine
 
 ARG service_name
 ARG service_base_dir

@@ -11,8 +11,8 @@ import com.funixproductions.api.user.client.enums.UserRole;
 import com.funixproductions.core.crud.dtos.PageDTO;
 import com.funixproductions.core.tools.pdf.tools.VATInformation;
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Date;
 import java.util.List;
@@ -24,10 +24,10 @@ import static org.mockito.Mockito.when;
 
 public abstract class BillingResourceTest {
 
-    @MockBean
+    @MockitoBean
     protected UserAuthClient userAuthClient;
 
-    @MockBean
+    @MockitoBean
     protected BillingCrudService billingCrudService;
 
     protected final BillingDTO billingDTO = new BillingDTO();

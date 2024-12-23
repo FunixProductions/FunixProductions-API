@@ -12,7 +12,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,20 +28,20 @@ class TwitchEventSubReferenceServiceTest {
     @Autowired
     private TwitchEventSubReferenceService service;
 
-    @MockBean
+    @MockitoBean
     private TwitchEventSubHmacService hmacService;
 
-    @MockBean
+    @MockitoBean
     private TwitchInternalAuthClient tokenService;
 
-    @MockBean
+    @MockitoBean
     private TwitchEventSubReferenceClient referenceClient;
 
     @BeforeEach
     void setupMocks() {
         when(hmacService.getKey()).thenReturn("key");
         when(tokenService.fetchServerToken()).thenReturn("token");
-        when(tokenService.fetchToken(anyString())).thenReturn(new TwitchClientTokenDTO());
+        when(tokenService.fetchToken(anyString(), anyString())).thenReturn(new TwitchClientTokenDTO());
         when(referenceClient.getSubscriptions(any(), any(), any(), any(), any())).thenReturn(new TwitchEventSubListDTO());
         doNothing().when(referenceClient).createSubscription(any(), any(), any());
         doNothing().when(referenceClient).deleteSubscription(any(), any());
