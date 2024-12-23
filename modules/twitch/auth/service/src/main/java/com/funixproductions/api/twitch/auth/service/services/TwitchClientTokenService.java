@@ -115,6 +115,7 @@ public class TwitchClientTokenService {
         if (csrfUser == null) {
             throw new ApiBadRequestException("Le csrf token est invalide. Veuillez vous reconnecter avec twitch.");
         }
+
         final UserDTO userDTO = csrfUser.getUser();
         final TwitchClientTokenType tokenType = csrfUser.getTokenType();
         final Optional<TwitchClientToken> searchToken = this.twitchClientTokenRepository.findTwitchClientTokenByUserUuidAndTokenType(
@@ -306,6 +307,7 @@ public class TwitchClientTokenService {
             twitchClientToken.setOAuthCode(oAuthToken);
             twitchClientToken.setAccessToken(tokenResponseDTO.getAccessToken());
             twitchClientToken.setRefreshToken(tokenResponseDTO.getRefreshToken());
+            twitchClientToken.setTokenType(csrfUser.getTokenType());
             twitchClientToken.setExpirationDateToken(Date.from(Instant.now().plusSeconds(tokenResponseDTO.getExpiresIn() - 60L)));
 
             return this.twitchClientTokenRepository.save(twitchClientToken);

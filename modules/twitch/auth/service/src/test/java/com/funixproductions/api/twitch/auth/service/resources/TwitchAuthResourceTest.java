@@ -127,7 +127,7 @@ class TwitchAuthResourceTest {
         mockMvc.perform(get("/twitch/auth/cb?code=dfggopaizepoaznqsdlb&state=codeAuPifNonValide")).andExpect(status().isBadRequest());
 
         result = mockMvc.perform(get("/twitch/auth/cb?error=error_custom&error_description=Une erreur custom faite exprès."))
-                .andExpect(status().isOk())
+                .andExpect(status().isUnauthorized())
                 .andReturn();
         responseCallback = result.getResponse().getContentAsString();
         assertTrue(responseCallback.contains("erreur"));
