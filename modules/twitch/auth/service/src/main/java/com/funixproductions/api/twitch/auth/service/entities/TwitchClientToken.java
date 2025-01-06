@@ -16,7 +16,7 @@ import java.util.UUID;
 @Entity(name = "twitch_client_tokens")
 public class TwitchClientToken extends ApiEntity {
 
-    @Column(name = "user_uuid", nullable = false, unique = true)
+    @Column(name = "user_uuid", nullable = false)
     private String userUuid;
 
     @Convert(converter = EncryptionString.class)

@@ -1,0 +1,1 @@
+ALTER TABLE twitch_client_tokens DROP CONSTRAINT IF EXISTS twitch_client_tokens_link_user;
