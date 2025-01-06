@@ -45,7 +45,7 @@ public class AccountingService {
     private final IncomeRepository incomeRepository;
     private final GoogleGmailClient gmailClient;
 
-    @Scheduled(cron = "0 0 6 1 * *")
+    @Scheduled(cron = "0 0 6 3 * *")
     public void sendLastMonthBillingReport() {
         try {
             final Instant[] dateRange = getDateRange();
