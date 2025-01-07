@@ -2,6 +2,7 @@ package com.funixproductions.api.twitch.auth.service.services;
 
 import com.funixproductions.api.twitch.auth.service.clients.TwitchTokenAuthClient;
 import com.funixproductions.api.twitch.auth.service.dtos.TwitchTokenResponseDTO;
+import com.funixproductions.api.twitch.eventsub.client.clients.TwitchEventSubInternalClient;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -12,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.anyString;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -23,6 +25,9 @@ class TestTwitchServerTokenService {
 
     @Autowired
     private TwitchServerTokenService twitchServerTokenService;
+
+    @MockitoBean
+    private TwitchEventSubInternalClient twitchEventSubInternalClient;
 
     @Test
     void testFetchingToken() throws Exception {
@@ -38,5 +43,7 @@ class TestTwitchServerTokenService {
 
         assertNotNull(twitchServerTokenService.getAccessToken());
         assertNotNull(twitchServerTokenService.getExpiresAt());
+
+        Mockito.doNothing().when(twitchEventSubInternalClient).createSubscription(anyString());
     }
 }
