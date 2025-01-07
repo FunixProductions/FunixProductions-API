@@ -76,7 +76,8 @@ public class TwitchEventSubReferenceService extends TwitchReferenceService {
             } else if (statusCode == 429) {
                 throw new ApiException("Erreur 429 Too Many Requests (rate limit) de Twitch lors de la création d'une subscription Twitch.", e);
             } else if (statusCode == 409) {
-                throw new ApiException(String.format(
+                log.info("Erreur 409 Conflict de Twitch lors de la création d'une subscription Twitch. Event {} déjà existant.", request.getType());
+                throw new ApiBadRequestException(String.format(
                         "Erreur 409 Conflict de Twitch lors de la création d'une subscription Twitch. Event %s déjà existant.",
                         request.getType()
                 ), e);

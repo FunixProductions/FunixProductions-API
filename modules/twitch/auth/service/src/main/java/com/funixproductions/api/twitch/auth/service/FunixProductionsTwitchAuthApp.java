@@ -9,7 +9,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableFeignClients(basePackages = {
         "com.funixproductions.api.user",
         "com.funixproductions.api.twitch.auth.service",
-        "com.funixproductions.api.encryption"
+        "com.funixproductions.api.twitch.eventsub.client",
+        "com.funixproductions.api.encryption",
 })
 @SpringBootApplication(scanBasePackages = "com.funixproductions")
 public class FunixProductionsTwitchAuthApp {

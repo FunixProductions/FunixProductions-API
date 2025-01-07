@@ -6,6 +6,7 @@ import com.funixproductions.api.twitch.auth.service.clients.TwitchTokenAuthClien
 import com.funixproductions.api.twitch.auth.service.clients.TwitchValidTokenClient;
 import com.funixproductions.api.twitch.auth.service.dtos.TwitchTokenResponseDTO;
 import com.funixproductions.api.twitch.auth.service.dtos.TwitchValidationTokenResponseDTO;
+import com.funixproductions.api.twitch.eventsub.client.clients.TwitchEventSubInternalClient;
 import com.funixproductions.api.user.client.clients.UserAuthClient;
 import com.funixproductions.api.user.client.dtos.UserDTO;
 import com.funixproductions.api.user.client.enums.UserRole;
@@ -48,6 +49,9 @@ class TwitchAuthResourceTest {
     @MockitoBean
     private EncryptionClient encryptionClient;
 
+    @MockitoBean
+    private TwitchEventSubInternalClient twitchEventSubInternalClient;
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -80,6 +84,8 @@ class TwitchAuthResourceTest {
 
         Mockito.when(this.encryptionClient.decrypt(anyString())).thenReturn(UUID.randomUUID().toString());
         Mockito.when(this.encryptionClient.encrypt(anyString())).thenReturn(UUID.randomUUID().toString());
+
+        Mockito.doNothing().when(twitchEventSubInternalClient).createSubscription(anyString());
     }
 
     @Test

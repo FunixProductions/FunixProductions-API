@@ -57,6 +57,7 @@ public class TwitchEventSubRegistrationService {
 
         if (subscription != null) {
             this.twitchEventSubReferenceService.createSubscription(subscription);
+            log.info("Subscription created for type {} with payload {}.", subscription.getType(), subscription.getPayload());
         }
     }
 
@@ -66,6 +67,7 @@ public class TwitchEventSubRegistrationService {
 
         if (subscriptionId != null) {
             this.twitchEventSubReferenceService.deleteSubscription(subscriptionId);
+            log.info("Subscription deleted with id {}.", subscriptionId);
         }
     }
 

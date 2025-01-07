@@ -26,6 +26,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.funixproductions.api.twitch.eventsub.client</groupId>
+            <artifactId>funixproductions-twitch-eventsub-client</artifactId>
+            <version>${com.funixproductions.api.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.funixproductions.api.encryption.client</groupId>
             <artifactId>funixproductions-encryption-client</artifactId>
             <version>${com.funixproductions.api.version}</version>

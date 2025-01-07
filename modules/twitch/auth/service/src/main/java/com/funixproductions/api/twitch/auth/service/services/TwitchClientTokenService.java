@@ -12,6 +12,7 @@ import com.funixproductions.api.twitch.auth.service.dtos.TwitchValidationTokenRe
 import com.funixproductions.api.twitch.auth.service.entities.TwitchClientToken;
 import com.funixproductions.api.twitch.auth.service.mappers.TwitchClientTokenMapper;
 import com.funixproductions.api.twitch.auth.service.repositories.TwitchClientTokenRepository;
+import com.funixproductions.api.twitch.eventsub.client.clients.TwitchEventSubInternalClient;
 import com.funixproductions.api.user.client.dtos.UserDTO;
 import com.funixproductions.api.user.client.security.CurrentSession;
 import com.funixproductions.core.exceptions.ApiBadRequestException;
@@ -46,6 +47,7 @@ public class TwitchClientTokenService {
     private final TwitchClientTokenMapper twitchClientTokenMapper;
     private final TwitchTokenAuthClient twitchTokenAuthClient;
     private final TwitchValidTokenClient validTokenClient;
+    private final TwitchEventSubInternalClient twitchEventSubInternalClient;
 
     private final PasswordGenerator passwordGenerator;
     private final CurrentSession currentSession;
@@ -67,7 +69,8 @@ public class TwitchClientTokenService {
                                     TwitchTokenAuthClient twitchTokenAuthClient,
                                     CurrentSession currentSession,
                                     TwitchApiConfig twitchApiConfig,
-                                    TwitchValidTokenClient twitchValidTokenClient) {
+                                    TwitchValidTokenClient twitchValidTokenClient,
+                                    TwitchEventSubInternalClient twitchEventSubInternalClient) {
         this.twitchClientTokenRepository = twitchClientTokenRepository;
         this.twitchAuthConfig = twitchAuthConfig;
         this.twitchTokenAuthClient = twitchTokenAuthClient;
@@ -75,6 +78,7 @@ public class TwitchClientTokenService {
         this.currentSession = currentSession;
         this.validTokenClient = twitchValidTokenClient;
         this.twitchApiConfig = twitchApiConfig;
+        this.twitchEventSubInternalClient = twitchEventSubInternalClient;
 
         this.passwordGenerator = new PasswordGenerator();
         passwordGenerator.setSpecialCharsAmount(0);
@@ -361,7 +365,11 @@ public class TwitchClientTokenService {
     }
 
     private void createEventSub(final String streamerName) {
-
+        try {
+            this.twitchEventSubInternalClient.createSubscription(streamerName);
+        } catch (Exception e) {
+            log.error("Error while creating event sub for streamer {}", streamerName, new ApiException("Error while creating event sub for streamer " + streamerName, e));
+        }
     }
 
 }
