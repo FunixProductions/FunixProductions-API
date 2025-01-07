@@ -3,6 +3,7 @@ package com.funixproductions.api.google.gmail.client.dto;
 import com.funixproductions.core.exceptions.ApiException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.File;
@@ -12,6 +13,7 @@ import java.nio.file.Files;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class MailFileDTO {
 
     /**
@@ -24,11 +26,11 @@ public class MailFileDTO {
         this.fileContent = readFileContent(file);
     }
 
-    private final String name;
+    private String name;
 
-    private final String mimeType;
+    private String mimeType;
 
-    private final byte[] fileContent;
+    private byte[] fileContent;
 
     private String determineMimeType(File file) {
         try {
