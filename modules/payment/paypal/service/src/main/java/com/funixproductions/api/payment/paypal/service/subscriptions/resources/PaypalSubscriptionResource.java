@@ -1,4 +1,4 @@
-package com.funixproductions.api.payment.paypal.service.subscriptions.ressources;
+package com.funixproductions.api.payment.paypal.service.subscriptions.resources;
 
 import com.funixproductions.api.payment.paypal.client.clients.PaypalSubscriptionClient;
 import com.funixproductions.api.payment.paypal.client.dtos.requests.paypal.PaypalCreateSubscriptionDTO;
