@@ -21,26 +21,6 @@ public class PaypalPlanService implements PaypalPlanClient {
     }
 
     @Override
-    public PaypalPlanDTO updatePlan(String id, PaypalPlanDTO paypalPlanDTO) {
-        return null;
-    }
-
-    @Override
-    public PaypalPlanDTO activatePlan(String id) {
-        return null;
-    }
-
-    @Override
-    public PaypalPlanDTO deactivatePlan(String id) {
-        return null;
-    }
-
-    @Override
-    public PaypalPlanDTO updatePricePlan(String id, Double newPrice) {
-        return null;
-    }
-
-    @Override
     public PageDTO<PaypalPlanDTO> getAll(String page, String elemsPerPage, String search, String sort) {
         return null;
     }
