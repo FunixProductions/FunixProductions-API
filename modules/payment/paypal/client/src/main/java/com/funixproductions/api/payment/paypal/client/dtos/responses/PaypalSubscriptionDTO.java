@@ -34,6 +34,11 @@ public class PaypalSubscriptionDTO extends ApiDTO {
     private Boolean active;
 
     /**
+     * Le nombre de cycles d'abonnement terminés
+     */
+    private Integer cyclesCompleted;
+
+    /**
      * La date du dernier paiement
      */
     private Date lastPaymentDate;
