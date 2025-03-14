@@ -3,9 +3,7 @@ package com.funixproductions.api.payment.paypal.client.clients;
 import com.funixproductions.api.payment.paypal.client.dtos.responses.PaypalPlanDTO;
 import com.funixproductions.core.crud.dtos.PageDTO;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -28,34 +26,6 @@ public interface PaypalPlanClient {
      */
     @GetMapping("{id}")
     PaypalPlanDTO getPlanById(@PathVariable @Valid @NotBlank String id);
-
-    /**
-     * Met à jour un plan.
-     * @param id id du plan (id de paypal)
-     * @param paypalPlanDTO Dto pour mettre à jour un plan
-     */
-    @PatchMapping("{id}")
-    PaypalPlanDTO updatePlan(@PathVariable String id, @RequestBody @Valid PaypalPlanDTO paypalPlanDTO);
-
-    /**
-     * Active un plan, par ID.
-     * @param id id du plan (id de paypal)
-     */
-    @PostMapping("{id}/activate")
-    PaypalPlanDTO activatePlan(@PathVariable @Valid @NotBlank String id);
-
-    /**
-     * Deactivates a plan, by ID.
-     * @param id the plan ID (PayPal ID)
-     */
-    @PostMapping("{id}/deactivate")
-    PaypalPlanDTO deactivatePlan(@PathVariable @Valid @NotBlank String id);
-
-    @PostMapping("{id}/update-price")
-    PaypalPlanDTO updatePricePlan(
-            @PathVariable String id,
-            @RequestBody @Valid @NotNull(message = "Le prix du produit est obligatoire") @Min(value = 1, message = "Le prix du produit doit être supérieur à 1") Double newPrice
-    );
 
     @GetMapping
     PageDTO<PaypalPlanDTO> getAll(
