@@ -1,10 +1,10 @@
 package com.funixproductions.api.payment.paypal.client.dtos.responses;
 
 import com.funixproductions.core.crud.dtos.ApiDTO;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,32 +30,28 @@ public class PaypalPlanDTO extends ApiDTO {
      * The subscription name.
      */
     @NotBlank(message = "Le nom du produit est obligatoire")
-    @Min(value = 1, message = "Le nom du produit doit contenir au moins 1 caractère")
-    @Max(value = 127, message = "Le nom du produit doit contenir au maximum 127 caractères")
+    @Size(min = 1, max = 127, message = "Le nom du produit doit contenir entre 1 et 127 caractères")
     private String name;
 
     /**
      * The subscription description
      */
     @NotBlank(message = "La description du produit est obligatoire")
-    @Min(value = 1, message = "La description du produit doit contenir au moins 1 caractère")
-    @Max(value = 256, message = "La description du produit doit contenir au maximum 256 caractères")
+    @Size(min = 1, max = 256, message = "La description du produit doit contenir entre 1 et 256 caractères")
     private String description;
 
     /**
      * The image URL for the product.
      */
     @NotBlank(message = "L'URL de l'image du produit est obligatoire")
-    @Min(value = 1, message = "L'URL de l'image du produit doit contenir au moins 1 caractère")
-    @Max(value = 2000, message = "L'URL de l'image du produit doit contenir au maximum 2000 caractères")
+    @Size(min = 1, max = 2000, message = "L'URL de l'image du produit doit contenir entre 1 et 2000 caractères")
     private String imageUrl;
 
     /**
      * The home page URL for the product.
      */
     @NotBlank(message = "L'URL de la page d'accueil du produit est obligatoire")
-    @Min(value = 1, message = "L'URL de la page d'accueil du produit doit contenir au moins 1 caractère")
-    @Max(value = 2000, message = "L'URL de la page d'accueil du produit doit contenir au maximum 2000 caractères")
+    @Size(min = 1, max = 2000, message = "L'URL de la page d'accueil du produit doit contenir entre 1 et 2000 caractères")
     private String homeUrl;
 
     /**
@@ -69,8 +65,7 @@ public class PaypalPlanDTO extends ApiDTO {
      * Le nom du projet auquel est associé le plan, exemple pacifista pour un pacifista+
      */
     @NotNull(message = "Le nom du projet est obligatoire")
-    @Min(value = 1, message = "Le nom du projet doit contenir au moins 1 caractère")
-    @Max(value = 50, message = "Le nom du projet doit contenir au maximum 50 caractères")
+    @Size(min = 1, max = 50, message = "Le nom du projet doit contenir entre 1 et 50 caractères")
     private String projectName;
 
     public PaypalPlanDTO(String name, String description, String imageUrl, String homeUrl, Double price) {
