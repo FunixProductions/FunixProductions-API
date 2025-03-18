@@ -2,6 +2,7 @@ package com.funixproductions.api.payment.paypal.service.subscriptions.dtos.reque
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.funixproductions.api.payment.paypal.client.dtos.responses.PaypalPlanDTO;
 import lombok.Getter;
 
 /**
@@ -35,6 +36,15 @@ public class CreatePaypalProductRequest {
         this.category = "DIGITAL_GAMES";
         this.homeUrl = homeUrl;
         this.imageUrl = imageUrl;
+    }
+
+    public CreatePaypalProductRequest(final PaypalPlanDTO request) {
+        this.name = request.getName();
+        this.description = request.getDescription();
+        this.type = "DIGITAL";
+        this.category = "DIGITAL_GAMES";
+        this.homeUrl = request.getHomeUrl();
+        this.imageUrl = request.getImageUrl();
     }
 
 }

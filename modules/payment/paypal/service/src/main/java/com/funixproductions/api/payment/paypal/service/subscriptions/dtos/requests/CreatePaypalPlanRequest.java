@@ -1,6 +1,8 @@
 package com.funixproductions.api.payment.paypal.service.subscriptions.dtos.requests;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.funixproductions.api.payment.paypal.client.dtos.requests.PaymentDTO;
+import com.funixproductions.api.payment.paypal.client.dtos.responses.PaypalPlanDTO;
 import com.funixproductions.api.payment.paypal.service.subscriptions.dtos.responses.PaypalProductResponse;
 import lombok.Getter;
 
@@ -53,6 +55,17 @@ public class CreatePaypalPlanRequest {
         this.status = "ACTIVE";
         this.description = description;
         this.billingCycles = List.of(new BillingCycle(price));
+        this.paymentPreferences = new PaymentPreference();
+    }
+
+    public CreatePaypalPlanRequest(final PaypalPlanDTO request, final PaypalProductResponse product) {
+        this.productId = product.getId();
+        this.name = request.getName();
+        this.status = "ACTIVE";
+        this.description = request.getDescription();
+        this.billingCycles = List.of(new BillingCycle(
+                Double.toString(PaymentDTO.formatPrice(request.getPrice()))
+        ));
         this.paymentPreferences = new PaymentPreference();
     }
 

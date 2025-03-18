@@ -1,7 +1,6 @@
 package com.funixproductions.api.payment.paypal.service.subscriptions.dtos.requests;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.funixproductions.api.payment.paypal.service.subscriptions.dtos.responses.PaypalPlanResponse;
 import com.funixproductions.api.user.client.dtos.UserDTO;
 import com.funixproductions.core.tools.pdf.tools.VATInformation;
 import lombok.Getter;
@@ -26,13 +25,13 @@ public class CreatePaypalSubscriptionRequest {
     private final Plan plan;
 
     public CreatePaypalSubscriptionRequest(
-            @NonNull PaypalPlanResponse plan,
+            @NonNull String planId,
             @NonNull UserDTO user,
             @NonNull String brand,
             @NonNull String returnUrl,
             @NonNull String cancelUrl
     ) {
-        this.planId = plan.getId();
+        this.planId = planId;
         this.quantity = "1";
         this.subscriber = new Subscriber(user.getEmail(), user.getUsername());
         this.applicationContext = new ApplicationContext(brand, returnUrl, cancelUrl);
