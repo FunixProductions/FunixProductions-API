@@ -7,7 +7,7 @@ import com.funixproductions.core.crud.mappers.ApiMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = PaypalPlanMapper.class)
 public interface PaypalSubscriptionMapper extends ApiMapper<PaypalSubscription, PaypalSubscriptionDTO> {
 
     @Mapping(target = "active", constant = "true")
@@ -17,6 +17,7 @@ public interface PaypalSubscriptionMapper extends ApiMapper<PaypalSubscription, 
     @Mapping(target = "approveLink", ignore = true)
     @Mapping(target = "lastPaymentDate", ignore = true)
     @Mapping(target = "nextPaymentDate", ignore = true)
+    @Mapping(target = "subscriptionId", ignore = true)
     @Mapping(target = "id", ignore = true)
     PaypalSubscriptionDTO toDTOFromCreation(PaypalCreateSubscriptionDTO request);
 

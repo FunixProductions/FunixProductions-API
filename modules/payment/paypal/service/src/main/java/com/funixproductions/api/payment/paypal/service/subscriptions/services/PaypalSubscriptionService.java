@@ -9,13 +9,16 @@ import com.funixproductions.api.payment.paypal.service.subscriptions.dtos.respon
 import com.funixproductions.api.user.client.clients.InternalUserCrudClient;
 import com.funixproductions.api.user.client.dtos.UserDTO;
 import com.funixproductions.core.crud.dtos.PageDTO;
+import com.funixproductions.core.crud.enums.SearchOperation;
 import com.funixproductions.core.exceptions.ApiException;
 import feign.FeignException;
 import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -35,47 +38,50 @@ public class PaypalSubscriptionService implements PaypalSubscriptionClient {
         final PaypalSubscriptionDTO subscriptionDTO = this.subscriptionCrudService.createFromRequest(request);
         final PaypalSubscriptionResponse subscriptionResponse = this.createSubscriptionFromPaypalAPI(request, subscriptionDTO);
 
-        subscriptionDTO.setSubscriptionId(subscriptionResponse.getId());
-        subscriptionDTO.setCyclesCompleted(subscriptionResponse.getCyclesCompleted());
-        subscriptionDTO.setNextPaymentDate(subscriptionResponse.getNextBillingDate());
-        subscriptionDTO.setLastPaymentDate(subscriptionResponse.getLastPaymentDate());
-        subscriptionDTO.setApproveLink(subscriptionResponse.getApproveLink());
-        subscriptionDTO.setActive(subscriptionResponse.isActive() && !subscriptionResponse.isPaused());
-        return this.subscriptionCrudService.update(subscriptionDTO);
+        mapDtoWithPaypalEntity(subscriptionDTO, subscriptionResponse);
+        return this.subscriptionCrudService.updatePut(subscriptionDTO);
     }
 
     @Override
+    @Transactional
     public PaypalSubscriptionDTO getSubscriptionById(String id) {
-        return this.subscriptionCrudService.findById(id);
+        final PaypalSubscriptionDTO subscriptionDTO = this.subscriptionCrudService.findById(id);
+        final PaypalSubscriptionResponse subscriptionResponse = this.paypalServiceSubscriptionsClient.getSubscription(subscriptionDTO.getSubscriptionId());
+
+        mapDtoWithPaypalEntity(subscriptionDTO, subscriptionResponse);
+        return this.subscriptionCrudService.updatePut(subscriptionDTO);
     }
 
     @Override
+    @Transactional
     public PaypalSubscriptionDTO pauseSubscription(String id) {
         final PaypalSubscriptionDTO paypalSubscriptionDTO = this.getSubscriptionById(id);
 
         try {
             this.paypalServiceSubscriptionsClient.pauseSubscription(paypalSubscriptionDTO.getSubscriptionId(), PAUSE_SUBSCRIPTION_REASON);
             paypalSubscriptionDTO.setActive(false);
-            return this.subscriptionCrudService.update(paypalSubscriptionDTO);
+            return this.subscriptionCrudService.updatePut(paypalSubscriptionDTO);
         } catch (Exception e) {
             throw new ApiException("Une erreur est survenue lors de la mise en pause de l'abonnement PayPal.", e);
         }
     }
 
     @Override
+    @Transactional
     public PaypalSubscriptionDTO activateSubscription(String id) {
         final PaypalSubscriptionDTO paypalSubscriptionDTO = this.getSubscriptionById(id);
 
         try {
             this.paypalServiceSubscriptionsClient.activateSubscription(paypalSubscriptionDTO.getSubscriptionId());
             paypalSubscriptionDTO.setActive(true);
-            return this.subscriptionCrudService.update(paypalSubscriptionDTO);
+            return this.subscriptionCrudService.updatePut(paypalSubscriptionDTO);
         } catch (Exception e) {
             throw new ApiException("Une erreur est survenue lors de l'activation de l'abonnement PayPal.", e);
         }
     }
 
     @Override
+    @Transactional
     public void cancelSubscription(String id) {
         final PaypalSubscriptionDTO paypalSubscriptionDTO = this.getSubscriptionById(id);
 
@@ -90,6 +96,33 @@ public class PaypalSubscriptionService implements PaypalSubscriptionClient {
     @Override
     public PageDTO<PaypalSubscriptionDTO> getAll(String page, String elemsPerPage, String search, String sort) {
         return this.subscriptionCrudService.getAll(page, elemsPerPage, search, sort);
+    }
+
+    @Nullable
+    @Transactional
+    public PaypalSubscriptionDTO getSubscriptionByPaypalId(String paypalId) {
+        final PageDTO<PaypalSubscriptionDTO> page = this.subscriptionCrudService.getAll(
+                "0",
+                "1",
+                String.format(
+                        "subscriptionId:%s:%s",
+                        SearchOperation.EQUALS.getOperation(),
+                        paypalId
+                ),
+                ""
+        );
+
+        try {
+            final PaypalSubscriptionDTO paypalSubscriptionDTO = page.getContent().getFirst();
+            final PaypalSubscriptionResponse subscriptionResponse = this.paypalServiceSubscriptionsClient.getSubscription(paypalSubscriptionDTO.getSubscriptionId());
+
+            mapDtoWithPaypalEntity(paypalSubscriptionDTO, subscriptionResponse);
+            return this.subscriptionCrudService.updatePut(paypalSubscriptionDTO);
+        } catch (NoSuchElementException e) {
+            return null;
+        } catch (Exception e) {
+            throw new ApiException("Une erreur est survenue lors de la récupération de l'abonnement PayPal.", e);
+        }
     }
 
     @NonNull
@@ -117,7 +150,7 @@ public class PaypalSubscriptionService implements PaypalSubscriptionClient {
     }
 
     @NonNull
-    private UserDTO getCurrentUser(final UUID funixProdUserId) throws ApiException {
+    public UserDTO getCurrentUser(final UUID funixProdUserId) throws ApiException {
         try {
             return this.internalUserCrudClient.findById(funixProdUserId.toString());
         } catch (FeignException e) {
@@ -129,5 +162,14 @@ public class PaypalSubscriptionService implements PaypalSubscriptionClient {
         } catch (Exception e) {
             throw new ApiException("Une erreur est survenue lors de la récupération de l'utilisateur id: " + funixProdUserId + ".", e);
         }
+    }
+
+    private static void mapDtoWithPaypalEntity(PaypalSubscriptionDTO subscriptionDTO, PaypalSubscriptionResponse subscriptionResponse) {
+        subscriptionDTO.setSubscriptionId(subscriptionResponse.getId());
+        subscriptionDTO.setCyclesCompleted(subscriptionResponse.getCyclesCompleted());
+        subscriptionDTO.setNextPaymentDate(subscriptionResponse.getNextBillingDate());
+        subscriptionDTO.setLastPaymentDate(subscriptionResponse.getLastPaymentDate());
+        subscriptionDTO.setApproveLink(subscriptionResponse.getApproveLink());
+        subscriptionDTO.setActive(subscriptionResponse.isActive() && !subscriptionResponse.isPaused());
     }
 }

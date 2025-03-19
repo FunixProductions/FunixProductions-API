@@ -78,6 +78,11 @@ spec:
                 secretKeyRef:
                   name: paypal-secret
                   key: paypal-client-secret
+            - name: PAYPAL_WEBHOOK_ID
+              valueFrom:
+                secretKeyRef:
+                  name: paypal-secret
+                  key: paypal-webhook-id
             - name: SENTRY_DSN
               valueFrom:
                 secretKeyRef:

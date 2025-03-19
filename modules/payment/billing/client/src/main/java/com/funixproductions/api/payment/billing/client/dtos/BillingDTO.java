@@ -7,10 +7,7 @@ import com.funixproductions.core.tools.pdf.entities.PDFCompanyData;
 import com.funixproductions.core.tools.pdf.tools.VATInformation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.lang.Nullable;
 
 import java.io.Serializable;
@@ -108,5 +105,19 @@ public class BillingDTO extends ApiDTO {
         @Nullable
         @Min(value = 0, message = "Le prix de la réduction doit être supérieur ou égal à 0")
         private Double discount;
+
+        public Price(@NonNull Double ht, @Nullable Double tax) {
+            this.ht = ht;
+            this.tax = tax == null ? 0 : tax;
+            this.ttc = ht + (tax == null ? 0 : tax);
+            this.discount = null;
+        }
+
+        public Price(@NonNull Double ht) {
+            this.ht = ht;
+            this.tax = 0.0;
+            this.ttc = ht;
+            this.discount = null;
+        }
     }
 }

@@ -45,4 +45,5 @@ public class PaypalSubscriptionResource implements PaypalSubscriptionClient {
     public PageDTO<PaypalSubscriptionDTO> getAll(String page, String elemsPerPage, String search, String sort) {
         return this.paypalSubscriptionService.getAll(page, elemsPerPage, search, sort);
     }
+
 }
