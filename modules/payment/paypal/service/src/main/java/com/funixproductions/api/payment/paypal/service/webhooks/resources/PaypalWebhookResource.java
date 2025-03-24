@@ -26,6 +26,7 @@ import java.util.zip.CRC32;
 @Slf4j(topic = "PaypalWebhookResource")
 public class PaypalWebhookResource {
 
+    private static final String PAYPAL_CERT_URL = "https://api.paypal.com";
     private final Iterable<PaypalWebhookService> webhookServices;
     private final String webhookId;
 
@@ -65,6 +66,10 @@ public class PaypalWebhookResource {
             final String signature = headers.getFirst("paypal-transmission-sig");
             final String certUrl = headers.getFirst("paypal-cert-url");
 
+            if (!isValidCertUrl(certUrl)) {
+                return false;
+            }
+
             final int crc = crc32(event);
             final String message = transmissionId + "|" + timestamp + "|" + webhookId + "|" + crc;
 
@@ -88,6 +93,10 @@ public class PaypalWebhookResource {
     private String downloadCert(String certUrl) {
         RestTemplate restTemplate = new RestTemplate();
         return restTemplate.getForObject(certUrl, String.class);
+    }
+
+    private boolean isValidCertUrl(String certUrl) {
+        return certUrl != null && certUrl.startsWith(PAYPAL_CERT_URL);
     }
 
     private PublicKey getPublicKeyFromPem(String pem) throws Exception {
