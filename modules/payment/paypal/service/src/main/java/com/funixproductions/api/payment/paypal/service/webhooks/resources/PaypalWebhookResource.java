@@ -51,6 +51,8 @@ public class PaypalWebhookResource {
         final String eventType = payload.get("event_type").getAsString();
         final JsonObject ressource = payload.getAsJsonObject("resource");
 
+        log.info("Received webhook event: {}. Data:\n{}", eventType, event);
+
         for (PaypalWebhookService webhookService : webhookServices) {
             if (webhookService.getEventType().equals(eventType)) {
                 webhookService.handleWebhookEvent(ressource);
@@ -92,8 +94,7 @@ public class PaypalWebhookResource {
     }
 
     private String downloadCert(String certUrl) {
-        RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.getForObject(certUrl, String.class);
+        return new RestTemplate().getForObject(certUrl, String.class);
     }
 
     private boolean isValidCertUrl(String certUrl) {
