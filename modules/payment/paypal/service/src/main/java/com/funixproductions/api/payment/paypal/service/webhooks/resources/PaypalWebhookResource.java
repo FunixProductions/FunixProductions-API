@@ -100,13 +100,19 @@ public class PaypalWebhookResource {
     }
 
     private PublicKey getPublicKeyFromPem(String pem) throws Exception {
-        String publicKeyPEM = pem.replace("-----BEGIN CERTIFICATE-----", "")
-                .replace("-----END CERTIFICATE-----", "")
-                .replaceAll("\\s", "");
-        byte[] decoded = Base64.getDecoder().decode(publicKeyPEM);
-        X509EncodedKeySpec spec = new X509EncodedKeySpec(decoded);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        return keyFactory.generatePublic(spec);
+        try {
+            String publicKeyPEM = pem.replace("-----BEGIN CERTIFICATE-----", "")
+                    .replace("-----END CERTIFICATE-----", "")
+                    .replaceAll("\\s", "");
+
+            byte[] decoded = Base64.getDecoder().decode(publicKeyPEM);
+            X509EncodedKeySpec spec = new X509EncodedKeySpec(decoded);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            return keyFactory.generatePublic(spec);
+        } catch (Exception e) {
+            log.error("Error parsing public keyPem: {}", pem, e);
+            throw e;
+        }
     }
 
     private boolean verifySignatureWithPublicKey(String message, String signature, PublicKey publicKey) throws Exception {
