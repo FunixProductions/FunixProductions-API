@@ -1,10 +1,10 @@
 package com.funixproductions.api.core.enums;
 
 import com.google.common.base.Strings;
+import jakarta.annotation.Nullable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import javax.annotation.Nullable;
 
 @Getter
 @RequiredArgsConstructor

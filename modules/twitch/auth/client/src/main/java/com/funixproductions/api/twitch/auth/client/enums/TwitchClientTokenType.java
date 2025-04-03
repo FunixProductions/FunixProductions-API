@@ -3,8 +3,7 @@ package com.funixproductions.api.twitch.auth.client.enums;
 import com.google.common.base.Strings;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 @AllArgsConstructor
