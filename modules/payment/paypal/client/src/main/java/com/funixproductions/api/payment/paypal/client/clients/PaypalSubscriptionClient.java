@@ -5,11 +5,7 @@ import com.funixproductions.api.payment.paypal.client.dtos.responses.PaypalSubsc
 import com.funixproductions.core.crud.dtos.PageDTO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Client pour gérer les abonnements des utilisateurs sur Paypal.
@@ -17,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface PaypalSubscriptionClient {
 
     @PostMapping
-    PaypalSubscriptionDTO subscribe(@NotNull @Valid PaypalCreateSubscriptionDTO request);
+    PaypalSubscriptionDTO subscribe(@RequestBody @Valid PaypalCreateSubscriptionDTO request);
 
     @GetMapping("{id}")
     PaypalSubscriptionDTO getSubscriptionById(@PathVariable @Valid @NotBlank String id);

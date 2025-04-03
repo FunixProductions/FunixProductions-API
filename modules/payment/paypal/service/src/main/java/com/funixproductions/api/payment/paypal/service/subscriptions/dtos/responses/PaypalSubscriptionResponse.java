@@ -35,7 +35,7 @@ public class PaypalSubscriptionResponse {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    private static class BillingInfo {
+    public static class BillingInfo {
 
         @JsonProperty(value = "cycle_executions")
         private List<CycleExecution> cycleExecutions;
@@ -53,7 +53,7 @@ public class PaypalSubscriptionResponse {
         @Setter
         @AllArgsConstructor
         @NoArgsConstructor
-        private static class CycleExecution {
+        public static class CycleExecution {
             @JsonProperty(value = "cycles_completed")
             private Integer cyclesCompleted;
         }
@@ -62,7 +62,7 @@ public class PaypalSubscriptionResponse {
         @Setter
         @AllArgsConstructor
         @NoArgsConstructor
-        private static class LastPayment {
+        public static class LastPayment {
             private String status;
 
             /**
@@ -76,7 +76,7 @@ public class PaypalSubscriptionResponse {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    private static class Link {
+    public static class Link {
 
         private String href;
 

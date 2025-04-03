@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PaypalPlanRepository extends ApiRepository<PaypalPlan> {
+    boolean existsByNameAndProjectName(String name, String projectName);
 }

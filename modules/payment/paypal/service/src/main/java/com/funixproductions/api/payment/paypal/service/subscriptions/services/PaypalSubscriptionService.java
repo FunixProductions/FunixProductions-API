@@ -39,7 +39,10 @@ public class PaypalSubscriptionService implements PaypalSubscriptionClient {
         final PaypalSubscriptionResponse subscriptionResponse = this.createSubscriptionFromPaypalAPI(request, subscriptionDTO);
 
         mapDtoWithPaypalEntity(subscriptionDTO, subscriptionResponse);
-        return this.subscriptionCrudService.updatePut(subscriptionDTO);
+        final PaypalSubscriptionDTO res = this.subscriptionCrudService.updatePut(subscriptionDTO);
+
+        res.setApproveLink(subscriptionDTO.getApproveLink());
+        return res;
     }
 
     @Override
@@ -49,7 +52,10 @@ public class PaypalSubscriptionService implements PaypalSubscriptionClient {
         final PaypalSubscriptionResponse subscriptionResponse = this.paypalServiceSubscriptionsClient.getSubscription(subscriptionDTO.getSubscriptionId());
 
         mapDtoWithPaypalEntity(subscriptionDTO, subscriptionResponse);
-        return this.subscriptionCrudService.updatePut(subscriptionDTO);
+        final PaypalSubscriptionDTO res = this.subscriptionCrudService.updatePut(subscriptionDTO);
+
+        res.setApproveLink(subscriptionDTO.getApproveLink());
+        return res;
     }
 
     @Override
@@ -60,7 +66,10 @@ public class PaypalSubscriptionService implements PaypalSubscriptionClient {
         try {
             this.paypalServiceSubscriptionsClient.pauseSubscription(paypalSubscriptionDTO.getSubscriptionId(), PAUSE_SUBSCRIPTION_REASON);
             paypalSubscriptionDTO.setActive(false);
-            return this.subscriptionCrudService.updatePut(paypalSubscriptionDTO);
+
+            final PaypalSubscriptionDTO res = this.subscriptionCrudService.updatePut(paypalSubscriptionDTO);
+            res.setApproveLink(paypalSubscriptionDTO.getApproveLink());
+            return res;
         } catch (Exception e) {
             throw new ApiException("Une erreur est survenue lors de la mise en pause de l'abonnement PayPal.", e);
         }
@@ -74,7 +83,10 @@ public class PaypalSubscriptionService implements PaypalSubscriptionClient {
         try {
             this.paypalServiceSubscriptionsClient.activateSubscription(paypalSubscriptionDTO.getSubscriptionId());
             paypalSubscriptionDTO.setActive(true);
-            return this.subscriptionCrudService.updatePut(paypalSubscriptionDTO);
+
+            final PaypalSubscriptionDTO res = this.subscriptionCrudService.updatePut(paypalSubscriptionDTO);
+            res.setApproveLink(paypalSubscriptionDTO.getApproveLink());
+            return res;
         } catch (Exception e) {
             throw new ApiException("Une erreur est survenue lors de l'activation de l'abonnement PayPal.", e);
         }

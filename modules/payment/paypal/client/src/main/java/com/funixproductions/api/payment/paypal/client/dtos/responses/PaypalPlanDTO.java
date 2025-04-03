@@ -68,12 +68,40 @@ public class PaypalPlanDTO extends ApiDTO {
     @Size(min = 1, max = 50, message = "Le nom du projet doit contenir entre 1 et 50 caractères")
     private String projectName;
 
-    public PaypalPlanDTO(String name, String description, String imageUrl, String homeUrl, Double price) {
+    public PaypalPlanDTO(String name, String description, String imageUrl, String homeUrl, Double price, String projectName) {
         this.name = name;
         this.description = description;
         this.imageUrl = imageUrl;
         this.homeUrl = homeUrl;
         this.price = price;
+        this.projectName = projectName;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof final PaypalPlanDTO other) {
+            return this.name.equals(other.name) &&
+                    this.description.equals(other.description) &&
+                    this.imageUrl.equals(other.imageUrl) &&
+                    this.homeUrl.equals(other.homeUrl) &&
+                    this.price.equals(other.price) &&
+                    this.projectName.equals(other.projectName) &&
+                    (this.planId != null && other.planId != null && this.planId.equals(other.planId)) &&
+                    super.equals(obj);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return this.name.hashCode() +
+                this.description.hashCode() +
+                this.imageUrl.hashCode() +
+                this.homeUrl.hashCode() +
+                this.price.hashCode() +
+                this.projectName.hashCode() +
+                (this.planId != null ? this.planId.hashCode() : 0) +
+                super.hashCode();
+    }
 }

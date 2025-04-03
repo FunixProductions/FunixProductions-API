@@ -21,7 +21,7 @@ public interface PaypalPlanClient {
 
     /**
      * Récupère un plan par son id.
-     * @param id id du plan (id de paypal)
+     * @param id id du plan
      * @return le plan (200 Http)
      */
     @GetMapping("{id}")
