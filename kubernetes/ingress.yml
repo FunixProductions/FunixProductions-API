@@ -29,6 +29,14 @@ spec:
                 port:
                   number: 80
 
+          - path: /paypal/webhooks
+            pathType: Prefix
+            backend:
+              service:
+                name: payment-paypal
+                port:
+                  number: 80
+
           - path: /accounting
             pathType: Prefix
             backend:

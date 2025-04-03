@@ -31,4 +31,9 @@ public class PaypalConfig {
      */
     private String paypalOwnerEmail;
 
+    /**
+     * PayPal webhook id
+     */
+    private String webhookId;
+
 }
