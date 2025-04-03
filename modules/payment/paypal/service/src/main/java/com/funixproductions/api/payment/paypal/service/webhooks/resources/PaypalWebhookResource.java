@@ -12,11 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.Signature;
-import java.security.spec.X509EncodedKeySpec;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.List;
 import java.util.zip.CRC32;
@@ -106,9 +107,12 @@ public class PaypalWebhookResource {
                     .replaceAll("\\s", "");
 
             byte[] decoded = Base64.getDecoder().decode(publicKeyPEM);
-            X509EncodedKeySpec spec = new X509EncodedKeySpec(decoded);
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            return keyFactory.generatePublic(spec);
+            CertificateFactory factory = CertificateFactory.getInstance("X.509");
+
+            try (final ByteArrayInputStream bais = new ByteArrayInputStream(decoded)) {
+                X509Certificate certificate = (X509Certificate) factory.generateCertificate(bais);
+                return certificate.getPublicKey();
+            }
         } catch (Exception e) {
             log.error("Error parsing public keyPem: {}", pem, e);
             throw e;
