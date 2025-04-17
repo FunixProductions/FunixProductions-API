@@ -15,6 +15,6 @@ Lien du repository Maven : [FunixProductions - Api package](https://mvn.funixpro
 <parent>
     <groupId>com.funixproductions.api</groupId>
     <artifactId>funixproductions-api</artifactId>
-    <version>1.3.5</version>
+    <version>1.3.6</version>
 </parent>
 ```
