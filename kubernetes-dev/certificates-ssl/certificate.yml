@@ -8,6 +8,6 @@ spec:
   issuerRef:
     name: letsencrypt
     kind: ClusterIssuer
-  commonName: "dev.api.funixproductions.com"
+  commonName: "dev-api.funixproductions.com"
   dnsNames:
-    - "dev.api.funixproductions.com"
+    - "dev-api.funixproductions.com"

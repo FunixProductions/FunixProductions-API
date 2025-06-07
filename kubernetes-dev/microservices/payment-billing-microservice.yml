@@ -1,3 +1,19 @@
+# pdf-storage-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: payment-billing-pdfs
+  namespace: funixproductions-dev
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 20Gi
+
+---
+
 apiVersion: apps/v1
 kind: Deployment
 
@@ -78,8 +94,8 @@ spec:
                   key: sentry-funixprod-api-key
       volumes:
         - name: pdf-storage
-          hostPath:
-            path: /root/k3s/data/funixproductions-dev/
+          persistentVolumeClaim:
+            claimName: payment-billing-pdfs
 
 ---
 

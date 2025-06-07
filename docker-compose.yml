@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   #Encryption microservice
   build-production-encryption-service:
@@ -9,6 +7,7 @@ services:
       args:
         service_name: encryption
         service_base_dir: encryption
+    platform: "linux/arm64"
 
   #User microservice
   build-production-user-service:
@@ -18,6 +17,7 @@ services:
       args:
         service_name: user
         service_base_dir: user
+    platform: "linux/arm64"
 
   #Google microservices - Google Auth
   build-production-google-auth-service:
@@ -27,6 +27,8 @@ services:
       args:
         service_name: google-auth
         service_base_dir: google/auth
+    platform: "linux/arm64"
+
 
   #Google microservices - Google Gmail
   build-production-google-gmail-service:
@@ -36,6 +38,7 @@ services:
       args:
         service_name: google-gmail
         service_base_dir: google/gmail
+    platform: "linux/arm64"
 
   #Google microservices - Google reCaptcha
   build-production-google-recaptcha-service:
@@ -45,6 +48,7 @@ services:
       args:
         service_name: google-recaptcha
         service_base_dir: google/reCaptcha
+    platform: "linux/arm64"
 
   #Accounting - Calculator ursaff and impots.gouv service
   build-production-accounting-service:
@@ -54,6 +58,7 @@ services:
       args:
         service_name: accounting
         service_base_dir: accounting
+    platform: "linux/arm64"
 
   #Payment - PayPal service
   build-production-payment-paypal-service:
@@ -63,6 +68,7 @@ services:
       args:
         service_name: payment-paypal
         service_base_dir: payment/paypal
+    platform: "linux/arm64"
 
   #Payment - Billing service
   build-production-payment-billing-service:
@@ -72,6 +78,7 @@ services:
       args:
         service_name: payment-billing
         service_base_dir: payment/billing
+    platform: "linux/arm64"
 
   #Twitch - Auth service
   build-production-twitch-auth-service:
@@ -81,6 +88,7 @@ services:
       args:
         service_name: twitch-auth
         service_base_dir: twitch/auth
+    platform: "linux/arm64"
 
   #Twitch - EventSub service
   build-production-twitch-eventsub-service:
@@ -90,6 +98,7 @@ services:
       args:
         service_name: twitch-eventsub
         service_base_dir: twitch/eventsub
+    platform: "linux/arm64"
 
   #Twitch - Reference service
   build-production-twitch-reference-service:
@@ -99,3 +108,4 @@ services:
       args:
         service_name: twitch-reference
         service_base_dir: twitch/reference
+    platform: "linux/arm64"

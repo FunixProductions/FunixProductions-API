@@ -100,6 +100,14 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker BuildX
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+
       - name: Download Package Artifacts
         uses: actions/download-artifact@v4
         with:
@@ -115,18 +123,14 @@ jobs:
     needs:
       - build-production-docker-images
 
-    runs-on: ubuntu-latest
+    runs-on:
+      - self-hosted
+      - k3s-funixproductions
+
     environment:
       name: production
 
     steps:
-      - name: Set up kubectl
-        uses: azure/k8s-set-context@v4
-        with:
-          kubeconfig: ${{ secrets.KUBECONFIG }}
-        env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
-
       - name: Checkout source code
         uses: actions/checkout@v4
 
