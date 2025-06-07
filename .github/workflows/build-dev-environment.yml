@@ -76,10 +76,8 @@ jobs:
           name: maven-packages
           path: modules
 
-      - name: Build funixproductions api docker images and push
-        env:
-          IMAGE_TAG: dev
-        run: docker compose build --push
+      - name: Build and push ARM images using buildx
+        run: chmod +x ./build-images.sh && ./build-images.sh
 
   deploy-to-kubernetes-cluster:
     needs:
