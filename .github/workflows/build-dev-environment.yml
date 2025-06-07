@@ -77,6 +77,8 @@ jobs:
           path: modules
 
       - name: Build and push ARM images using buildx
+        env:
+          IMAGE_TAG: dev
         run: chmod +x ./build-images.sh && ./build-images.sh
 
   deploy-to-kubernetes-cluster:

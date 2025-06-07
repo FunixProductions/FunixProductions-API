@@ -117,7 +117,7 @@ jobs:
       - name: Build funixproductions api docker images and push
         env:
           IMAGE_TAG: latest
-        run: docker compose build --push
+        run: chmod +x ./build-images.sh && ./build-images.sh
 
   update-kubernetes-cluster:
     needs:
