@@ -41,6 +41,7 @@ spec:
     spec:
       containers:
         - name: springboot-payment-billing
+          workingDir: /container/app
           image: ghcr.io/funixproductions/funixproductions-api-payment-billing:dev
           volumeMounts:
             - mountPath: /container/app/
