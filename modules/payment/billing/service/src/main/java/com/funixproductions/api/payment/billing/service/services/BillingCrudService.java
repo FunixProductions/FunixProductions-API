@@ -22,6 +22,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -42,7 +43,7 @@ public class BillingCrudService extends ApiService<BillingDTO, Billing, BillingM
     private static final ZoneId ZONE_ID = ZoneId.of("Europe/Paris");
     private static final String THANKS_FOR_YOUR_PURCHASE = "Merci pour votre achat ! Vous trouverez ci-joint votre facture. Si vous avez des questions, n'hésitez pas à nous contacter à l'adresse contact@funixproductions.com.";
     private final FunixProductionsCompanyData funixProductionsCompanyData = new FunixProductionsCompanyData();
-    private final File pdfDirectory = new File("invoices");
+    private final File pdfDirectory;
     private final byte[] funixProdLogo;
 
     private final CurrentSession currentSession;
@@ -51,12 +52,14 @@ public class BillingCrudService extends ApiService<BillingDTO, Billing, BillingM
     public BillingCrudService(BillingRepository repository,
                               BillingMapper mapper,
                               CurrentSession currentSession,
-                              GoogleGmailClient googleGmailClient) {
+                              GoogleGmailClient googleGmailClient,
+                              Environment environment) {
         super(repository, mapper);
         this.currentSession = currentSession;
         this.googleGmailClient = googleGmailClient;
 
-        if (!pdfDirectory.exists() && !pdfDirectory.mkdir()) {
+        this.pdfDirectory = new File(environment.getProperty("funixproductions.billing.pdf.directory", "invoices"));
+        if (!pdfDirectory.exists() && !pdfDirectory.mkdirs()) {
             throw new ApiException("Impossible de créer le dossier des factures");
         }
 
